@@ -13,7 +13,7 @@ export const login = async (
   credentials: LoginCredentials
 ): Promise<User | undefined> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+    const response = await fetch(`https://api.pharma-qms.com/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
