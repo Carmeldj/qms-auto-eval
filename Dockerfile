@@ -1,4 +1,4 @@
-FROM node:24-alpine AS build
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -11,13 +11,6 @@ RUN \
 
 COPY . .
 
-RUN npm run build
+EXPOSE 5173
 
-# Use nginx to serve the build
-FROM nginx:alpine
-
-COPY --from=build /app/dist /usr/share/nginx/html
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "run", "dev"]
