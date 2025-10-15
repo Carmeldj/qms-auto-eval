@@ -40,9 +40,9 @@ const PESTELAnalysis: React.FC<PESTELAnalysisProps> = ({ onBack }) => {
     }
   };
 
-  const isComplete = () => {
-    return pharmacyName.trim() && pharmacistName.trim() && pestelQuestions.every(q => responses[q.id]?.trim());
-  };
+  // const isComplete = () => {
+  //   return pharmacyName.trim() && pharmacistName.trim() && pestelQuestions.every(q => responses[q.id]?.trim());
+  // };
 
   const generatePDF = () => {
     console.log('Starting PDF generation...');
@@ -50,7 +50,7 @@ const PESTELAnalysis: React.FC<PESTELAnalysisProps> = ({ onBack }) => {
       console.log('Creating jsPDF instance...');
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      // const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 20;
       let yPos = 20;
 

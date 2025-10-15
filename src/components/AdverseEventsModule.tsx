@@ -1,24 +1,20 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Plus, FileText, Download } from 'lucide-react';
-import AdverseEventForm from './AdverseEventForm';
+import React, { useState } from "react";
+import { AlertTriangle, Plus, FileText, Download } from "lucide-react";
+import AdverseEventForm from "./AdverseEventForm";
 
 const AdverseEventsModule: React.FC = () => {
-  const [view, setView] = useState<'list' | 'form'>('list');
-  const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  const [view, setView] = useState<"list" | "form">("list");
 
   const handleCreateReport = () => {
-    setView('form');
+    setView("form");
   };
 
   const handleBackToList = () => {
-    setView('list');
-    setSelectedReport(null);
+    setView("list");
   };
 
-  if (view === 'form') {
-    return (
-      <AdverseEventForm onCancel={handleBackToList} />
-    );
+  if (view === "form") {
+    return <AdverseEventForm onCancel={handleBackToList} />;
   }
 
   return (
@@ -31,15 +27,20 @@ const AdverseEventsModule: React.FC = () => {
               Module PHARMACOVIGILANCE
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
-              Notification des effets/événements indésirables à l'ABMed (Agence Béninoise du Médicament)
+              Notification des effets/événements indésirables à l'ABMed (Agence
+              Béninoise du Médicament)
             </p>
           </div>
           <button
             onClick={handleCreateReport}
             className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 w-full sm:w-auto"
-            style={{backgroundColor: '#009688'}}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+            style={{ backgroundColor: "#009688" }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "#00796b")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#009688")
+            }
           >
             <Plus className="h-5 w-5" />
             <span>Nouvelle notification</span>
@@ -56,11 +57,13 @@ const AdverseEventsModule: React.FC = () => {
               Qu'est-ce que la pharmacovigilance ?
             </h3>
             <p className="text-sm sm:text-base text-orange-800 mb-3">
-              La pharmacovigilance est l'ensemble des activités relatives à la détection, l'évaluation,
-              la compréhension et la prévention des effets indésirables ou de tout autre problème lié aux médicaments.
+              La pharmacovigilance est l'ensemble des activités relatives à la
+              détection, l'évaluation, la compréhension et la prévention des
+              effets indésirables ou de tout autre problème lié aux médicaments.
             </p>
             <p className="text-sm sm:text-base text-orange-800 font-medium">
-              Tout professionnel de santé a l'obligation de notifier les effets indésirables observés à l'ABMed.
+              Tout professionnel de santé a l'obligation de notifier les effets
+              indésirables observés à l'ABMed.
             </p>
           </div>
         </div>
@@ -81,8 +84,10 @@ const AdverseEventsModule: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <Download className="h-8 w-8" style={{color: '#009688'}} />
-          <div className="text-2xl font-bold" style={{color: '#009688'}}>0</div>
+          <Download className="h-8 w-8" style={{ color: "#009688" }} />
+          <div className="text-2xl font-bold" style={{ color: "#009688" }}>
+            0
+          </div>
           <div className="text-sm text-gray-600">Rapports générés</div>
         </div>
       </div>
@@ -94,14 +99,19 @@ const AdverseEventsModule: React.FC = () => {
           Aucune notification enregistrée
         </h3>
         <p className="text-gray-600 mb-6 max-w-md mx-auto">
-          Commencez par créer votre première notification d'effet indésirable pour la soumettre à l'ABMed.
+          Commencez par créer votre première notification d'effet indésirable
+          pour la soumettre à l'ABMed.
         </p>
         <button
           onClick={handleCreateReport}
           className="inline-flex items-center space-x-2 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
-          style={{backgroundColor: '#009688'}}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+          style={{ backgroundColor: "#009688" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#00796b")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#009688")
+          }
         >
           <Plus className="h-5 w-5" />
           <span>Créer une notification</span>
@@ -114,10 +124,22 @@ const AdverseEventsModule: React.FC = () => {
           Comment utiliser ce module
         </h3>
         <div className="space-y-2 text-sm sm:text-base text-blue-800">
-          <p>1. <strong>Remplissez</strong> le formulaire de notification avec toutes les informations disponibles</p>
-          <p>2. <strong>Vérifiez</strong> l'exactitude des données saisies (patient, produit, événement)</p>
-          <p>3. <strong>Générez</strong> automatiquement le PDF conforme au format officiel ABMed</p>
-          <p>4. <strong>Envoyez</strong> le rapport à l'ABMed via email ou courrier officiel</p>
+          <p>
+            1. <strong>Remplissez</strong> le formulaire de notification avec
+            toutes les informations disponibles
+          </p>
+          <p>
+            2. <strong>Vérifiez</strong> l'exactitude des données saisies
+            (patient, produit, événement)
+          </p>
+          <p>
+            3. <strong>Générez</strong> automatiquement le PDF conforme au
+            format officiel ABMed
+          </p>
+          <p>
+            4. <strong>Envoyez</strong> le rapport à l'ABMed via email ou
+            courrier officiel
+          </p>
         </div>
       </div>
 
