@@ -126,47 +126,28 @@ export class InspectionReportService {
       const margin = 20;
       let yPosition = margin;
 
-      const addText = (text: string, fontSize: number = 12, isBold: boolean = false, color: string = 'black') => {
+      const addText = (text: string, fontSize: number = 12, isBold: boolean = false, color: string = 'black', lineSpacing: number = 1.15) => {
         try {
-          // Remove accents and special characters for PDF compatibility
-          const cleanText = text
-            .replace(/[àáâãäå]/g, 'a')
-            .replace(/[èéêë]/g, 'e')
-            .replace(/[ìíîï]/g, 'i')
-            .replace(/[òóôõö]/g, 'o')
-            .replace(/[ùúûü]/g, 'u')
-            .replace(/[ýÿ]/g, 'y')
-            .replace(/[ç]/g, 'c')
-            .replace(/[ñ]/g, 'n')
-            .replace(/[ÀÁÂÃÄÅ]/g, 'A')
-            .replace(/[ÈÉÊË]/g, 'E')
-            .replace(/[ÌÍÎÏ]/g, 'I')
-            .replace(/[ÒÓÔÕÖ]/g, 'O')
-            .replace(/[ÙÚÛÜ]/g, 'U')
-            .replace(/[ÝŸ]/g, 'Y')
-            .replace(/[Ç]/g, 'C')
-            .replace(/[Ñ]/g, 'N')
-            .replace(/'/g, "'")
-            .replace(/[""]/g, '"')
-            .replace(/[–—]/g, '-');
-
           pdf.setFontSize(fontSize);
           if (isBold) {
-            pdf.setFont('Times-Roman', 'bold');
+            pdf.setFont('helvetica', 'bold');
           } else {
-            pdf.setFont('Times-Roman', 'normal');
+            pdf.setFont('helvetica', 'normal');
           }
-          
+
           if (color === 'teal') {
             pdf.setTextColor(0, 150, 136);
+          } else if (color === 'gray') {
+            pdf.setTextColor(100, 100, 100);
           } else {
             pdf.setTextColor(0, 0, 0);
           }
-          
-          const lines = pdf.splitTextToSize(cleanText, pageWidth - 2 * margin);
+
+          const lines = pdf.splitTextToSize(text, pageWidth - 2 * margin);
           pdf.text(lines, margin, yPosition);
-          yPosition += lines.length * (fontSize * 0.4) + 5;
-          
+          const lineHeight = fontSize * 0.35 * lineSpacing;
+          yPosition += lines.length * lineHeight + 3;
+
           if (yPosition > pdf.internal.pageSize.getHeight() - margin) {
             pdf.addPage();
             yPosition = margin;
@@ -177,9 +158,14 @@ export class InspectionReportService {
       };
 
       const addSection = (title: string) => {
-        yPosition += 10;
-        addText(title, 14, true, 'teal');
+        yPosition += 8;
+        const lineY = yPosition;
+        pdf.setDrawColor(0, 150, 136);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, lineY, pageWidth - margin, lineY);
         yPosition += 5;
+        addText(title, 12, true, 'teal', 1.0);
+        yPosition += 3;
       };
 
       const formatDate = (dateString: string) => {
@@ -193,8 +179,12 @@ export class InspectionReportService {
       };
 
       // En-tête
-      addText('RAPPORT D\'AUTO-INSPECTION PHARMA QMS', 20, true, 'teal');
-      yPosition += 10;
+      pdf.setFontSize(18);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 150, 136);
+      const titleWidth = pdf.getTextWidth('RAPPORT D\'AUTO-INSPECTION PHARMA QMS');
+      pdf.text('RAPPORT D\'AUTO-INSPECTION PHARMA QMS', (pageWidth - titleWidth) / 2, yPosition);
+      yPosition += 8;
 
       // Informations generales
       addSection('INFORMATIONS GENERALES');

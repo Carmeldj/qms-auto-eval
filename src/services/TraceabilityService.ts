@@ -47,16 +47,14 @@ export class TraceabilityService {
       const bottomMargin = 30;
       let yPosition = topMargin;
 
-      const addText = (text: string, fontSize: number = 12, isBold: boolean = false, color: string = 'black', align: 'left' | 'center' | 'right' = 'left') => {
-        const cleanText = this.removeAccents(text);
-        
+      const addText = (text: string, fontSize: number = 12, isBold: boolean = false, color: string = 'black', align: 'left' | 'center' | 'right' = 'left', lineSpacing: number = 1.15) => {
         pdf.setFontSize(fontSize);
         if (isBold) {
           pdf.setFont('helvetica', 'bold');
         } else {
           pdf.setFont('helvetica', 'normal');
         }
-        
+
         if (color === 'teal') {
           pdf.setTextColor(0, 150, 136);
         } else if (color === 'gray') {
@@ -64,20 +62,21 @@ export class TraceabilityService {
         } else {
           pdf.setTextColor(0, 0, 0);
         }
-        
+
         const textWidth = pageWidth - leftMargin - rightMargin;
-        const lines = pdf.splitTextToSize(cleanText, textWidth);
-        
+        const lines = pdf.splitTextToSize(text, textWidth);
+
         let xPosition = leftMargin;
         if (align === 'center') {
           xPosition = pageWidth / 2;
         } else if (align === 'right') {
           xPosition = pageWidth - rightMargin;
         }
-        
+
         pdf.text(lines, xPosition, yPosition, { align: align === 'left' ? undefined : align });
-        yPosition += lines.length * (fontSize * 0.4) + 5;
-        
+        const lineHeight = fontSize * 0.35 * lineSpacing;
+        yPosition += lines.length * lineHeight + 3;
+
         if (yPosition > pageHeight - bottomMargin - 15) {
           addFooter();
           pdf.addPage();
@@ -99,28 +98,30 @@ export class TraceabilityService {
       };
 
       const addSection = (title: string) => {
-        yPosition += 15;
+        yPosition += 8;
+        const lineY = yPosition;
         pdf.setDrawColor(0, 150, 136);
         pdf.setLineWidth(0.5);
-        pdf.line(leftMargin, yPosition - 5, pageWidth - rightMargin, yPosition - 5);
-        
-        addText(title, 16, true, 'teal');
-        yPosition += 8;
+        pdf.line(leftMargin, lineY, pageWidth - rightMargin, lineY);
+        yPosition += 5;
+
+        addText(title, 12, true, 'teal', 'left', 1.0);
+        yPosition += 3;
       };
 
       const addSeparatorLine = () => {
         pdf.setDrawColor(220, 220, 220);
         pdf.setLineWidth(0.3);
         pdf.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-        yPosition += 10;
+        yPosition += 6;
       };
 
       // En-tête du document
       yPosition = topMargin;
-      addText('REGISTRE OFFICIEL DE TRACABILITE', 24, true, 'teal', 'center');
+      addText('REGISTRE OFFICIEL DE TRAÇABILITÉ', 18, true, 'teal', 'center', 1.0);
+      yPosition += 2;
+      addText(template.title.toUpperCase(), 14, true, 'black', 'center', 1.0);
       yPosition += 5;
-      addText(template.title.toUpperCase(), 18, true, 'black', 'center');
-      yPosition += 10;
       
       // Ligne décorative
       pdf.setDrawColor(0, 150, 136);
@@ -142,12 +143,15 @@ export class TraceabilityService {
       
       docInfo.forEach(([label, value]) => {
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(11);
+        pdf.setFontSize(10);
+        pdf.setTextColor(0, 0, 0);
         pdf.text(label, leftMargin, yPosition);
-        
+
         pdf.setFont('helvetica', 'normal');
-        pdf.text(value, leftMargin + 60, yPosition);
-        yPosition += 8;
+        pdf.setFontSize(10);
+        const valueLines = pdf.splitTextToSize(value, pageWidth - leftMargin - rightMargin - 60);
+        pdf.text(valueLines, leftMargin + 60, yPosition);
+        yPosition += Math.max(6, valueLines.length * 5);
       });
       
       addSeparatorLine();
@@ -165,44 +169,55 @@ export class TraceabilityService {
         const fieldHeight = field.type === 'textarea' ? 25 : 15;
         pdf.roundedRect(leftMargin - 5, yPosition - 5, pageWidth - leftMargin - rightMargin + 10, fieldHeight, 3, 3, 'F');
         
-        addText(`${field.label}:`, 12, true, 'teal');
-        
+        addText(`${field.label}:`, 11, true, 'teal', 'left', 1.0);
+        yPosition -= 1;
+
         if (field.type === 'textarea') {
-          addText(value, 11);
+          addText(value, 10, false, 'black', 'left', 1.2);
         } else {
-          addText(value, 11);
+          addText(value, 10, false, 'black', 'left', 1.2);
         }
-        
-        yPosition += 10;
+
+        yPosition += 5;
       });
 
       // Section de validation
       addSection('VALIDATION ET SIGNATURES');
       
       // Cadres pour signatures
-      const signatureBoxHeight = 30;
+      const signatureBoxHeight = 22;
       const signatureBoxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
-      
+
       // Signature responsable
-      pdf.setDrawColor(200, 200, 200);
+      pdf.setDrawColor(180, 180, 180);
+      pdf.setLineWidth(0.3);
       pdf.rect(leftMargin, yPosition, signatureBoxWidth, signatureBoxHeight);
-      pdf.text('Responsable de l\'enregistrement:', leftMargin + 5, yPosition + 10);
-      pdf.text('Date: _______________', leftMargin + 5, yPosition + 18);
-      pdf.text('Signature:', leftMargin + 5, yPosition + 26);
-      
+
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Responsable de l\'enregistrement:', leftMargin + 3, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Date: _______________', leftMargin + 3, yPosition + 10);
+      pdf.text('Signature:', leftMargin + 3, yPosition + 15);
+
       // Signature vérificateur
       pdf.rect(leftMargin + signatureBoxWidth + 10, yPosition, signatureBoxWidth, signatureBoxHeight);
-      pdf.text('Verifie par:', leftMargin + signatureBoxWidth + 15, yPosition + 10);
-      pdf.text('Date: _______________', leftMargin + signatureBoxWidth + 15, yPosition + 18);
-      pdf.text('Signature:', leftMargin + signatureBoxWidth + 15, yPosition + 26);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Vérifié par:', leftMargin + signatureBoxWidth + 13, yPosition + 5);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Date: _______________', leftMargin + signatureBoxWidth + 13, yPosition + 10);
+      pdf.text('Signature:', leftMargin + signatureBoxWidth + 13, yPosition + 15);
       
       yPosition += signatureBoxHeight + 15;
 
       // Informations de traçabilité
-      addSection('TRACABILITE');
-      addText(`Document genere le: ${new Date().toLocaleDateString('fr-FR')} a ${new Date().toLocaleTimeString('fr-FR')}`, 10, false, 'gray');
-      addText(`Systeme: PHARMA QMS - Module Tracabilite v1.0`, 10, false, 'gray');
-      addText(`Identifiant unique: ${record.id}`, 10, false, 'gray');
+      addSection('TRAÇABILITÉ');
+      addText(`Document généré le: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 10, false, 'gray', 'left', 1.1);
+      yPosition -= 1;
+      addText(`Système: PHARMA QMS - Module Traçabilité v1.0`, 10, false, 'gray', 'left', 1.1);
+      yPosition -= 1;
+      addText(`Identifiant unique: ${record.id}`, 10, false, 'gray', 'left', 1.1);
 
       // Ajouter le pied de page à toutes les pages
       const totalPages = pdf.internal.getNumberOfPages();

@@ -58,26 +58,27 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
     let yPosition = margin;
 
     // Helper function to add text with word wrap
-    const addText = (text: string, fontSize: number = 12, isBold: boolean = false, color: string = 'black') => {
+    const addText = (text: string, fontSize: number = 12, isBold: boolean = false, color: string = 'black', lineSpacing: number = 1.15) => {
       pdf.setFontSize(fontSize);
       if (isBold) {
         pdf.setFont('helvetica', 'bold');
       } else {
         pdf.setFont('helvetica', 'normal');
       }
-      
-      // Set text color
+
       if (color === 'teal') {
         pdf.setTextColor(0, 150, 136);
+      } else if (color === 'gray') {
+        pdf.setTextColor(100, 100, 100);
       } else {
         pdf.setTextColor(0, 0, 0);
       }
-      
+
       const lines = pdf.splitTextToSize(text, pageWidth - 2 * margin);
       pdf.text(lines, margin, yPosition);
-      yPosition += lines.length * (fontSize * 0.4) + 5;
-      
-      // Check if we need a new page
+      const lineHeight = fontSize * 0.35 * lineSpacing;
+      yPosition += lines.length * lineHeight + 3;
+
       if (yPosition > pdf.internal.pageSize.getHeight() - margin) {
         pdf.addPage();
         yPosition = margin;
@@ -85,14 +86,23 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
     };
 
     const addSection = (title: string) => {
-      yPosition += 10;
-      addText(title, 14, true, 'teal');
+      yPosition += 8;
+      const lineY = yPosition;
+      pdf.setDrawColor(0, 150, 136);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, lineY, pageWidth - margin, lineY);
       yPosition += 5;
+      addText(title, 12, true, 'teal', 1.0);
+      yPosition += 3;
     };
 
     // En-tête du rapport
-    addText('RAPPORT D\'ÉVALUATION PHARMA QMS', 20, true, 'teal');
-    yPosition += 10;
+    pdf.setFontSize(18);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(0, 150, 136);
+    const titleWidth = pdf.getTextWidth('RAPPORT D\'ÉVALUATION PHARMA QMS');
+    pdf.text('RAPPORT D\'ÉVALUATION PHARMA QMS', (pageWidth - titleWidth) / 2, yPosition);
+    yPosition += 8;
 
     // Résumé exécutif
     addSection('RÉSUMÉ EXÉCUTIF');
@@ -252,51 +262,51 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex items-center justify-between">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               Résultats de l'évaluation PHARMA QMS
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Évaluation réalisée le {formatDate(assessment.date)}
             </p>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={onBackToHome}
-              className="flex items-center space-x-2 bg-gray-600 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200"
+              className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 active:scale-95"
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4a5568'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#718096'}
             >
-              <Home className="h-5 w-5" />
-              <span>Accueil</span>
+              <Home className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">Accueil</span>
             </button>
             <button
               onClick={handleExportPDF}
-              className="flex items-center space-x-2 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200"
+              className="flex items-center justify-center space-x-2 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 active:scale-95"
               style={{backgroundColor: '#009688'}}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
             >
-              <Download className="h-5 w-5" />
-              <span>Plan Qualité PDF</span>
+              <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">Plan Qualité PDF</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Overall Score */}
-      <div className="rounded-xl p-8 mb-8 text-white" style={{background: 'linear-gradient(to right, #009688, #00bcd4)'}}>
+      <div className="rounded-xl p-6 sm:p-8 mb-6 sm:mb-8 text-white" style={{background: 'linear-gradient(to right, #009688, #00bcd4)'}}>
         <div className="text-center">
-          <BarChart className="h-12 w-12 mx-auto mb-4 opacity-90" />
-          <h2 className="text-2xl font-bold mb-2">Score Global SMQ</h2>
-          <div className="text-5xl font-bold mb-2">
+          <BarChart className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-90" />
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">Score Global SMQ</h2>
+          <div className="text-4xl sm:text-5xl font-bold mb-2">
             {formatScore(assessment.scores.overall)}
           </div>
-          <p style={{color: '#b2dfdb'}}>
+          <p className="text-sm sm:text-base" style={{color: '#b2dfdb'}}>
             {assessment.scores.overall >= 4 ? 'Excellent niveau de maturité' :
              assessment.scores.overall >= 3 ? 'Bon niveau de maturité' :
              'Niveau de maturité à améliorer'}
@@ -304,31 +314,31 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* PMQ Scores */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">Scores par PMQ</h3>
-          <div className="space-y-4">
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Scores par PMQ</h3>
+          <div className="space-y-3 sm:space-y-4">
             {pmqCategories.map(pmq => {
               const score = assessment.scores.pmqs[pmq.id] || 0;
               const IconComponent = getScoreIcon(score);
               
               return (
-                <div key={pmq.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${getScoreColor(score)}`}>
-                      <IconComponent className="h-5 w-5" />
+                <div key={pmq.id} className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${getScoreColor(score)}`}>
+                      <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">PMQ {pmq.id}</h4>
-                      <p className="text-sm text-gray-600">{pmq.title}</p>
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base">PMQ {pmq.id}</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate">{pmq.title}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className={`font-bold text-lg ${score >= 4 ? 'text-green-600' : score >= 3 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <div className={`font-bold text-base sm:text-lg ${score >= 4 ? 'text-green-600' : score >= 3 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {formatScore(score)}
                     </div>
-                    <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                    <div className="w-16 sm:w-24 bg-gray-200 rounded-full h-2 mt-1">
                       <div 
                         className={`h-2 rounded-full ${score >= 4 ? 'bg-green-500' : score >= 3 ? 'bg-yellow-500' : 'bg-red-500'}`}
                         style={{ width: `${(score / 5) * 100}%` }}
@@ -342,15 +352,15 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
         </div>
 
         {/* Priority Actions */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">Actions Prioritaires</h3>
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Actions Prioritaires</h3>
           {highPriorityActions.length > 0 ? (
             <div className="space-y-4">
               {highPriorityActions.slice(0, 5).map(action => (
-                <div key={action.id} className="border-l-4 border-red-500 pl-4 py-2">
-                  <h4 className="font-semibold text-gray-900">{action.title}</h4>
-                  <p className="text-sm text-gray-600 mb-2">{action.description}</p>
-                  <div className="flex items-center space-x-2">
+                <div key={action.id} className="border-l-4 border-red-500 pl-3 sm:pl-4 py-2">
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{action.title}</h4>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">{action.description}</p>
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
                       Priorité élevée
                     </span>
@@ -431,59 +441,59 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
       )}
 
       {/* Summary Stats */}
-      <div className="grid md:grid-cols-4 gap-4 mt-8">
-        <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-gray-900">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
+          <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mx-auto mb-2" />
+          <div className="text-xl sm:text-2xl font-bold text-gray-900">
             {assessment.answers.length}
           </div>
-          <div className="text-sm text-gray-600">Questions évaluées</div>
+          <div className="text-xs sm:text-sm text-gray-600">Questions évaluées</div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-green-600">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
+          <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
+          <div className="text-xl sm:text-2xl font-bold text-green-600">
             {Object.values(assessment.scores.principles).filter(s => s >= 4).length}
           </div>
-          <div className="text-sm text-gray-600">Principes excellents</div>
+          <div className="text-xs sm:text-sm text-gray-600">Principes excellents</div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <AlertCircle className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-yellow-600">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
+          <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 mx-auto mb-2" />
+          <div className="text-xl sm:text-2xl font-bold text-yellow-600">
             {Object.values(assessment.scores.principles).filter(s => s >= 3 && s < 4).length}
           </div>
-          <div className="text-sm text-gray-600">Principes à surveiller</div>
+          <div className="text-xs sm:text-sm text-gray-600">Principes à surveiller</div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <AlertCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-red-600">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
+          <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 mx-auto mb-2" />
+          <div className="text-xl sm:text-2xl font-bold text-red-600">
             {Object.values(assessment.scores.principles).filter(s => s < 3).length}
           </div>
-          <div className="text-sm text-gray-600">Principes à améliorer</div>
+          <div className="text-xs sm:text-sm text-gray-600">Principes à améliorer</div>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center space-x-4 mt-8">
+      <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
         <button
           onClick={onBackToHome}
-          className="flex items-center space-x-2 bg-gray-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-700 transition-all duration-200"
+          className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-gray-700 active:scale-95 transition-all duration-200"
         >
-          <Home className="h-5 w-5" />
-          <span>Nouvelle évaluation</span>
+          <Home className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="text-sm sm:text-base">Nouvelle évaluation</span>
         </button>
-        
+
         <button
           onClick={handleExportPDF}
-          className="flex items-center space-x-2 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200"
+          className="flex items-center justify-center space-x-2 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold active:scale-95 transition-all duration-200"
           style={{backgroundColor: '#009688'}}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
         >
-          <Download className="h-5 w-5" />
-          <span>Plan Qualité PDF</span>
+          <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="text-sm sm:text-base">Plan Qualité PDF</span>
         </button>
       </div>
     </div>
