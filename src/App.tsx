@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./components/Home";
 import AssessmentForm from "./components/AssessmentForm";
@@ -23,6 +24,7 @@ import {
 import { inspectionReportService } from "./services/InspectionReportService";
 
 function App() {
+  const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState("home");
   const [completedAssessment, setCompletedAssessment] =
     useState<Assessment | null>(null);
@@ -40,18 +42,22 @@ function App() {
   const handleStartAssessment = () => {
     startNewAssessment();
     setCurrentSection("assessment");
+    navigate('/assessment');
   };
 
   const handleStartInspection = () => {
     setCurrentSection("inspection");
+    navigate('/inspection');
   };
 
   const handleStartSWOT = () => {
     setCurrentSection("swot");
+    navigate('/swot');
   };
 
   const handleStartPESTEL = () => {
     setCurrentSection("pestel");
+    navigate('/pestel');
   };
 
   const handleCompleteAssessment = () => {
@@ -60,6 +66,7 @@ function App() {
       if (finalAssessment) {
         setCompletedAssessment(finalAssessment);
         setCurrentSection("results");
+        navigate('/results');
       }
     }
   };
@@ -83,123 +90,36 @@ function App() {
     );
     setCompletedInspection(finalReport);
     setCurrentSection("inspection-results");
+    navigate('/inspection-results');
   };
 
   const handleBackToHome = () => {
     setCurrentSection("home");
+    navigate('/');
     setCompletedAssessment(null);
     setCompletedInspection(null);
     inspectionReportService.clearReport();
   };
-
-  const renderCurrentSection = () => {
-    switch (currentSection) {
-      case "home":
-        return (
-          <Home
-            onStartAssessment={handleStartAssessment}
-            onStartInspection={handleStartInspection}
-            onStartSWOT={handleStartSWOT}
-            onStartPESTEL={handleStartPESTEL}
-          />
-        );
-
-      case "assessment":
-        if (!currentAssessment) {
-          return (
-            <Home
-              onStartAssessment={handleStartAssessment}
-              onStartInspection={handleStartInspection}
-              onStartSWOT={handleStartSWOT}
-              onStartPESTEL={handleStartPESTEL}
-            />
-          );
-        }
-        return (
-          <AssessmentForm
-            assessment={currentAssessment}
-            onUpdateAnswer={updateAnswer}
-            getAnswer={getAnswer}
-            onComplete={handleCompleteAssessment}
-          />
-        );
-
-      case "inspection":
-        return <InspectionForm onComplete={handleCompleteInspection} />;
-
-      case "results":
-        if (!completedAssessment) {
-          return (
-            <Home
-              onStartAssessment={handleStartAssessment}
-              onStartInspection={handleStartInspection}
-              onStartSWOT={handleStartSWOT}
-              onStartPESTEL={handleStartPESTEL}
-            />
-          );
-        }
-        return (
-          <Results
-            assessment={completedAssessment}
-            onBackToHome={handleBackToHome}
-          />
-        );
-
-      case "inspection-results":
-        if (!completedInspection) {
-          return (
-            <Home
-              onStartAssessment={handleStartAssessment}
-              onStartInspection={handleStartInspection}
-              onStartSWOT={handleStartSWOT}
-              onStartPESTEL={handleStartPESTEL}
-            />
-          );
-        }
-        return (
-          <InspectionResults
-            report={completedInspection}
-            onBackToHome={handleBackToHome}
-          />
-        );
-
-      case "swot":
-        return <SWOTAnalysis onBack={handleBackToHome} />;
-
-      case "pestel":
-        return <PESTELAnalysis onBack={handleBackToHome} />;
-
-      case "ordonnancier":
-        return <OrdonnancierModule />;
-
-      case "procedures":
-        return <ProceduresModule />;
-
-      case "traceability":
-        return <TraceabilityModule />;
-
-      case "documents":
-        return <DocumentsModule />;
-
-      case "pharmacovigilance":
-        return <AdverseEventsModule />;
-
-      default:
-        return (
-          <Home
-            onStartAssessment={handleStartAssessment}
-            onStartInspection={handleStartInspection}
-            onStartSWOT={handleStartSWOT}
-            onStartPESTEL={handleStartPESTEL}
-          />
-        );
-    }
-  };
-
+  
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={setCurrentSection} currentSection={currentSection} />
-      <main>{renderCurrentSection()}</main>
+      <Header onNavigate={(section:string) => { setCurrentSection(section); navigate(section === 'home' ? '/' : `/${section}`); }} currentSection={currentSection} />
+      <main>
+        <Routes>
+          <Route path="/" element={<Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
+          <Route path="/assessment" element={currentAssessment ? <AssessmentForm assessment={currentAssessment} onUpdateAnswer={updateAnswer} getAnswer={getAnswer} onComplete={handleCompleteAssessment} /> : <Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
+          <Route path="/inspection" element={<InspectionForm onComplete={handleCompleteInspection} />} />
+          <Route path="/results" element={completedAssessment ? <Results assessment={completedAssessment} onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
+          <Route path="/inspection-results" element={completedInspection ? <InspectionResults report={completedInspection} onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
+          <Route path="/swot" element={<SWOTAnalysis onBack={handleBackToHome} />} />
+          <Route path="/pestel" element={<PESTELAnalysis onBack={handleBackToHome} />} />
+          <Route path="/ordonnancier" element={<OrdonnancierModule />} />
+          <Route path="/procedures" element={<ProceduresModule />} />
+          <Route path="/traceability" element={<TraceabilityModule />} />
+          <Route path="/documents" element={<DocumentsModule />} />
+          <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
+        </Routes>
+      </main>
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-10 sm:mt-16">
@@ -218,6 +138,29 @@ function App() {
       </footer>
     </div>
   );
+
+  // return (
+  //   <div className="min-h-screen bg-gray-50">
+  //     <Header onNavigate={setCurrentSection} currentSection={currentSection} />
+  //     <main>{renderCurrentSection()}</main>
+
+  //     {/* Footer */}
+  //     <footer className="bg-white border-t border-gray-200 mt-10 sm:mt-16">
+  //       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+  //         <div className="text-center text-gray-600">
+  //           <p className="mb-2 text-sm sm:text-base">
+  //             © 2025 PHARMA QMS - Outil d'autoévaluation pour pharmacies
+  //             d'officine
+  //           </p>
+  //           <p className="text-xs sm:text-sm">
+  //             Basé sur les 29 principes qualité des 7 PMQ ISO 9001 adaptés au
+  //             secteur pharmaceutique
+  //           </p>
+  //         </div>
+  //       </div>
+  //     </footer>
+  //   </div>
+  // );
 }
 
 export default App;

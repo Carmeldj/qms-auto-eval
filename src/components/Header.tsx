@@ -1,12 +1,15 @@
 import React from 'react';
 import { Stethoscope } from 'lucide-react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
-  onNavigate: (section: string) => void;
+  onNavigate?: (section: string) => void;
   currentSection: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const navItems = [
     { id: 'home', label: 'Accueil' },
     { id: 'assessment', label: 'Évaluation' },
@@ -17,6 +20,12 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
     { id: 'pharmacovigilance', label: 'Pharmacovigilance' },
     { id: 'ordonnancier', label: 'Ordonnancier' }
   ];
+
+  const handleNav = (id: string) => {
+    const path = id === 'home' ? '/' : `/${id}`;
+    if (onNavigate) onNavigate(id);
+    navigate(path);
+  };
 
   return (
     <header className="bg-white shadow-md border-b" style={{borderBottomColor: '#e0f2f1'}}>
@@ -34,31 +43,19 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
 
           <nav className="hidden md:flex space-x-1">
             {navItems.map(item => {
-              const isActive = currentSection === item.id ||
-                (item.id === 'assessment' && currentSection === 'results') ||
-                (item.id === 'inspection' && currentSection === 'inspection-results') ||
-                (item.id === 'home' && (currentSection === 'swot' || currentSection === 'pestel'));
+              const path = item.id === 'home' ? '/' : `/${item.id}`;
+              const isActive = location.pathname === path || (item.id === 'assessment' && location.pathname === '/results') || (item.id === 'inspection' && location.pathname === '/inspection-results') || (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'));
 
               return (
                 <button
                   key={item.id}
-                  onClick={() => onNavigate(item.id)}
+                  onClick={() => handleNav(item.id)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                     isActive
                       ? 'text-white shadow-md'
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                   style={isActive ? {backgroundColor: '#009688'} : {}}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = '#009688';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = '';
-                    }
-                  }}
                 >
                   {item.label}
                 </button>
@@ -68,11 +65,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
 
           <div className="md:hidden">
             <select
-              value={currentSection === 'results' ? 'assessment' :
-                     currentSection === 'inspection-results' ? 'inspection' :
-                     currentSection === 'swot' || currentSection === 'pestel' ? 'home' :
-                     currentSection}
-              onChange={(e) => onNavigate(e.target.value)}
+              value={(() => {
+                const p = location.pathname;
+                if (p === '/results') return 'assessment';
+                if (p === '/inspection-results') return 'inspection';
+                if (p === '/swot' || p === '/pestel') return 'home';
+                return p === '/' ? 'home' : p.replace(/^\//, '');
+              })()}
+              onChange={(e) => handleNav(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2"
               style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
             >
