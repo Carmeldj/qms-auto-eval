@@ -130,7 +130,7 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="flex items-center space-x-3 mb-6">
+          <div className="flex items-center space-x-3 mb-6 border">
             <div
               className="p-3 rounded-lg"
               style={{ backgroundColor: "#e0f2f1" }}

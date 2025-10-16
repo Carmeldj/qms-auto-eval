@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Download, Globe, DollarSign, Users, Cpu, Leaf, Scale } from 'lucide-react';
-import { pestelQuestions, pestelCategories } from '../data/pestelQuestions';
+import { pestelQuestions, pestelCategories } from '../../data/pestelQuestions';
 import jsPDF from 'jspdf';
 
 interface PESTELAnalysisProps {

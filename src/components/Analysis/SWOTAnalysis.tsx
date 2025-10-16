@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Download, Target, AlertTriangle, TrendingUp, Shield } from 'lucide-react';
-import { swotQuestions, swotCategories } from '../data/swotQuestions';
+import { swotQuestions, swotCategories } from '../../data/swotQuestions';
 import jsPDF from 'jspdf';
 
 interface SWOTAnalysisProps {

@@ -160,17 +160,16 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                   {question?.options.map((option) => (
                     <label
                       key={option.value}
-                      className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md active:scale-95 ${
-                        answer?.score === option.value
+                      className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md active:scale-95 ${answer?.score === option.value
                           ? "shadow-md"
                           : "border-gray-200 hover:bg-gray-50"
-                      }`}
+                        }`}
                       style={
                         answer?.score === option.value
                           ? {
-                              borderColor: "#009688",
-                              backgroundColor: "#e0f2f1",
-                            }
+                            borderColor: "#009688",
+                            backgroundColor: "#e0f2f1",
+                          }
                           : {}
                       }
                       onMouseEnter={(e) => {
@@ -195,11 +194,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                         className="absolute opacity-0 w-full h-full cursor-pointer"
                       />
                       <div
-                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold mb-1 sm:mb-2 transition-all duration-200 ${
-                          answer?.score === option.value
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold mb-1 sm:mb-2 transition-all duration-200 ${answer?.score === option.value
                             ? "text-white scale-110"
                             : "bg-gray-200 text-gray-600"
-                        }`}
+                          }`}
                         style={
                           answer?.score === option.value
                             ? { backgroundColor: "#009688" }
@@ -263,17 +261,16 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
         <div className="sm:hidden">
           <div className="flex items-center justify-between mb-4">
             <div className="text-center flex-1">
-              <div className="text-sm text-gray-500 mb-2">PMQ</div>
+              {/* <div className="text-sm text-gray-500 mb-2">PMQ</div> */}
               <div className="grid grid-cols-4 gap-1 max-w-32 mx-auto mb-2">
                 {[1, 2, 3, 4].map((pmq) => (
                   <button
                     key={pmq}
                     onClick={() => handlePMQSelect(pmq)}
-                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${
-                      currentPMQ === pmq
+                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${currentPMQ === pmq
                         ? "text-white"
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                    }`}
+                      }`}
                     style={
                       currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
                     }
@@ -287,11 +284,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                   <button
                     key={pmq}
                     onClick={() => handlePMQSelect(pmq)}
-                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${
-                      currentPMQ === pmq
+                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${currentPMQ === pmq
                         ? "text-white"
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                    }`}
+                      }`}
                     style={
                       currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
                     }
@@ -302,60 +298,59 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
               </div>
             </div>
 
-            {canGoNext ? (
-              <button
-                onClick={handleNextPMQ}
-                className="flex items-center justify-center space-x-2 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 ml-4"
-                style={{ backgroundColor: "#009688" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#00796b")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#009688")
-                }
-              >
-                <span>Suivant</span>
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            ) : (
-              <button
-                onClick={onComplete}
-                disabled={!canComplete}
-                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-white ml-4 ${
-                  canComplete
-                    ? ""
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-                style={canComplete ? { backgroundColor: "#4caf50" } : {}}
-                onMouseEnter={(e) => {
-                  if (canComplete) {
-                    e.currentTarget.style.backgroundColor = "#388e3c";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (canComplete) {
-                    e.currentTarget.style.backgroundColor = "#4caf50";
-                  }
-                }}
-              >
-                <CheckCircle className="h-4 w-4" />
-                <span>Terminer</span>
-              </button>
-            )}
+
           </div>
 
           <button
             onClick={handlePreviousPMQ}
             disabled={!canGoPrevious}
-            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 w-full ${
-              canGoPrevious
+            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 w-full ${canGoPrevious
                 ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 : "bg-gray-50 text-gray-400 cursor-not-allowed"
-            }`}
+              }`}
           >
             <ChevronLeft className="h-5 w-5" />
             <span>Précédent</span>
           </button>
+          {canGoNext ? (
+            <button
+              onClick={handleNextPMQ}
+              className="mt-4 w-full flex items-center justify-center space-x-2 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200"
+              style={{ backgroundColor: "#009688" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#00796b")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "#009688")
+              }
+            >
+              <span>Suivant</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              onClick={onComplete}
+              disabled={!canComplete}
+              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-white ml-4 ${canComplete
+                  ? ""
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              style={canComplete ? { backgroundColor: "#4caf50" } : {}}
+              onMouseEnter={(e) => {
+                if (canComplete) {
+                  e.currentTarget.style.backgroundColor = "#388e3c";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (canComplete) {
+                  e.currentTarget.style.backgroundColor = "#4caf50";
+                }
+              }}
+            >
+              <CheckCircle className="h-4 w-4" />
+              <span>Terminer</span>
+            </button>
+          )}
         </div>
 
         {/* Desktop Layout */}
@@ -363,11 +358,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
           <button
             onClick={handlePreviousPMQ}
             disabled={!canGoPrevious}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              canGoPrevious
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${canGoPrevious
                 ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 : "bg-gray-50 text-gray-400 cursor-not-allowed"
-            }`}
+              }`}
           >
             <ChevronLeft className="h-5 w-5" />
             <span>Précédent</span>
@@ -380,11 +374,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                 <button
                   key={pmq}
                   onClick={() => handlePMQSelect(pmq)}
-                  className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${
-                    currentPMQ === pmq
+                  className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${currentPMQ === pmq
                       ? "text-white"
                       : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  }`}
+                    }`}
                   style={
                     currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
                   }
@@ -414,11 +407,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             <button
               onClick={onComplete}
               disabled={!canComplete}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 text-white ${
-                canComplete
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 text-white ${canComplete
                   ? ""
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+                }`}
               style={canComplete ? { backgroundColor: "#4caf50" } : {}}
               onMouseEnter={(e) => {
                 if (canComplete) {

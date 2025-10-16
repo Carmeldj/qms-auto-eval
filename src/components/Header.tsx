@@ -116,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
                 className="px-4 py-2 rounded-lg font-medium text-white mr-4"
                 style={{ backgroundColor: '#009688' }}
                 onClick={(e) => {
-                  e.stopPropagation();
+                  // e.stopPropagation();
                   openModal('login');
                 }}
               >
