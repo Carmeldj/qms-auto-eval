@@ -1,9 +1,9 @@
 import React from 'react';
 import { Download, Home, AlertTriangle, CheckCircle, XCircle, FileText, TrendingUp } from 'lucide-react';
-import { InspectionReport } from '../types/inspection';
-import { inspectionItems, getAllCategories, getItemsByCategory } from '../data/inspectionItems';
-import { generateRecommendations } from '../data/inspectionRecommendations';
-import { inspectionReportService } from '../services/InspectionReportService';
+import { InspectionReport } from '../../types/inspection';
+import { inspectionItems, getAllCategories, getItemsByCategory } from '../../data/inspectionItems';
+import { generateRecommendations } from '../../data/inspectionRecommendations';
+import { inspectionReportService } from '../../services/InspectionReportService';
 
 interface InspectionResultsProps {
   report: InspectionReport;

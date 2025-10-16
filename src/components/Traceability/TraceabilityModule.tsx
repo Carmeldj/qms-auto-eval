@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FileText, Download, Clock, Plus } from 'lucide-react';
-import { traceabilityTemplates, getAllCategories } from '../data/traceabilityTemplates';
+import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 
 const TraceabilityModule: React.FC = () => {

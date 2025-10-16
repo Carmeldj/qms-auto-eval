@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FileText, Download, Clock, Plus, Building, Users, Wrench, MessageCircle, AlertTriangle, Stethoscope, GraduationCap, ClipboardList } from 'lucide-react';
-import { documentTemplates, getAllDocumentCategories, getDocumentTemplatesByCategory } from '../data/documentTemplates';
-import DocumentForm from './DocumentForm';
+import { documentTemplates, getAllDocumentCategories, getDocumentTemplatesByCategory } from "../../data/documentTemplates";
+import DocumentForm from '../Document/DocumentForm';
 
 const DocumentsModule: React.FC = () => {
   const [view, setView] = useState<'list' | 'form'>('list');

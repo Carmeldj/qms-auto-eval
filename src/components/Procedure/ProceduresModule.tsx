@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FileText, Download, Clock, CheckCircle } from 'lucide-react';
-import { procedureTemplates, getAllProcedureCategories, getProceduresByCategory } from '../data/procedureTemplates';
+import { procedureTemplates, getAllProcedureCategories, getProceduresByCategory } from '../../data/procedureTemplates';
 import ProcedureForm from './ProcedureForm';
 
 const ProceduresModule: React.FC = () => {

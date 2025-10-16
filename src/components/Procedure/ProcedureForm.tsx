@@ -14,9 +14,9 @@ import {
   ProcedureStep,
   ProcedureIndicator,
   ProcedureAnnex,
-} from "../types/procedures";
-import { procedureService } from "../services/ProcedureService";
-import { procedureDefaults } from "../data/procedureDefaults";
+} from "../../types/procedures";
+import { procedureService } from "../../services/ProcedureService";
+import { procedureDefaults } from "../../data/procedureDefaults";
 
 interface ProcedureFormProps {
   template: ProcedureTemplate;

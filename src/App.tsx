@@ -3,13 +3,13 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./components/Home";
 import AssessmentForm from "./components/AssessmentForm";
-import InspectionForm from "./components/InspectionForm";
+import InspectionForm from "./components/Inspection/InspectionForm";
 import Results from "./components/Results";
-import InspectionResults from "./components/InspectionResults";
-import ProceduresModule from "./components/ProceduresModule";
-import TraceabilityModule from "./components/TraceabilityModule";
-import DocumentsModule from "./components/DocumentsModule";
-import AdverseEventsModule from "./components/AdverseEventsModule";
+import InspectionResults from "./components/Inspection/InspectionResults";
+import ProceduresModule from "./components/Procedure/ProceduresModule";
+import TraceabilityModule from "./components/Traceability/TraceabilityModule";
+import DocumentsModule from "./components/Document/DocumentsModule";
+import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
 import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/SWOTAnalysis";
 import PESTELAnalysis from "./components/PESTELAnalysis";
@@ -100,24 +100,70 @@ function App() {
     setCompletedInspection(null);
     inspectionReportService.clearReport();
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={(section:string) => { setCurrentSection(section); navigate(section === 'home' ? '/' : `/${section}`); }} currentSection={currentSection} />
+      <Header onNavigate={(section: string) => { setCurrentSection(section); navigate(section === 'home' ? '/' : `/${section}`); }} currentSection={currentSection} />
       <main>
         <Routes>
-          <Route path="/" element={<Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
-          <Route path="/assessment" element={currentAssessment ? <AssessmentForm assessment={currentAssessment} onUpdateAnswer={updateAnswer} getAnswer={getAnswer} onComplete={handleCompleteAssessment} /> : <Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
-          <Route path="/inspection" element={<InspectionForm onComplete={handleCompleteInspection} />} />
-          <Route path="/results" element={completedAssessment ? <Results assessment={completedAssessment} onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
-          <Route path="/inspection-results" element={completedInspection ? <InspectionResults report={completedInspection} onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment} onStartInspection={handleStartInspection} onStartSWOT={handleStartSWOT} onStartPESTEL={handleStartPESTEL} />} />
-          <Route path="/swot" element={<SWOTAnalysis onBack={handleBackToHome} />} />
-          <Route path="/pestel" element={<PESTELAnalysis onBack={handleBackToHome} />} />
-          <Route path="/ordonnancier" element={<OrdonnancierModule />} />
-          <Route path="/procedures" element={<ProceduresModule />} />
-          <Route path="/traceability" element={<TraceabilityModule />} />
-          <Route path="/documents" element={<DocumentsModule />} />
-          <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
+          <Route
+            path="/"
+            element={<Home onStartAssessment={handleStartAssessment}
+              onStartInspection={handleStartInspection}
+              onStartSWOT={handleStartSWOT}
+              onStartPESTEL={handleStartPESTEL} />}
+          />
+          <Route
+            path="/assessment"
+            element={currentAssessment ? <AssessmentForm assessment={currentAssessment}
+              onUpdateAnswer={updateAnswer}
+              getAnswer={getAnswer}
+              onComplete={handleCompleteAssessment} /> : <Home onStartAssessment={handleStartAssessment}
+                onStartInspection={handleStartInspection}
+                onStartSWOT={handleStartSWOT}
+                onStartPESTEL={handleStartPESTEL} />}
+          />
+          <Route
+            path="/inspection"
+            element={<InspectionForm onComplete={handleCompleteInspection} />} />
+          <Route
+            path="/results"
+            element={completedAssessment ? <Results assessment={completedAssessment}
+              onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment}
+                onStartInspection={handleStartInspection}
+                onStartSWOT={handleStartSWOT}
+                onStartPESTEL={handleStartPESTEL} />}
+          />
+          <Route
+            path="/inspection-results"
+            element={completedInspection ? <InspectionResults
+              report={completedInspection}
+              onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment}
+                onStartInspection={handleStartInspection}
+                onStartSWOT={handleStartSWOT}
+                onStartPESTEL={handleStartPESTEL} />}
+          />
+          <Route
+            path="/swot"
+            element={<SWOTAnalysis onBack={handleBackToHome} />} />
+          <Route
+            path="/pestel"
+            element={<PESTELAnalysis onBack={handleBackToHome} />} />
+          <Route
+            path="/ordonnancier"
+            element={<OrdonnancierModule />} />
+          <Route
+            path="/procedures"
+            element={<ProceduresModule />} />
+          <Route
+            path="/traceability"
+            element={<TraceabilityModule />} />
+          <Route
+            path="/documents"
+            element={<DocumentsModule />} />
+          <Route
+            path="/pharmacovigilance"
+            element={<AdverseEventsModule />} />
         </Routes>
       </main>
 

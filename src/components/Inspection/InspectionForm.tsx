@@ -11,12 +11,12 @@ import {
   PharmacyInfo,
   PharmacistInfo,
   InspectionAnswer,
-} from "../types/inspection";
+} from "../../types/inspection";
 import {
   inspectionItems,
   getAllCategories,
   getItemsByCategory,
-} from "../data/inspectionItems";
+} from "../../data/inspectionItems";
 
 interface InspectionFormProps {
   onComplete: (

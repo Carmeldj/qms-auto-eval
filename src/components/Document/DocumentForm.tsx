@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Download, AlertCircle, CheckCircle } from "lucide-react";
-import { DocumentTemplate } from "../types/documents";
-import { documentService } from "../services/DocumentService";
+import { DocumentTemplate } from "../../types/documents";
+import { documentService } from "../../services/DocumentService";
 
 interface DocumentFormProps {
   template: DocumentTemplate;
