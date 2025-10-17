@@ -23,6 +23,12 @@ const AssessmentForm: React.FC = () => {
   const [currentPMQ, setCurrentPMQ] = useState(1);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
 
+  const handleClearAll = () => {
+    startNewAssessment();
+    setCurrentPMQ(1);
+    setShowComments({});
+  };
+
   const currentPMQPrinciples = principles.filter((p) => p.pmq === currentPMQ);
   const currentCategory = pmqCategories.find((c) => c.id === currentPMQ);
 
@@ -107,6 +113,17 @@ const AssessmentForm: React.FC = () => {
               style={{ color: "#009688" }}
             >
               {answeredQuestions}/{totalQuestions} questions
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={handleClearAll}
+                className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium border transition-colors duration-150"
+                style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+              >
+                Effacer tout
+              </button>
             </div>
           </div>
         </div>
