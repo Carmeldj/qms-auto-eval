@@ -6,16 +6,19 @@ import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 import { AppProvider } from './contexts/AppContext';
 import RouteGuard from './components/RouteGuards.tsx';
+import { AssessmentProvider } from './contexts/AssessmentContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
       <AppProvider>
-        <BrowserRouter>
-          <RouteGuard>
-            <App />
-          </RouteGuard>
-        </BrowserRouter>
+        <AssessmentProvider>
+          <BrowserRouter>
+            <RouteGuard>
+              <App />
+            </RouteGuard>
+          </BrowserRouter>
+        </AssessmentProvider>
       </AppProvider>
     </AuthProvider>
   </StrictMode>

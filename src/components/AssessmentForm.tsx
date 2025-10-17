@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,43 +7,37 @@ import {
 } from "lucide-react";
 import { principles, questions } from "../data/principles";
 import { pmqCategories } from "../data/principles";
-import { Assessment, Answer } from "../types";
+import { useAssessmentContext } from "../contexts/AssessmentContext";
+import { useNavigate } from "react-router-dom";
 
-interface AssessmentFormProps {
-  assessment: Assessment;
-  onUpdateAnswer: (
-    principleId: string,
-    score: number,
-    comment?: string
-  ) => void;
-  getAnswer: (principleId: string) => Answer | undefined;
-  onComplete: () => void;
-}
+const AssessmentForm: React.FC = () => {
+  const navigate = useNavigate();
 
-const AssessmentForm: React.FC<AssessmentFormProps> = ({
-  assessment,
-  onUpdateAnswer,
-  getAnswer,
-  onComplete,
-}) => {
+  const { currentAssessment, startNewAssessment, updateAnswer, getAnswer, calculateScores } = useAssessmentContext();
+
+
+  useEffect(() => {
+    if (!currentAssessment) startNewAssessment();
+  }, []);
+
   const [currentPMQ, setCurrentPMQ] = useState(1);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
 
   const currentPMQPrinciples = principles.filter((p) => p.pmq === currentPMQ);
   const currentCategory = pmqCategories.find((c) => c.id === currentPMQ);
 
-  const answeredQuestions = assessment.answers.length;
+  const answeredQuestions = currentAssessment?.answers?.length;
   const totalQuestions = principles.length;
 
   const handleScoreChange = (principleId: string, score: number) => {
     const existingAnswer = getAnswer(principleId);
-    onUpdateAnswer(principleId, score, existingAnswer?.comment);
+    updateAnswer(principleId, score, existingAnswer?.comment);
   };
 
   const handleCommentChange = (principleId: string, comment: string) => {
     const existingAnswer = getAnswer(principleId);
     const score = existingAnswer?.score || 1;
-    onUpdateAnswer(principleId, score, comment);
+    updateAnswer(principleId, score, comment);
   };
 
   const toggleComment = (principleId: string) => {
@@ -80,6 +74,17 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
     scrollToTop();
   };
 
+  const handleCompleteAssessment = () => {
+    if (currentAssessment) {
+      const finalAssessment = calculateScores();
+      if (finalAssessment) {
+        navigate('/results');
+      }
+    }
+  };
+
+  
+
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Progress Header */}
@@ -111,7 +116,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             className="h-2 rounded-full transition-all duration-300"
             style={{
               backgroundColor: "#009688",
-              width: `${(answeredQuestions / totalQuestions) * 100}%`,
+              width: `${((answeredQuestions ?? 0) / totalQuestions) * 100}%`,
             }}
           />
         </div>
@@ -161,8 +166,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                     <label
                       key={option.value}
                       className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md active:scale-95 ${answer?.score === option.value
-                          ? "shadow-md"
-                          : "border-gray-200 hover:bg-gray-50"
+                        ? "shadow-md"
+                        : "border-gray-200 hover:bg-gray-50"
                         }`}
                       style={
                         answer?.score === option.value
@@ -195,8 +200,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                       />
                       <div
                         className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold mb-1 sm:mb-2 transition-all duration-200 ${answer?.score === option.value
-                            ? "text-white scale-110"
-                            : "bg-gray-200 text-gray-600"
+                          ? "text-white scale-110"
+                          : "bg-gray-200 text-gray-600"
                           }`}
                         style={
                           answer?.score === option.value
@@ -268,8 +273,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                     key={pmq}
                     onClick={() => handlePMQSelect(pmq)}
                     className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${currentPMQ === pmq
-                        ? "text-white"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      ? "text-white"
+                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                       }`}
                     style={
                       currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
@@ -285,8 +290,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                     key={pmq}
                     onClick={() => handlePMQSelect(pmq)}
                     className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${currentPMQ === pmq
-                        ? "text-white"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      ? "text-white"
+                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                       }`}
                     style={
                       currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
@@ -305,8 +310,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             onClick={handlePreviousPMQ}
             disabled={!canGoPrevious}
             className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 w-full ${canGoPrevious
-                ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                : "bg-gray-50 text-gray-400 cursor-not-allowed"
+              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              : "bg-gray-50 text-gray-400 cursor-not-allowed"
               }`}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -329,11 +334,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             </button>
           ) : (
             <button
-              onClick={onComplete}
+              onClick={handleCompleteAssessment}
               disabled={!canComplete}
               className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-white ml-4 ${canComplete
-                  ? ""
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                ? ""
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               style={canComplete ? { backgroundColor: "#4caf50" } : {}}
               onMouseEnter={(e) => {
@@ -359,8 +364,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             onClick={handlePreviousPMQ}
             disabled={!canGoPrevious}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${canGoPrevious
-                ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                : "bg-gray-50 text-gray-400 cursor-not-allowed"
+              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              : "bg-gray-50 text-gray-400 cursor-not-allowed"
               }`}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -375,8 +380,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
                   key={pmq}
                   onClick={() => handlePMQSelect(pmq)}
                   className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${currentPMQ === pmq
-                      ? "text-white"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    ? "text-white"
+                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                     }`}
                   style={
                     currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
@@ -405,11 +410,11 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({
             </button>
           ) : (
             <button
-              onClick={onComplete}
+              onClick={handleCompleteAssessment}
               disabled={!canComplete}
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 text-white ${canComplete
-                  ? ""
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                ? ""
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               style={canComplete ? { backgroundColor: "#4caf50" } : {}}
               onMouseEnter={(e) => {

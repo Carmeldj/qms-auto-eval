@@ -5,13 +5,18 @@ import { principles } from '../data/principles';
 import { pmqCategories } from '../data/principles';
 import { getRecommendations, actionPlan12Months, qualityTools } from '../data/recommendations';
 import jsPDF from 'jspdf';
+import { useAssessmentContext } from '../contexts/AssessmentContext';
+import { useNavigate } from 'react-router-dom';
 
-interface ResultsProps {
-  assessment: Assessment;
-  onBackToHome: () => void;
-}
+const Results: React.FC = () => {
+  const navigate = useNavigate();
 
-const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
+  const { currentAssessment, clearAssessment } = useAssessmentContext();
+  if (!currentAssessment) {
+    return null; // Or render a fallback UI/message if preferred
+  }
+  const assessment: Assessment = currentAssessment;
+
   const getScoreColor = (score: number) => {
     if (score >= 4) return 'text-green-600 bg-green-100';
     if (score >= 3) return 'text-yellow-600 bg-yellow-100';
@@ -108,27 +113,27 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
     addSection('RÉSUMÉ EXÉCUTIF');
     addText(`Date d'évaluation: ${formatDate(assessment.date)}`, 12);
     addText(`Score global: ${formatScore(assessment.scores.overall)}`, 14, true);
-    
-    const overallLevel = assessment.scores.overall >= 4 ? 'Excellent' : 
-                        assessment.scores.overall >= 3 ? 'Satisfaisant' : 'À améliorer';
+
+    const overallLevel = assessment.scores.overall >= 4 ? 'Excellent' :
+      assessment.scores.overall >= 3 ? 'Satisfaisant' : 'À améliorer';
     addText(`Niveau de maturité: ${overallLevel}`, 12);
-    
+
     const principlesCount = Object.values(assessment.scores.principles);
     const excellentCount = principlesCount.filter(s => s >= 4).length;
     const goodCount = principlesCount.filter(s => s >= 3 && s < 4).length;
     const improvementCount = principlesCount.filter(s => s < 3).length;
-    
+
     addText(`Répartition des 29 principes: ${excellentCount} excellents, ${goodCount} satisfaisants, ${improvementCount} à améliorer`, 12);
 
     // Détail des 29 Principes Qualité
     addSection('DÉTAIL DES 29 PRINCIPES QUALITÉ');
-    
+
     pmqCategories.forEach(pmq => {
       const pmqScore = assessment.scores.pmqs[pmq.id] || 0;
       const pmqPrinciples = principles.filter(p => p.pmq === pmq.id);
-      
+
       addText(`PMQ ${pmq.id} - ${pmq.title}: ${formatScore(pmqScore)}`, 12, true);
-      
+
       // Ajouter une phrase descriptive pour chaque PMQ
       const pmqDescriptions: Record<number, string> = {
         1: "Cette section évalue la capacité de l'officine à identifier, comprendre et satisfaire les besoins de ses patients, ainsi qu'à gérer efficacement leurs retours et réclamations.",
@@ -139,20 +144,20 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
         6: "Cette section examine l'utilisation des données et indicateurs pour orienter les décisions, incluant la collecte, l'analyse et le benchmarking des performances.",
         7: "Cette section évalue la gestion des relations avec tous les partenaires externes : fournisseurs, professionnels de santé, patients et communauté locale."
       };
-      
+
       addText(pmqDescriptions[pmq.id] || '', 10);
       yPosition += 3;
-      
+
       pmqPrinciples.forEach(principle => {
         const score = assessment.scores.principles[principle.id] || 0;
         const answer = assessment.answers.find(a => a.principleId === principle.id);
         const status = score >= 4 ? 'Excellent' : score >= 3 ? 'Satisfaisant' : 'À améliorer';
         const progress = `${Math.round((score / 5) * 100)}%`;
         const responsible = score <= 2 ? 'Pharmacien titulaire' : score <= 3 ? 'Responsable qualité' : 'Pharmacien adjoint';
-        
+
         addText(`  • ${principle.title}`, 10);
         addText(`    Statut: ${status} | Progrès: ${progress} | Responsable: ${responsible}`, 9);
-        
+
         // Ajouter le commentaire s'il existe
         if (answer?.comment && answer.comment.trim()) {
           addText(`    Commentaire: ${answer.comment.trim()}`, 9);
@@ -163,13 +168,13 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
 
     // Outils à implémenter
     addSection('OUTILS À IMPLÉMENTER');
-    
+
     const recommendedTools = new Set<string>();
     lowScoringPrinciples.forEach(item => {
       const tools = item.recommendations.filter(rec => rec.category.startsWith('Outil'));
       tools.forEach(tool => recommendedTools.add(tool.title));
     });
-    
+
     Array.from(recommendedTools).forEach((toolTitle, index) => {
       const tool = qualityTools.find(t => toolTitle.includes(t.name));
       if (tool) {
@@ -181,7 +186,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
 
     // Plan d'action sur 12 mois
     addSection('PLAN D\'ACTION SUR 12 MOIS');
-    
+
     for (let month = 1; month <= 12; month++) {
       const monthActions = actionPlan12Months.filter(action => action.month === month);
       if (monthActions.length > 0) {
@@ -215,14 +220,14 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
     pmqCategories.forEach(pmq => {
       const score = assessment.scores.pmqs[pmq.id] || 0;
       const status = score >= 4 ? 'Excellent' : score >= 3 ? 'Satisfaisant' : 'Nécessite amélioration';
-      
+
       addText(`PMQ ${pmq.id} - ${pmq.title}`, 12, true);
       addText(`Score: ${formatScore(score)} - ${status}`, 11);
       addText(`${pmq.description}`, 10);
-      
+
       const pmqPrinciples = principles.filter(p => p.pmq === pmq.id);
       const lowScoring = pmqPrinciples.filter(p => (assessment.scores.principles[p.id] || 0) < 3);
-      
+
       if (lowScoring.length > 0) {
         addText('Axes d\'amélioration prioritaires:', 10, true);
         lowScoring.forEach(principle => {
@@ -233,13 +238,13 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           }
         });
       }
-      
+
       // Ajouter une section pour les commentaires généraux du PMQ
       const pmqComments = pmqPrinciples
         .map(p => assessment.answers.find(a => a.principleId === p.id))
         .filter(a => a?.comment && a.comment.trim())
         .map(a => a!);
-      
+
       if (pmqComments.length > 0) {
         addText('Commentaires et observations:', 10, true);
         pmqComments.forEach(answer => {
@@ -248,7 +253,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           addText(`  ${answer.comment!.trim()}`, 8);
         });
       }
-      
+
       yPosition += 5;
     });
 
@@ -276,7 +281,10 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={onBackToHome}
+              onClick={() => {
+                navigate('/');
+                clearAssessment();
+              }}
               className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 active:scale-95"
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4a5568'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#718096'}
@@ -287,7 +295,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
             <button
               onClick={handleExportPDF}
               className="flex items-center justify-center space-x-2 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 active:scale-95"
-              style={{backgroundColor: '#009688'}}
+              style={{ backgroundColor: '#009688' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
             >
@@ -299,17 +307,17 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
       </div>
 
       {/* Overall Score */}
-      <div className="rounded-xl p-6 sm:p-8 mb-6 sm:mb-8 text-white" style={{background: 'linear-gradient(to right, #009688, #00bcd4)'}}>
+      <div className="rounded-xl p-6 sm:p-8 mb-6 sm:mb-8 text-white" style={{ background: 'linear-gradient(to right, #009688, #00bcd4)' }}>
         <div className="text-center">
           <BarChart className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-90" />
           <h2 className="text-xl sm:text-2xl font-bold mb-2">Score Global SMQ</h2>
           <div className="text-4xl sm:text-5xl font-bold mb-2">
             {formatScore(assessment.scores.overall)}
           </div>
-          <p className="text-sm sm:text-base" style={{color: '#b2dfdb'}}>
+          <p className="text-sm sm:text-base" style={{ color: '#b2dfdb' }}>
             {assessment.scores.overall >= 4 ? 'Excellent niveau de maturité' :
-             assessment.scores.overall >= 3 ? 'Bon niveau de maturité' :
-             'Niveau de maturité à améliorer'}
+              assessment.scores.overall >= 3 ? 'Bon niveau de maturité' :
+                'Niveau de maturité à améliorer'}
           </p>
         </div>
       </div>
@@ -322,7 +330,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
             {pmqCategories.map(pmq => {
               const score = assessment.scores.pmqs[pmq.id] || 0;
               const IconComponent = getScoreIcon(score);
-              
+
               return (
                 <div key={pmq.id} className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
@@ -339,7 +347,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
                       {formatScore(score)}
                     </div>
                     <div className="w-16 sm:w-24 bg-gray-200 rounded-full h-2 mt-1">
-                      <div 
+                      <div
                         className={`h-2 rounded-full ${score >= 4 ? 'bg-green-500' : score >= 3 ? 'bg-yellow-500' : 'bg-red-500'}`}
                         style={{ width: `${(score / 5) * 100}%` }}
                       />
@@ -392,7 +400,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           <h3 className="text-xl font-bold text-gray-900 mb-6">
             Analyse Détaillée - Axes d'Amélioration
           </h3>
-          
+
           <div className="space-y-6">
             {lowScoringPrinciples.map(item => (
               <div key={item.principle.id} className="border border-gray-200 rounded-lg p-6">
@@ -416,11 +424,10 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
                     <div key={rec.id} className="border border-gray-100 rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <h5 className="font-medium text-gray-900">{rec.title}</h5>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          rec.priority === 'high' ? 'bg-red-100 text-red-800' :
+                        <span className={`text-xs px-2 py-1 rounded-full ${rec.priority === 'high' ? 'bg-red-100 text-red-800' :
                           rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
-                        }`}>
+                            'bg-green-100 text-green-800'
+                          }`}>
                           {rec.priority === 'high' ? 'Élevée' : rec.priority === 'medium' ? 'Moyenne' : 'Faible'}
                         </span>
                       </div>
@@ -449,7 +456,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           </div>
           <div className="text-xs sm:text-sm text-gray-600">Questions évaluées</div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
           <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
           <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -457,7 +464,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           </div>
           <div className="text-xs sm:text-sm text-gray-600">Principes excellents</div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
           <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 mx-auto mb-2" />
           <div className="text-xl sm:text-2xl font-bold text-yellow-600">
@@ -465,7 +472,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
           </div>
           <div className="text-xs sm:text-sm text-gray-600">Principes à surveiller</div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 text-center">
           <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 mx-auto mb-2" />
           <div className="text-xl sm:text-2xl font-bold text-red-600">
@@ -478,7 +485,10 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
         <button
-          onClick={onBackToHome}
+          onClick={() => {
+            navigate("/")
+            clearAssessment();
+          }}
           className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-gray-700 active:scale-95 transition-all duration-200"
         >
           <Home className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -488,7 +498,7 @@ const Results: React.FC<ResultsProps> = ({ assessment, onBackToHome }) => {
         <button
           onClick={handleExportPDF}
           className="flex items-center justify-center space-x-2 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold active:scale-95 transition-all duration-200"
-          style={{backgroundColor: '#009688'}}
+          style={{ backgroundColor: '#009688' }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
         >

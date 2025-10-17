@@ -13,9 +13,7 @@ import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
 import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";
 import PESTELAnalysis from "./components/Analysis/PESTELAnalysis";
-import { useAssessment } from "./hooks/useAssessment";
 import {
-  Assessment,
   PharmacyInfo,
   PharmacistInfo,
   InspectionAnswer,
@@ -27,50 +25,10 @@ import LoginModule from "./components/Auth/LoginModule";
 function App() {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState("home");
-  const [completedAssessment, setCompletedAssessment] =
-    useState<Assessment | null>(null);
   const [completedInspection, setCompletedInspection] =
     useState<InspectionReport | null>(null);
 
-  const {
-    currentAssessment,
-    startNewAssessment,
-    updateAnswer,
-    calculateScores,
-    getAnswer,
-  } = useAssessment();
 
-  const handleStartAssessment = () => {
-    startNewAssessment();
-    setCurrentSection("assessment");
-    navigate('/assessment');
-  };
-
-  const handleStartInspection = () => {
-    setCurrentSection("inspection");
-    navigate('/inspection');
-  };
-
-  const handleStartSWOT = () => {
-    setCurrentSection("swot");
-    navigate('/swot');
-  };
-
-  const handleStartPESTEL = () => {
-    setCurrentSection("pestel");
-    navigate('/pestel');
-  };
-
-  const handleCompleteAssessment = () => {
-    if (currentAssessment) {
-      const finalAssessment = calculateScores();
-      if (finalAssessment) {
-        setCompletedAssessment(finalAssessment);
-        setCurrentSection("results");
-        navigate('/results');
-      }
-    }
-  };
 
   const handleCompleteInspection = (
     pharmacyInfo: PharmacyInfo,
@@ -97,7 +55,6 @@ function App() {
   const handleBackToHome = () => {
     setCurrentSection("home");
     navigate('/');
-    setCompletedAssessment(null);
     setCompletedInspection(null);
     inspectionReportService.clearReport();
   };
@@ -109,41 +66,25 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home onStartAssessment={handleStartAssessment}
-              onStartInspection={handleStartInspection}
-              onStartSWOT={handleStartSWOT}
-              onStartPESTEL={handleStartPESTEL} />}
+            element={<Home />}
           />
           <Route path="/login" element={<LoginModule />} />
           <Route
             path="/assessment"
-            element={currentAssessment ? <AssessmentForm assessment={currentAssessment}
-              onUpdateAnswer={updateAnswer}
-              getAnswer={getAnswer}
-              onComplete={handleCompleteAssessment} /> : <Home onStartAssessment={handleStartAssessment}
-                onStartInspection={handleStartInspection}
-                onStartSWOT={handleStartSWOT}
-                onStartPESTEL={handleStartPESTEL} />}
+            element={<AssessmentForm />}
           />
           <Route
             path="/inspection"
             element={<InspectionForm onComplete={handleCompleteInspection} />} />
           <Route
             path="/results"
-            element={completedAssessment ? <Results assessment={completedAssessment}
-              onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment}
-                onStartInspection={handleStartInspection}
-                onStartSWOT={handleStartSWOT}
-                onStartPESTEL={handleStartPESTEL} />}
+            element={<Results />}
           />
           <Route
             path="/inspection-results"
             element={completedInspection ? <InspectionResults
               report={completedInspection}
-              onBackToHome={handleBackToHome} /> : <Home onStartAssessment={handleStartAssessment}
-                onStartInspection={handleStartInspection}
-                onStartSWOT={handleStartSWOT}
-                onStartPESTEL={handleStartPESTEL} />}
+              onBackToHome={handleBackToHome} /> : <Home />}
           />
           <Route
             path="/swot"
