@@ -9,9 +9,11 @@ import { principles, questions } from "../data/principles";
 import { pmqCategories } from "../data/principles";
 import { useAssessmentContext } from "../contexts/AssessmentContext";
 import { useNavigate } from "react-router-dom";
+import { useApp } from "../contexts/AppContext";
 
 const AssessmentForm: React.FC = () => {
   const navigate = useNavigate();
+  const { openModal } = useApp();
 
   const { currentAssessment, startNewAssessment, updateAnswer, getAnswer, calculateScores } = useAssessmentContext();
 
@@ -24,9 +26,14 @@ const AssessmentForm: React.FC = () => {
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
 
   const handleClearAll = () => {
-    startNewAssessment();
-    setCurrentPMQ(1);
-    setShowComments({});
+    openModal('clearAll', {
+      onConfirm: () => {
+        startNewAssessment();
+        setCurrentPMQ(1);
+        setShowComments({});
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
   };
 
   const currentPMQPrinciples = principles.filter((p) => p.pmq === currentPMQ);
@@ -89,7 +96,7 @@ const AssessmentForm: React.FC = () => {
     }
   };
 
-  
+
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">

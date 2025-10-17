@@ -19,9 +19,11 @@ import {
 } from "../../data/inspectionItems";
 import { useInspection } from "../../contexts/InspectionContext";
 import { useNavigate } from "react-router-dom";
+import { useApp } from "../../contexts/AppContext";
 
 const InspectionForm: React.FC = () => {
   const navigate = useNavigate();
+  const { openModal } = useApp();
 
   const { currentInspection, startInspection, updateMeta, updateAnswers, completeInspection, clearInspection } = useInspection();
 
@@ -138,11 +140,23 @@ const InspectionForm: React.FC = () => {
     }
   };
 
+  const handleClearAll = () => {
+    openModal('clearAll', {
+      onConfirm: () => {
+        clearInspection();
+        startInspection();
+        setStep('pharmacy');
+        setCurrentCategory(0);
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  };
+
   if (step === "pharmacy") {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="flex justify-between items-center mb-6 border">
+          <div className="flex justify-between items-center mb-6 ">
             <div className="flex items-center space-x-3">
               <div
                 className="p-3 rounded-lg"
@@ -162,12 +176,7 @@ const InspectionForm: React.FC = () => {
             <div>
               <button
                 type="button"
-                onClick={() => {
-                  clearInspection();
-                  startInspection();
-                  setStep('pharmacy');
-                  setCurrentCategory(0);
-                }}
+                onClick={handleClearAll}
                 className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
               >
                 Effacer tout
@@ -345,12 +354,7 @@ const InspectionForm: React.FC = () => {
             <div>
               <button
                 type="button"
-                onClick={() => {
-                  clearInspection();
-                  startInspection();
-                  setStep('pharmacy');
-                  setCurrentCategory(0);
-                }}
+                onClick={handleClearAll}
                 className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
               >
                 Effacer tout
@@ -493,14 +497,7 @@ const InspectionForm: React.FC = () => {
           <div className="text-right flex items-center space-x-4">
             <button
               type="button"
-              onClick={() => {
-                // clear draft and reset UI
-                clearInspection();
-                // start a fresh draft so the form stays usable
-                startInspection();
-                setStep('pharmacy');
-                setCurrentCategory(0);
-              }}
+              onClick={handleClearAll}
               className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
             >
               Effacer tout
