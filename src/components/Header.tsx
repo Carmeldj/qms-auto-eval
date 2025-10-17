@@ -30,7 +30,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-white shadow-md border-b" style={{ borderBottomColor: '#e0f2f1' }}>
-      <div className="max-w-7xl ">
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center py-3">
           <div className="flex items-center space-x-2 pl-4 cursor-pointer" onClick={() => navigate('/')}>
             <div className="p-1.5 sm:p-2 rounded-lg" style={{ backgroundColor: '#009688' }}>
@@ -43,9 +43,9 @@ const Header: React.FC = () => {
           </div>
 
 
-          {!isAuthenticated ? (
+          {isAuthenticated ? (
             <>
-              <nav className="hidden md:flex space-x-1">
+              <nav className="hidden lg:flex space-x-1">
                 {navItems.map(item => {
                   const path = item.id === 'home' ? '/' : `/${item.id}`;
                   const isActive = location.pathname === path || (item.id === 'assessment' && location.pathname === '/results') || (item.id === 'inspection' && location.pathname === '/inspection-results') || (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'));
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
                 })}
               </nav>
 
-              <div className="md:hidden p-4 rounded-lg cursor-pointer relative" onClick={() => setOpenMenu(!openMenu)}>
+              <div className="lg:hidden p-4 rounded-lg cursor-pointer relative" onClick={() => setOpenMenu(!openMenu)}>
                 {!openMenu ? (
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M4 18q-.425 0-.712-.288T3 17t.288-.712T4 16h16q.425 0 .713.288T21 17t-.288.713T20 18zm0-5q-.425 0-.712-.288T3 12t.288-.712T4 11h16q.425 0 .713.288T21 12t-.288.713T20 13zm0-5q-.425 0-.712-.288T3 7t.288-.712T4 6h16q.425 0 .713.288T21 7t-.288.713T20 8z" />
@@ -78,7 +78,7 @@ const Header: React.FC = () => {
                 )}
               </div>
 
-              <div className="md:hidden absolute top-16 right-0 z-50 w-full" style={{ display: openMenu ? 'block' : 'none' }}>
+              <div className="md:hidden absolute top-24 right-0 z-50 w-full" style={{ display: openMenu ? 'block' : 'none' }}>
                 <div className="bg-white rounded-lg shadow-md py-2 ">
                   {navItems.map((item) => (
                     <button
@@ -87,19 +87,18 @@ const Header: React.FC = () => {
                         setOpenMenu(false);
                         handleNav(item.id);
                       }}
-                      className={`block w-full text-left px-4 py-2 font-medium transition-all duration-200 ${
-                        (item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
-                        (item.id === 'assessment' && location.pathname === '/results') ||
-                        (item.id === 'inspection' && location.pathname === '/inspection-results') ||
-                        (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
+                      className={`block w-full text-left px-4 py-2 font-medium transition-all duration-200 ${(item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
+                          (item.id === 'assessment' && location.pathname === '/results') ||
+                          (item.id === 'inspection' && location.pathname === '/inspection-results') ||
+                          (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
                           ? "text-white bg-[#009688]"
                           : "text-gray-700 hover:bg-gray-100"
                         }`}
                       style={
                         (item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
-                        (item.id === 'assessment' && location.pathname === '/results') ||
-                        (item.id === 'inspection' && location.pathname === '/inspection-results') ||
-                        (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
+                          (item.id === 'assessment' && location.pathname === '/results') ||
+                          (item.id === 'inspection' && location.pathname === '/inspection-results') ||
+                          (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
                           ? { backgroundColor: "#009688", color: "white" }
                           : {}
                       }

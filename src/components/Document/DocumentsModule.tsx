@@ -147,7 +147,7 @@ const DocumentsModule: React.FC = () => {
             const IconComponent = getCategoryIcon(template.category);
             return (
               <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col md:flex-row  items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <IconComponent className="h-5 w-5 text-gray-600" />
@@ -170,7 +170,7 @@ const DocumentsModule: React.FC = () => {
                   </div>
                   <button
                     onClick={() => handleCreateDocument(template.id)}
-                    className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 ml-4"
+                    className="w-full md:w-max flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
                     style={{backgroundColor: '#009688'}}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
