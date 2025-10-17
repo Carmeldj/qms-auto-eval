@@ -4,12 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 
-interface HeaderProps {
-  onNavigate?: (section: string) => void;
-  currentSection: string;
-}
 
-const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
+const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navItems = [
@@ -25,7 +21,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
 
   const handleNav = (id: string) => {
     const path = id === 'home' ? '/' : `/${id}`;
-    if (onNavigate) onNavigate(id);
     navigate(path);
   };
 
@@ -48,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
           </div>
 
 
-          {isAuthenticated ? (
+          {!isAuthenticated ? (
             <>
               <nav className="hidden md:flex space-x-1">
                 {navItems.map(item => {
@@ -89,16 +84,22 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
                     <button
                       key={item.id}
                       onClick={() => {
-                        if (onNavigate) onNavigate(item.id);
                         setOpenMenu(false);
                         handleNav(item.id);
                       }}
-                      className={`block w-full text-left px-4 py-2 font-medium transition-all duration-200 ${currentSection === item.id
-                        ? "text-white bg-[#009688]"
-                        : "text-gray-700 hover:bg-gray-100"
+                      className={`block w-full text-left px-4 py-2 font-medium transition-all duration-200 ${
+                        (item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
+                        (item.id === 'assessment' && location.pathname === '/results') ||
+                        (item.id === 'inspection' && location.pathname === '/inspection-results') ||
+                        (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
+                          ? "text-white bg-[#009688]"
+                          : "text-gray-700 hover:bg-gray-100"
                         }`}
                       style={
-                        currentSection === item.id
+                        (item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
+                        (item.id === 'assessment' && location.pathname === '/results') ||
+                        (item.id === 'inspection' && location.pathname === '/inspection-results') ||
+                        (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
                           ? { backgroundColor: "#009688", color: "white" }
                           : {}
                       }
@@ -114,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentSection }) => {
               <button
                 className="px-4 py-2 rounded-lg font-medium text-white mr-4"
                 style={{ backgroundColor: '#009688' }}
-                onClick={(e) => {
+                onClick={() => {
                   // e.stopPropagation();
                   openModal('login');
                 }}

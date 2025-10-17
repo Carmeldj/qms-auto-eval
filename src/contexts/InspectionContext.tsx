@@ -2,13 +2,21 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { InspectionReport, InspectionAnswer, PharmacyInfo, PharmacistInfo } from '../types';
 import { inspectionReportService } from '../services/InspectionReportService';
 
+type DraftInspection = {
+    pharmacyInfo: PharmacyInfo | null;
+    pharmacistInfo: PharmacistInfo | null;
+    answers: InspectionAnswer[];
+};
+
 type InspectionContextType = {
-    currentInspection: InspectionReport | null;
-    startInspection: (initial?: Partial<InspectionReport>) => void;
+    // only keep minimal draft data so InspectionForm can use it directly
+    currentInspection: DraftInspection | null;
+    startInspection: (initial?: Partial<DraftInspection>) => void;
     updateAnswers: (answers: InspectionAnswer[]) => void;
     updateMeta: (payload: { pharmacy?: PharmacyInfo; pharmacist?: PharmacistInfo }) => void;
-    completeInspection: (pharmacyInfo: PharmacyInfo, pharmacistInfo: PharmacistInfo, answers: InspectionAnswer[]) => InspectionReport | null;
-    setInspection: (r: InspectionReport | null) => void;
+    // create final report from draft and return it
+    completeInspection: () => InspectionReport | null;
+    setInspection: (r: DraftInspection | null) => void;
     clearInspection: () => void;
     completedInspection?: InspectionReport | null;
 };
@@ -24,10 +32,10 @@ export const useInspection = () => {
 };
 
 export const InspectionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [currentInspection, setCurrentInspection] = useState<InspectionReport | null>(() => {
+    const [currentInspection, setCurrentInspection] = useState<DraftInspection | null>(() => {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) as InspectionReport : null;
+            return raw ? JSON.parse(raw) as DraftInspection : null;
         } catch {
             return null;
         }
@@ -41,50 +49,38 @@ export const InspectionProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }, [currentInspection]);
 
-    const startInspection = (initial?: Partial<InspectionReport>) => {
-        const newReport: InspectionReport = {
-            id: Date.now().toString(),
-            date: new Date().toISOString(),
-            pharmacyInfo: (initial?.pharmacyInfo ?? null) as any,
-            pharmacistInfo: (initial?.pharmacistInfo ?? null) as any,
-            answers: initial?.answers ?? [],
-            summary: {
-                totalItems: 0,
-                compliant: 0,
-                nonCompliant: 0,
-                notApplicable: 0,
-                criticalGaps: 0,
-                majorGaps: 0,
-                minorGaps: 0
-            }
+    const startInspection = (initial?: Partial<DraftInspection>) => {
+        const draft: DraftInspection = {
+            pharmacyInfo: (initial?.pharmacyInfo ?? null) as PharmacyInfo | null,
+            pharmacistInfo: (initial?.pharmacistInfo ?? null) as PharmacistInfo | null,
+            answers: initial?.answers ?? []
         };
-        setCurrentInspection(newReport);
+        setCurrentInspection(draft);
     };
 
     const updateAnswers = (answers: InspectionAnswer[]) => {
-        setCurrentInspection(prev => prev ? ({ ...prev, answers }) : prev);
+        setCurrentInspection(prev => prev ? ({ ...prev, answers }) : ({ pharmacyInfo: null, pharmacistInfo: null, answers }));
     };
 
     const updateMeta = (payload: { pharmacy?: PharmacyInfo; pharmacist?: PharmacistInfo }) => {
-        setCurrentInspection(prev => prev ? ({ ...prev, pharmacyInfo: payload.pharmacy ?? prev.pharmacyInfo, pharmacistInfo: payload.pharmacist ?? prev.pharmacistInfo }) : prev);
+        setCurrentInspection(prev => prev ? ({ ...prev, pharmacyInfo: payload.pharmacy ?? prev.pharmacyInfo, pharmacistInfo: payload.pharmacist ?? prev.pharmacistInfo }) : ({ pharmacyInfo: payload.pharmacy ?? null, pharmacistInfo: payload.pharmacist ?? null, answers: [] }));
     };
 
     const [completedInspection, setCompletedInspection] = useState<InspectionReport | null>(null);
-    const completeInspection = (pharmacyInfo: PharmacyInfo, pharmacistInfo: PharmacistInfo, answers: InspectionAnswer[]) => {
-        // if (!currentInspection) return null;
-        // you can pass to inspectionReportService to persist or compute a final report
+    const completeInspection = () => {
+        if (!currentInspection) return null;
         const final = inspectionReportService.createReport(
-            pharmacyInfo,
-            pharmacistInfo,
-            answers
+            currentInspection.pharmacyInfo as PharmacyInfo,
+            currentInspection.pharmacistInfo as PharmacistInfo,
+            currentInspection.answers
         );
-        // optionally clear stored draft
-        // setCurrentInspection(null);
         setCompletedInspection(final);
+        // optionally clear draft after completion
+        // setCurrentInspection(null);
         return final;
     };
 
-    const setInspection = (r: InspectionReport | null) => setCurrentInspection(r);
+    const setInspection = (r: DraftInspection | null) => setCurrentInspection(r);
 
     const clearInspection = () => {
         setCurrentInspection(null);

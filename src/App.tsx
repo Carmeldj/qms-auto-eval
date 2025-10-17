@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./components/Home";
 import AssessmentForm from "./components/AssessmentForm";
@@ -13,27 +12,14 @@ import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
 import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";
 import PESTELAnalysis from "./components/Analysis/PESTELAnalysis";
-import {
-  PharmacyInfo,
-  PharmacistInfo,
-  InspectionAnswer,
-  InspectionReport,
-} from "./types";
-import { inspectionReportService } from "./services/InspectionReportService";
 import LoginModule from "./components/Auth/LoginModule";
 
 function App() {
-  const navigate = useNavigate();
-  const [currentSection, setCurrentSection] = useState("home");
 
-  const handleBackToHome = () => {
-    setCurrentSection("home");
-    navigate('/');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={(section: string) => { setCurrentSection(section); navigate(section === 'home' ? '/' : `/${section}`); }} currentSection={currentSection} />
+      <Header />
       <main>
         <Routes>
           <Route
@@ -58,10 +44,10 @@ function App() {
           />
           <Route
             path="/swot"
-            element={<SWOTAnalysis onBack={handleBackToHome} />} />
+            element={<SWOTAnalysis />} />
           <Route
             path="/pestel"
-            element={<PESTELAnalysis onBack={handleBackToHome} />} />
+            element={<PESTELAnalysis />} />
           <Route
             path="/ordonnancier"
             element={<OrdonnancierModule />} />

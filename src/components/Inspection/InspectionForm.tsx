@@ -23,16 +23,18 @@ import { useNavigate } from "react-router-dom";
 const InspectionForm: React.FC = () => {
   const navigate = useNavigate();
 
-  const { completeInspection } = useInspection();
+  const { currentInspection, startInspection, updateMeta, updateAnswers, completeInspection, clearInspection } = useInspection();
 
-  // useEffect(() => {
-  //   if (!currentInspection) startInspection(); // ensures form has an inspection on refresh
-  // }, []);
+  useEffect(() => {
+    if (!currentInspection) startInspection(); // ensures form has an inspection on refresh
+  }, [currentInspection, startInspection]);
 
   const [step, setStep] = useState<"pharmacy" | "pharmacist" | "inspection">(
     "pharmacy"
   );
-  const [pharmacyInfo, setPharmacyInfo] = useState<PharmacyInfo>({
+  // derive draft values from context (fall back to defaults)
+  const draft = currentInspection ?? { pharmacyInfo: null, pharmacistInfo: null, answers: [] };
+  const pharmacyInfo = draft.pharmacyInfo ?? {
     name: "",
     purchaseAuthNumber: "",
     openingQuitus: "",
@@ -40,15 +42,18 @@ const InspectionForm: React.FC = () => {
     location: "",
     status: "",
     email: "",
-  });
-  const [pharmacistInfo, setPharmacistInfo] = useState<PharmacistInfo>({
-    firstName: "",
-    lastName: "",
-    orderNumber: "",
-    email: "",
-    phone: "",
-  });
-  const [answers, setAnswers] = useState<InspectionAnswer[]>([]);
+  } as PharmacyInfo;
+  const pharmacistInfo = draft.pharmacistInfo ?? ({ firstName: "", lastName: "", orderNumber: "", email: "", phone: "" } as PharmacistInfo);
+  const answers = draft.answers ?? [];
+
+  // helpers to update meta fields in context while keeping current draft
+  const setPharmacyInfoField = (patch: Partial<PharmacyInfo>) => {
+    updateMeta({ pharmacy: { ...(draft.pharmacyInfo ?? {}), ...patch } as PharmacyInfo });
+  };
+
+  const setPharmacistInfoField = (patch: Partial<PharmacistInfo>) => {
+    updateMeta({ pharmacist: { ...(draft.pharmacistInfo ?? {}), ...patch } as PharmacistInfo });
+  };
   const [currentCategory, setCurrentCategory] = useState(0);
   const [_, setShowGapClassification] = useState<string | null>(null);
 
@@ -57,11 +62,14 @@ const InspectionForm: React.FC = () => {
 
   const handlePharmacySubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // persist pharmacy info into draft
+    updateMeta({ pharmacy: pharmacyInfo });
     setStep("pharmacist");
   };
 
   const handlePharmacistSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    updateMeta({ pharmacist: pharmacistInfo });
     setStep("inspection");
   };
 
@@ -73,14 +81,15 @@ const InspectionForm: React.FC = () => {
   ) => {
     const existingIndex = answers.findIndex((a) => a.itemId === itemId);
     const newAnswer: InspectionAnswer = { itemId, status, comment, gapType };
-
+    let updatedAnswers: InspectionAnswer[];
     if (existingIndex >= 0) {
-      const updatedAnswers = [...answers];
+      updatedAnswers = [...answers];
       updatedAnswers[existingIndex] = newAnswer;
-      setAnswers(updatedAnswers);
     } else {
-      setAnswers([...answers, newAnswer]);
+      updatedAnswers = [...answers, newAnswer];
     }
+    // persist answers to context
+    updateAnswers(updatedAnswers);
 
     // Always show gap classification for non-compliant items
     setShowGapClassification(status === "non-compliant" ? itemId : null);
@@ -90,7 +99,7 @@ const InspectionForm: React.FC = () => {
     console.log("InspectionForm: Completing inspection with answers:", answers);
     console.log("InspectionForm: Pharmacy info:", pharmacyInfo);
     console.log("InspectionForm: Pharmacist info:", pharmacistInfo);
-    completeInspection(pharmacyInfo, pharmacistInfo, answers);
+    completeInspection();
     navigate('/inspection-results');
   };
 
@@ -133,20 +142,36 @@ const InspectionForm: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="flex items-center space-x-3 mb-6 border">
-            <div
-              className="p-3 rounded-lg"
-              style={{ backgroundColor: "#e0f2f1" }}
-            >
-              <Building className="h-6 w-6" style={{ color: "#009688" }} />
+          <div className="flex justify-between items-center mb-6 border">
+            <div className="flex items-center space-x-3">
+              <div
+                className="p-3 rounded-lg"
+                style={{ backgroundColor: "#e0f2f1" }}
+              >
+                <Building className="h-6 w-6" style={{ color: "#009688" }} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Informations de l'Officine
+                </h1>
+                <p className="text-gray-600">
+                  Étape 1/3 - Renseignements administratifs
+                </p>
+              </div>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Informations de l'Officine
-              </h1>
-              <p className="text-gray-600">
-                Étape 1/3 - Renseignements administratifs
-              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  clearInspection();
+                  startInspection();
+                  setStep('pharmacy');
+                  setCurrentCategory(0);
+                }}
+                className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+              >
+                Effacer tout
+              </button>
             </div>
           </div>
 
@@ -160,7 +185,7 @@ const InspectionForm: React.FC = () => {
                 required
                 value={pharmacyInfo.name}
                 onChange={(e) =>
-                  setPharmacyInfo({ ...pharmacyInfo, name: e.target.value })
+                  setPharmacyInfoField({ name: e.target.value })
                 }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                 style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
@@ -177,10 +202,7 @@ const InspectionForm: React.FC = () => {
                   type="text"
                   value={pharmacyInfo.purchaseAuthNumber}
                   onChange={(e) =>
-                    setPharmacyInfo({
-                      ...pharmacyInfo,
-                      purchaseAuthNumber: e.target.value,
-                    })
+                    setPharmacyInfoField({ purchaseAuthNumber: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -197,10 +219,7 @@ const InspectionForm: React.FC = () => {
                   type="text"
                   value={pharmacyInfo.openingQuitus}
                   onChange={(e) =>
-                    setPharmacyInfo({
-                      ...pharmacyInfo,
-                      openingQuitus: e.target.value,
-                    })
+                    setPharmacyInfoField({ openingQuitus: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -219,10 +238,7 @@ const InspectionForm: React.FC = () => {
                 required
                 value={pharmacyInfo.privateClienteleAuth}
                 onChange={(e) =>
-                  setPharmacyInfo({
-                    ...pharmacyInfo,
-                    privateClienteleAuth: e.target.value,
-                  })
+                  setPharmacyInfoField({ privateClienteleAuth: e.target.value })
                 }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                 style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
@@ -239,10 +255,7 @@ const InspectionForm: React.FC = () => {
                   required
                   value={pharmacyInfo.location}
                   onChange={(e) =>
-                    setPharmacyInfo({
-                      ...pharmacyInfo,
-                      location: e.target.value,
-                    })
+                    setPharmacyInfoField({ location: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -258,7 +271,7 @@ const InspectionForm: React.FC = () => {
                   required
                   value={pharmacyInfo.status}
                   onChange={(e) =>
-                    setPharmacyInfo({ ...pharmacyInfo, status: e.target.value })
+                    setPharmacyInfoField({ status: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -282,7 +295,7 @@ const InspectionForm: React.FC = () => {
                 required
                 value={pharmacyInfo.email}
                 onChange={(e) =>
-                  setPharmacyInfo({ ...pharmacyInfo, email: e.target.value })
+                  setPharmacyInfoField({ email: e.target.value })
                 }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                 style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
@@ -312,20 +325,36 @@ const InspectionForm: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="flex items-center space-x-3 mb-6">
-            <div
-              className="p-3 rounded-lg"
-              style={{ backgroundColor: "#e0f2f1" }}
-            >
-              <User className="h-6 w-6" style={{ color: "#009688" }} />
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center space-x-3">
+              <div
+                className="p-3 rounded-lg"
+                style={{ backgroundColor: "#e0f2f1" }}
+              >
+                <User className="h-6 w-6" style={{ color: "#009688" }} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Informations du Titulaire
+                </h1>
+                <p className="text-gray-600">
+                  Étape 2/3 - Renseignements du pharmacien
+                </p>
+              </div>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Informations du Titulaire
-              </h1>
-              <p className="text-gray-600">
-                Étape 2/3 - Renseignements du pharmacien
-              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  clearInspection();
+                  startInspection();
+                  setStep('pharmacy');
+                  setCurrentCategory(0);
+                }}
+                className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+              >
+                Effacer tout
+              </button>
             </div>
           </div>
 
@@ -340,10 +369,7 @@ const InspectionForm: React.FC = () => {
                   required
                   value={pharmacistInfo.firstName}
                   onChange={(e) =>
-                    setPharmacistInfo({
-                      ...pharmacistInfo,
-                      firstName: e.target.value,
-                    })
+                    setPharmacistInfoField({ firstName: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -360,10 +386,7 @@ const InspectionForm: React.FC = () => {
                   required
                   value={pharmacistInfo.lastName}
                   onChange={(e) =>
-                    setPharmacistInfo({
-                      ...pharmacistInfo,
-                      lastName: e.target.value,
-                    })
+                    setPharmacistInfoField({ lastName: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -382,10 +405,7 @@ const InspectionForm: React.FC = () => {
                 required
                 value={pharmacistInfo.orderNumber}
                 onChange={(e) =>
-                  setPharmacistInfo({
-                    ...pharmacistInfo,
-                    orderNumber: e.target.value,
-                  })
+                  setPharmacistInfoField({ orderNumber: e.target.value })
                 }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                 style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
@@ -402,10 +422,7 @@ const InspectionForm: React.FC = () => {
                   required
                   value={pharmacistInfo.email}
                   onChange={(e) =>
-                    setPharmacistInfo({
-                      ...pharmacistInfo,
-                      email: e.target.value,
-                    })
+                    setPharmacistInfoField({ email: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -422,10 +439,7 @@ const InspectionForm: React.FC = () => {
                   required
                   value={pharmacistInfo.phone}
                   onChange={(e) =>
-                    setPharmacistInfo({
-                      ...pharmacistInfo,
-                      phone: e.target.value,
-                    })
+                    setPharmacistInfoField({ phone: e.target.value })
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
@@ -476,10 +490,26 @@ const InspectionForm: React.FC = () => {
               Étape 3/3 - Vérification de conformité
             </p>
           </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-500 mb-2">Progression</div>
-            <div className="text-lg font-semibold" style={{ color: "#009688" }}>
-              {getAnsweredCount()}/{inspectionItems.length} éléments
+          <div className="text-right flex items-center space-x-4">
+            <button
+              type="button"
+              onClick={() => {
+                // clear draft and reset UI
+                clearInspection();
+                // start a fresh draft so the form stays usable
+                startInspection();
+                setStep('pharmacy');
+                setCurrentCategory(0);
+              }}
+              className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+            >
+              Effacer tout
+            </button>
+            <div>
+              <div className="text-sm text-gray-500 mb-2">Progression</div>
+              <div className="text-lg font-semibold" style={{ color: "#009688" }}>
+                {getAnsweredCount()}/{inspectionItems.length} éléments
+              </div>
             </div>
           </div>
         </div>
@@ -510,8 +540,8 @@ const InspectionForm: React.FC = () => {
                 key={category}
                 onClick={() => setCurrentCategory(index)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${currentCategory === index
-                    ? "text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 style={
                   currentCategory === index
@@ -596,8 +626,8 @@ const InspectionForm: React.FC = () => {
                       <label
                         key={option.value}
                         className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${isSelected
-                            ? `border-${option.color}-500 bg-${option.color}-50`
-                            : "border-gray-200 hover:bg-gray-50"
+                          ? `border-${option.color}-500 bg-${option.color}-50`
+                          : "border-gray-200 hover:bg-gray-50"
                           }`}
                       >
                         <input
@@ -612,14 +642,14 @@ const InspectionForm: React.FC = () => {
                         />
                         <OptionIcon
                           className={`h-5 w-5 mr-3 ${isSelected
-                              ? `text-${option.color}-600`
-                              : "text-gray-400"
+                            ? `text-${option.color}-600`
+                            : "text-gray-400"
                             }`}
                         />
                         <span
                           className={`font-medium ${isSelected
-                              ? `text-${option.color}-800`
-                              : "text-gray-700"
+                            ? `text-${option.color}-800`
+                            : "text-gray-700"
                             }`}
                         >
                           {option.label}
@@ -734,8 +764,8 @@ const InspectionForm: React.FC = () => {
                 setCurrentCategory(Math.max(0, currentCategory - 1))
               }
               className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all duration-200 ${currentCategory === 0
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               disabled={!canComplete()}
             >
@@ -765,8 +795,8 @@ const InspectionForm: React.FC = () => {
                 onClick={handleComplete}
                 disabled={!canComplete()}
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${canComplete()
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
                 Terminer l'inspection

@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { ArrowLeft, Download, Globe, DollarSign, Users, Cpu, Leaf, Scale } from 'lucide-react';
 import { pestelQuestions, pestelCategories } from '../../data/pestelQuestions';
 import jsPDF from 'jspdf';
+import { useNavigate } from 'react-router-dom';
 
-interface PESTELAnalysisProps {
-  onBack: () => void;
-}
 
-const PESTELAnalysis: React.FC<PESTELAnalysisProps> = ({ onBack }) => {
+const PESTELAnalysis: React.FC = () => {
+  const navigate = useNavigate();
+
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [pharmacyName, setPharmacyName] = useState<string>('');
   const [pharmacistName, setPharmacistName] = useState<string>('');
@@ -150,7 +150,7 @@ const PESTELAnalysis: React.FC<PESTELAnalysisProps> = ({ onBack }) => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <button
-        onClick={onBack}
+        onClick={() => navigate('/')}
         className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
       >
         <ArrowLeft className="h-5 w-5 mr-2" />
@@ -207,11 +207,10 @@ const PESTELAnalysis: React.FC<PESTELAnalysisProps> = ({ onBack }) => {
               <button
                 key={category.id}
                 onClick={() => setCurrentCategory(category.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
-                  currentCategory === category.id
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${currentCategory === category.id
                     ? 'text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
                 style={currentCategory === category.id ? { backgroundColor: category.color } : {}}
               >
                 <CategoryIcon className="h-4 w-4" />
