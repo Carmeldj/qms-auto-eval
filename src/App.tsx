@@ -25,38 +25,10 @@ import LoginModule from "./components/Auth/LoginModule";
 function App() {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState("home");
-  const [completedInspection, setCompletedInspection] =
-    useState<InspectionReport | null>(null);
-
-
-
-  const handleCompleteInspection = (
-    pharmacyInfo: PharmacyInfo,
-    pharmacistInfo: PharmacistInfo,
-    answers: InspectionAnswer[]
-  ) => {
-    console.log("App: Completing inspection with data:", {
-      pharmacyInfo,
-      pharmacistInfo,
-      answers,
-    });
-
-    // Utiliser le service de rapport pour créer le rapport
-    const finalReport = inspectionReportService.createReport(
-      pharmacyInfo,
-      pharmacistInfo,
-      answers
-    );
-    setCompletedInspection(finalReport);
-    setCurrentSection("inspection-results");
-    navigate('/inspection-results');
-  };
 
   const handleBackToHome = () => {
     setCurrentSection("home");
     navigate('/');
-    setCompletedInspection(null);
-    inspectionReportService.clearReport();
   };
 
   return (
@@ -75,16 +47,14 @@ function App() {
           />
           <Route
             path="/inspection"
-            element={<InspectionForm onComplete={handleCompleteInspection} />} />
+            element={<InspectionForm />} />
           <Route
             path="/results"
             element={<Results />}
           />
           <Route
             path="/inspection-results"
-            element={completedInspection ? <InspectionResults
-              report={completedInspection}
-              onBackToHome={handleBackToHome} /> : <Home />}
+            element={<InspectionResults />}
           />
           <Route
             path="/swot"

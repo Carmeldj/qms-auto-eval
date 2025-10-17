@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Building,
   User,
@@ -17,16 +17,18 @@ import {
   getAllCategories,
   getItemsByCategory,
 } from "../../data/inspectionItems";
+import { useInspection } from "../../contexts/InspectionContext";
+import { useNavigate } from "react-router-dom";
 
-interface InspectionFormProps {
-  onComplete: (
-    pharmacyInfo: PharmacyInfo,
-    pharmacistInfo: PharmacistInfo,
-    answers: InspectionAnswer[]
-  ) => void;
-}
+const InspectionForm: React.FC = () => {
+  const navigate = useNavigate();
 
-const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
+  const { completeInspection } = useInspection();
+
+  // useEffect(() => {
+  //   if (!currentInspection) startInspection(); // ensures form has an inspection on refresh
+  // }, []);
+
   const [step, setStep] = useState<"pharmacy" | "pharmacist" | "inspection">(
     "pharmacy"
   );
@@ -88,7 +90,8 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
     console.log("InspectionForm: Completing inspection with answers:", answers);
     console.log("InspectionForm: Pharmacy info:", pharmacyInfo);
     console.log("InspectionForm: Pharmacist info:", pharmacistInfo);
-    onComplete(pharmacyInfo, pharmacistInfo, answers);
+    completeInspection(pharmacyInfo, pharmacistInfo, answers);
+    navigate('/inspection-results');
   };
 
   const getAnsweredCount = () => {
@@ -506,11 +509,10 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
               <button
                 key={category}
                 onClick={() => setCurrentCategory(index)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
-                  currentCategory === index
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${currentCategory === index
                     ? "text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
                 style={
                   currentCategory === index
                     ? { backgroundColor: "#009688" }
@@ -593,11 +595,10 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
                     return (
                       <label
                         key={option.value}
-                        className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${
-                          isSelected
+                        className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${isSelected
                             ? `border-${option.color}-500 bg-${option.color}-50`
                             : "border-gray-200 hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         <input
                           type="radio"
@@ -610,18 +611,16 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
                           className="absolute opacity-0 w-full h-full cursor-pointer"
                         />
                         <OptionIcon
-                          className={`h-5 w-5 mr-3 ${
-                            isSelected
+                          className={`h-5 w-5 mr-3 ${isSelected
                               ? `text-${option.color}-600`
                               : "text-gray-400"
-                          }`}
+                            }`}
                         />
                         <span
-                          className={`font-medium ${
-                            isSelected
+                          className={`font-medium ${isSelected
                               ? `text-${option.color}-800`
                               : "text-gray-700"
-                          }`}
+                            }`}
                         >
                           {option.label}
                         </span>
@@ -734,11 +733,10 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
               onClick={() =>
                 setCurrentCategory(Math.max(0, currentCategory - 1))
               }
-              className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
-                currentCategory === 0
+              className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all duration-200 ${currentCategory === 0
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
               disabled={!canComplete()}
             >
               <ClipboardCheck className="h-4 w-4" />
@@ -766,11 +764,10 @@ const InspectionForm: React.FC<InspectionFormProps> = ({ onComplete }) => {
               <button
                 onClick={handleComplete}
                 disabled={!canComplete()}
-                className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  canComplete()
+                className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${canComplete()
                     ? "bg-green-600 text-white hover:bg-green-700"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 Terminer l'inspection
               </button>
