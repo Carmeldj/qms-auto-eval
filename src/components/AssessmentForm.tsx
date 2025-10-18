@@ -102,7 +102,7 @@ const AssessmentForm: React.FC = () => {
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Progress Header */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items- justify-between gap-3 sm:gap-0 mb-4">
           <div className="flex-1">
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
               PMQ {currentPMQ} - {currentCategory?.title}

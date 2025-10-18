@@ -156,18 +156,21 @@ const InspectionForm: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="flex justify-between items-center mb-6 ">
-            <div className="flex items-center space-x-3">
-              <div
-                className="p-3 rounded-lg"
-                style={{ backgroundColor: "#e0f2f1" }}
-              >
-                <Building className="h-6 w-6" style={{ color: "#009688" }} />
-              </div>
-              <div>
+          <div className="flex flex-col gap-4 md:flex-row items-start justify-between md:items-start mb-6 ">
+            <div className="w-full flex flex-col items-center space-y-3">
+              <div className="w-full flex gap-4">
+                <div
+                  className="p-3 rounded-lg size-max"
+                  style={{ backgroundColor: "#e0f2f1" }}
+                >
+                  <Building className="h-6 w-6" style={{ color: "#009688" }} />
+                </div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   Informations de l'Officine
                 </h1>
+              </div>
+              <div className="w-full">
+
                 <p className="text-gray-600">
                   Étape 1/3 - Renseignements administratifs
                 </p>
@@ -177,7 +180,10 @@ const InspectionForm: React.FC = () => {
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+                className="w-max px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+                style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
               >
                 Effacer tout
               </button>
