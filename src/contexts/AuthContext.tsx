@@ -22,16 +22,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
+  console.log(isAuthenticated);
+  
 
   // Check if user is already authenticated on app load
-  const checkAuthStatus = () => {
+  const checkAuthStatus = async () => {
     const token = localStorage.getItem('accessToken');
     const tenantId = localStorage.getItem('tenantId');
-    
+    const rawUser = localStorage.getItem('user');
     if (token && tenantId) {
-      // You might want to validate the token with the server here
-      // For now, we'll assume the token is valid if it exists
-      // In a real app, you'd make an API call to verify the token
+      // TODO: Replace this with a real API call to validate the token with your backend
+      try {
+        // Example: await validateToken(token)
+        // If valid, restore user
+        if (rawUser) {
+          const parsed = JSON.parse(rawUser) as User;
+          setUser(parsed);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      }
       setIsLoading(false);
     } else {
       setUser(null);
@@ -64,6 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('tenantId');
+    localStorage.removeItem('user');
   };
 
   // Check auth status on component mount

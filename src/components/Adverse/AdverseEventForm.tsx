@@ -9,8 +9,8 @@ import {
   ProductContext,
   SeverityEvolution,
   AdverseEventReport
-} from '../types/adverseEvents';
-import { adverseEventService } from '../services/AdverseEventService';
+} from '../../types/adverseEvents';
+import { adverseEventService } from '../../services/AdverseEventService';
 
 interface AdverseEventFormProps {
   onCancel: () => void;

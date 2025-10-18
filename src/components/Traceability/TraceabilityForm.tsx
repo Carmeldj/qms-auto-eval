@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Save, X, Download, AlertCircle, CheckCircle } from 'lucide-react';
-import { TraceabilityTemplate } from '../types/traceability';
-import { traceabilityService } from '../services/TraceabilityService';
+import { TraceabilityTemplate } from '../../types/traceability';
+import { traceabilityService } from '../../services/TraceabilityService';
 
 interface TraceabilityFormProps {
   template: TraceabilityTemplate;
