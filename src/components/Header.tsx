@@ -9,7 +9,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navItems = [
-    { id: 'home', label: 'Accueil' },
+    // { id: 'home', label: 'Accueil' },
     { id: 'assessment', label: 'Évaluation' },
     { id: 'inspection', label: 'Inspection' },
     { id: 'documents', label: 'Documents' },
@@ -25,7 +25,7 @@ const Header: React.FC = () => {
   };
 
   const [openMenu, setOpenMenu] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const { openModal } = useApp();
 
   return (
@@ -64,6 +64,12 @@ const Header: React.FC = () => {
                     </button>
                   );
                 })}
+                <button
+                  onClick={logout}
+                  className="rounded-lg block w-full text-left px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+                >
+                  Se déconnecter
+                </button>
               </nav>
 
               <div className="lg:hidden p-4 rounded-lg cursor-pointer relative" onClick={() => setOpenMenu(!openMenu)}>
@@ -88,11 +94,11 @@ const Header: React.FC = () => {
                         handleNav(item.id);
                       }}
                       className={`block w-full text-left px-4 py-2 font-medium transition-all duration-200 ${(item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
-                          (item.id === 'assessment' && location.pathname === '/results') ||
-                          (item.id === 'inspection' && location.pathname === '/inspection-results') ||
-                          (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
-                          ? "text-white bg-[#009688]"
-                          : "text-gray-700 hover:bg-gray-100"
+                        (item.id === 'assessment' && location.pathname === '/results') ||
+                        (item.id === 'inspection' && location.pathname === '/inspection-results') ||
+                        (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'))
+                        ? "text-white bg-[#009688]"
+                        : "text-gray-700 hover:bg-gray-100"
                         }`}
                       style={
                         (item.id === 'home' ? location.pathname === '/' : location.pathname === `/${item.id}`) ||
@@ -106,6 +112,12 @@ const Header: React.FC = () => {
                       {item.label}
                     </button>
                   ))}
+                  <button
+                    onClick={logout}
+                    className="rounded-lg block w-full text-left px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+                  >
+                    Se déconnecter
+                  </button>
                 </div>
               </div>
             </>

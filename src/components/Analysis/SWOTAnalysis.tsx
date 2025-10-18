@@ -44,7 +44,7 @@ const SWOTAnalysis: React.FC = () => {
   const generatePDF = () => {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    // const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 20;
     let yPos = 20;
 

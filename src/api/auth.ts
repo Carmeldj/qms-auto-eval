@@ -25,9 +25,12 @@ export const login = async (
       throw new Error("Login failed");
     }
     const data = await response.json();
-
+    // persist auth pieces so app can rehydrate on refresh
     localStorage.setItem("tenantId", data.user.tenantId);
     localStorage.setItem("accessToken", data.accessToken);
+    try {
+      localStorage.setItem("user", JSON.stringify(data.user));
+    } catch {}
 
     return data.user;
   } catch (e) {

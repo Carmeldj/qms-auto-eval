@@ -1,11 +1,17 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LoginModule: React.FC = () => {
     const navigate = useNavigate();
 
     const { openModal } = useApp();
+
+    const { isAuthenticated } = useAuth();
+    if (isAuthenticated) {
+        navigate("/");
+    }
     return (
         <div className="h-max flex flex-col items-center justify-center p-8 bg-white rounded-lg">
             <div className="max-w-md w-full border border-teal-200 bg-white shadow-lg rounded-xl p-8 flex flex-col items-center space-y-6">
@@ -30,7 +36,7 @@ const LoginModule: React.FC = () => {
                     </button>
                     <button
                         className="flex-1 px-4 py-2 rounded-lg font-medium text-white bg-teal-600 hover:bg-teal-700 transition"
-                        onClick={(e) => {
+                        onClick={() => {
                             openModal('login');
                         }}
                     >
