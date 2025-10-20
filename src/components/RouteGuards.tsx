@@ -5,17 +5,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 
 const PROTECTED_PREFIXES = [
-    '/assessment',
-    '/inspection',
-    '/results',
-    '/inspection-results',
-    '/documents',
-    '/procedures',
-    '/traceability',
-    '/pharmacovigilance',
-    '/ordonnancier',
-    '/swot',
-    '/pestel',
+    // '/assessment',
+    // '/inspection',
+    // '/results',
+    // '/inspection-results',
+    // '/documents',
+    // '/procedures',
+    // '/traceability',
+    // '/pharmacovigilance',
+    // '/ordonnancier',
+    // '/swot',
+    // '/pestel',
     'abc',
 ];
 

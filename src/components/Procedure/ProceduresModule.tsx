@@ -120,7 +120,7 @@ const ProceduresModule: React.FC = () => {
             <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
               <div className="flex flex-col md:flex-row items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-start space-x-2 mb-2">
                     <h4 className="font-semibold text-gray-900">{template.title}</h4>
                     {template.isRequired && (
                       <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
@@ -141,7 +141,7 @@ const ProceduresModule: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleCreateProcedure(template.id)}
-                  className="w-full md:w-max flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
+                  className="w-full md:w-max flex items-center justify-center space-x-2 text-white text-sm px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
                   style={{backgroundColor: '#009688'}}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}

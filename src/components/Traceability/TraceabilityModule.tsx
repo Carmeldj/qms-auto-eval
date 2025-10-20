@@ -136,7 +136,7 @@ const TraceabilityModule: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleCreateRecord(template.id)}
-                  className="w-full md:w-max flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
+                  className="w-full md:w-max flex items-center justify-center space-x-2 text-white text-sm px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
                   style={{backgroundColor: '#009688'}}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
