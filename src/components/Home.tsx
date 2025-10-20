@@ -152,7 +152,7 @@ const Home: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                      {pmq.name}
+                      {pmq.title}
                     </h3>
                     <p className="text-gray-600 text-xs sm:text-sm">{pmq.description}</p>
                   </div>
