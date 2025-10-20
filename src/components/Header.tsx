@@ -43,7 +43,7 @@ const Header: React.FC = () => {
           </div>
 
 
-          {!isAuthenticated ? (
+          {isAuthenticated ? (
             <>
               <nav className="hidden lg:flex space-x-1 text-sm">
                 {navItems.map(item => {
