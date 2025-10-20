@@ -6,6 +6,7 @@ import {
   CheckCircle,
   XCircle,
   FileText,
+  X,
 } from "lucide-react";
 import {
   PharmacyInfo,
@@ -155,6 +156,27 @@ const InspectionForm: React.FC = () => {
   if (step === "pharmacy") {
     return (
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => {
+              navigate('/')
+            }}
+            className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+          >
+            <X className="h-4 w-4" />
+            <span>Retour à l'acceuil</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="w-max px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+            style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+          >
+            Effacer tout
+          </button>
+        </div>
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="flex flex-col gap-4 md:flex-row items-start justify-between md:items-start mb-6 ">
             <div className="w-full flex flex-col items-center space-y-3">
@@ -176,18 +198,7 @@ const InspectionForm: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="w-max px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
-                style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
-              >
-                Effacer tout
-              </button>
-            </div>
+
           </div>
 
           <form onSubmit={handlePharmacySubmit} className="space-y-6">
@@ -339,6 +350,27 @@ const InspectionForm: React.FC = () => {
   if (step === "pharmacist") {
     return (
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => {
+              navigate('/')
+            }}
+            className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+          >
+            <X className="h-4 w-4" />
+            <span>Retour à l'acceuil</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="w-max px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+            style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+          >
+            Effacer tout
+          </button>
+        </div>
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center space-x-3">
@@ -357,15 +389,7 @@ const InspectionForm: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
-              >
-                Effacer tout
-              </button>
-            </div>
+
           </div>
 
           <form onSubmit={handlePharmacistSubmit} className="space-y-6">
@@ -489,6 +513,28 @@ const InspectionForm: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={() => {
+            navigate('/')
+          }}
+          className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour à l'acceuil</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleClearAll}
+          className="w-max px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+          style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+        >
+          Effacer tout
+        </button>
+      </div>
+
       {/* Progress Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -501,13 +547,7 @@ const InspectionForm: React.FC = () => {
             </p>
           </div>
           <div className="text-right flex items-center space-x-4">
-            <button
-              type="button"
-              onClick={handleClearAll}
-              className="px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
-            >
-              Effacer tout
-            </button>
+            
             <div>
               <div className="text-sm text-gray-500 mb-2">Progression</div>
               <div className="text-lg font-semibold" style={{ color: "#009688" }}>

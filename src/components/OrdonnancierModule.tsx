@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Calendar, FileText, Send, Download, List } from 'lucide-react';
+import { Plus, Calendar, FileText, Send, Download, List, X } from 'lucide-react';
 import { OrdonnancierEntry, PRODUITS_SOUS_CONTROLE, TRIMESTRES } from '../types/ordonnancier';
 import { ordonnancierService } from '../services/OrdonnancierService';
 
@@ -227,7 +227,7 @@ const OrdonnancierModule: React.FC = () => {
         <button
           onClick={() => setView('add')}
           className="flex items-center space-x-2 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-200 w-full sm:w-auto justify-center"
-          style={{backgroundColor: '#009688'}}
+          style={{ backgroundColor: '#009688' }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
         >
@@ -300,7 +300,7 @@ const OrdonnancierModule: React.FC = () => {
                     <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
                     <div className="flex justify-between">
                       <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
-                      <span className="font-semibold" style={{color: '#009688'}}>{entry.prixVente} FCFA</span>
+                      <span className="font-semibold" style={{ color: '#009688' }}>{entry.prixVente} FCFA</span>
                     </div>
                   </div>
                 </div>
@@ -314,15 +314,18 @@ const OrdonnancierModule: React.FC = () => {
 
   const renderAddForm = () => (
     <div className="max-w-4xl mx-auto">
+      <div className="mb-6 w-full ">
+        <button
+          onClick={() => setView('list')}
+          className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour</span>
+        </button>
+      </div>
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Nouvelle Délivrance</h2>
-          <button
-            onClick={() => setView('list')}
-            className="text-gray-600 hover:text-gray-800 text-sm sm:text-base"
-          >
-            Retour
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -334,9 +337,9 @@ const OrdonnancierModule: React.FC = () => {
               type="date"
               required
               value={formData.dateDelivrance}
-              onChange={(e) => setFormData({...formData, dateDelivrance: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, dateDelivrance: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+              style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
             />
           </div>
 
@@ -353,7 +356,7 @@ const OrdonnancierModule: React.FC = () => {
                   value={formData.prescripteur?.nomPrenoms}
                   onChange={(e) => setFormData({
                     ...formData,
-                    prescripteur: {...formData.prescripteur!, nomPrenoms: e.target.value}
+                    prescripteur: { ...formData.prescripteur!, nomPrenoms: e.target.value }
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
@@ -367,7 +370,7 @@ const OrdonnancierModule: React.FC = () => {
                   value={formData.prescripteur?.numeroOrdre}
                   onChange={(e) => setFormData({
                     ...formData,
-                    prescripteur: {...formData.prescripteur!, numeroOrdre: e.target.value}
+                    prescripteur: { ...formData.prescripteur!, numeroOrdre: e.target.value }
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
@@ -388,7 +391,7 @@ const OrdonnancierModule: React.FC = () => {
                   value={formData.patient?.nomPrenoms}
                   onChange={(e) => setFormData({
                     ...formData,
-                    patient: {...formData.patient!, nomPrenoms: e.target.value}
+                    patient: { ...formData.patient!, nomPrenoms: e.target.value }
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
@@ -402,7 +405,7 @@ const OrdonnancierModule: React.FC = () => {
                   value={formData.patient?.adresse}
                   onChange={(e) => setFormData({
                     ...formData,
-                    patient: {...formData.patient!, adresse: e.target.value}
+                    patient: { ...formData.patient!, adresse: e.target.value }
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
@@ -427,11 +430,11 @@ const OrdonnancierModule: React.FC = () => {
                           setIsCustomProduct(false);
                           setFormData({
                             ...formData,
-                            produit: {...formData.produit!, nature: ''}
+                            produit: { ...formData.produit!, nature: '' }
                           });
                         }}
                         className="w-4 h-4"
-                        style={{accentColor: '#009688'}}
+                        style={{ accentColor: '#009688' }}
                       />
                       <span className="text-sm text-gray-700">Sélectionner dans la liste</span>
                     </label>
@@ -443,11 +446,11 @@ const OrdonnancierModule: React.FC = () => {
                           setIsCustomProduct(true);
                           setFormData({
                             ...formData,
-                            produit: {...formData.produit!, nature: ''}
+                            produit: { ...formData.produit!, nature: '' }
                           });
                         }}
                         className="w-4 h-4"
-                        style={{accentColor: '#009688'}}
+                        style={{ accentColor: '#009688' }}
                       />
                       <span className="text-sm text-gray-700">Saisir manuellement</span>
                     </label>
@@ -459,7 +462,7 @@ const OrdonnancierModule: React.FC = () => {
                       value={formData.produit?.nature}
                       onChange={(e) => setFormData({
                         ...formData,
-                        produit: {...formData.produit!, nature: e.target.value}
+                        produit: { ...formData.produit!, nature: e.target.value }
                       })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     >
@@ -476,7 +479,7 @@ const OrdonnancierModule: React.FC = () => {
                       value={formData.produit?.nature}
                       onChange={(e) => setFormData({
                         ...formData,
-                        produit: {...formData.produit!, nature: e.target.value}
+                        produit: { ...formData.produit!, nature: e.target.value }
                       })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     />
@@ -494,7 +497,7 @@ const OrdonnancierModule: React.FC = () => {
                     value={formData.produit?.dose}
                     onChange={(e) => setFormData({
                       ...formData,
-                      produit: {...formData.produit!, dose: e.target.value}
+                      produit: { ...formData.produit!, dose: e.target.value }
                     })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -510,7 +513,7 @@ const OrdonnancierModule: React.FC = () => {
                     value={formData.produit?.quantite}
                     onChange={(e) => setFormData({
                       ...formData,
-                      produit: {...formData.produit!, quantite: parseInt(e.target.value)}
+                      produit: { ...formData.produit!, quantite: parseInt(e.target.value) }
                     })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
@@ -524,7 +527,7 @@ const OrdonnancierModule: React.FC = () => {
                     required
                     min="0"
                     value={formData.prixVente}
-                    onChange={(e) => setFormData({...formData, prixVente: parseFloat(e.target.value)})}
+                    onChange={(e) => setFormData({ ...formData, prixVente: parseFloat(e.target.value) })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 </div>
@@ -545,7 +548,7 @@ const OrdonnancierModule: React.FC = () => {
                   value={formData.pharmacien?.nom}
                   onChange={(e) => setFormData({
                     ...formData,
-                    pharmacien: {...formData.pharmacien!, nom: e.target.value}
+                    pharmacien: { ...formData.pharmacien!, nom: e.target.value }
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
@@ -559,7 +562,7 @@ const OrdonnancierModule: React.FC = () => {
                   value={formData.pharmacien?.signature}
                   onChange={(e) => setFormData({
                     ...formData,
-                    pharmacien: {...formData.pharmacien!, signature: e.target.value}
+                    pharmacien: { ...formData.pharmacien!, signature: e.target.value }
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
@@ -572,7 +575,7 @@ const OrdonnancierModule: React.FC = () => {
               type="submit"
               disabled={loading}
               className="flex-1 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all text-sm sm:text-base"
-              style={{backgroundColor: loading ? '#ccc' : '#009688'}}
+              style={{ backgroundColor: loading ? '#ccc' : '#009688' }}
             >
               {loading ? 'Enregistrement...' : 'Enregistrer'}
             </button>
@@ -591,15 +594,18 @@ const OrdonnancierModule: React.FC = () => {
 
   const renderTrimesterView = () => (
     <div className="max-w-6xl mx-auto">
+      <div className="mb-6 w-full ">
+        <button
+          onClick={() => setView('list')}
+          className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour</span>
+        </button>
+      </div>
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Rapport Trimestriel</h2>
-          <button
-            onClick={() => setView('list')}
-            className="text-gray-600 hover:text-gray-800 text-sm sm:text-base"
-          >
-            Retour
-          </button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-6">
@@ -688,7 +694,7 @@ const OrdonnancierModule: React.FC = () => {
                     <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
                     <div className="flex justify-between">
                       <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
-                      <span className="font-semibold" style={{color: '#009688'}}>{entry.prixVente} FCFA</span>
+                      <span className="font-semibold" style={{ color: '#009688' }}>{entry.prixVente} FCFA</span>
                     </div>
                   </div>
                 </div>
@@ -706,9 +712,8 @@ const OrdonnancierModule: React.FC = () => {
               <button
                 onClick={handleSendEmail}
                 disabled={loading}
-                className={`flex items-center justify-center space-x-2 px-4 sm:px-6 py-3 rounded-lg text-sm sm:text-base ${
-                  loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                } text-white`}
+                className={`flex items-center justify-center space-x-2 px-4 sm:px-6 py-3 rounded-lg text-sm sm:text-base ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white`}
               >
                 <Send className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>{loading ? 'Envoi...' : 'Envoyer à ABMed'}</span>

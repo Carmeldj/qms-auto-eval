@@ -4,6 +4,7 @@ import {
   ChevronRight,
   MessageSquare,
   CheckCircle,
+  X,
 } from "lucide-react";
 import { principles, questions } from "../data/principles";
 import { pmqCategories } from "../data/principles";
@@ -100,6 +101,27 @@ const AssessmentForm: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={() => {
+            navigate('/')
+          }}
+          className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour à l'acceuil</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleClearAll}
+          className="w-max px-3 py-2 rounded-md text-sm font-medium border border-gray-200 bg-white hover:bg-gray-50"
+          style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+        >
+          Effacer tout
+        </button>
+      </div>
       {/* Progress Header */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items- justify-between gap-3 sm:gap-0 mb-4">
@@ -121,7 +143,7 @@ const AssessmentForm: React.FC = () => {
             >
               {answeredQuestions}/{totalQuestions} questions
             </div>
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <button
                 onClick={handleClearAll}
                 className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium border transition-colors duration-150"
@@ -131,7 +153,7 @@ const AssessmentForm: React.FC = () => {
               >
                 Effacer tout
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 

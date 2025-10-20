@@ -156,11 +156,11 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
 
   const isFormValid = () => {
     return notifier.fullName.trim() !== '' &&
-           notifier.commune.trim() !== '' &&
-           notifier.telephone.trim() !== '' &&
-           patient.lastName.trim() !== '' &&
-           patient.firstName.trim() !== '' &&
-           suspectProducts.some(p => p.productName.trim() !== '');
+      notifier.commune.trim() !== '' &&
+      notifier.telephone.trim() !== '' &&
+      patient.lastName.trim() !== '' &&
+      patient.firstName.trim() !== '' &&
+      suspectProducts.some(p => p.productName.trim() !== '');
   };
 
   const createReport = (): AdverseEventReport => {
@@ -245,6 +245,15 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
 
   return (
     <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="mb-6 w-full ">
+        <button
+          onClick={onCancel}
+          className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour</span>
+        </button>
+      </div>
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
         <div className="flex flex-col gap-4">
@@ -257,22 +266,15 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={onCancel}
-              className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
-            >
-              <X className="h-4 w-4" />
-              <span>Retour</span>
-            </button>
+
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid() || isGenerating}
-              className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${
-                isFormValid() && !isGenerating
-                  ? 'text-white'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-              style={isFormValid() && !isGenerating ? {backgroundColor: '#009688'} : {}}
+              className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${isFormValid() && !isGenerating
+                ? 'text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              style={isFormValid() && !isGenerating ? { backgroundColor: '#009688' } : {}}
             >
               {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               <span>{isGenerating ? 'Génération...' : 'Générer PDF'}</span>
@@ -280,11 +282,10 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
             <button
               onClick={handleSendEmail}
               disabled={!isFormValid() || isSending}
-              className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${
-                isFormValid() && !isSending
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${isFormValid() && !isSending
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
             >
               {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
               <span>{isSending ? 'Envoi...' : 'Envoyer à ABMed'}</span>
@@ -300,12 +301,11 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
             <button
               key={section.id}
               onClick={() => setCurrentSection(section.id as any)}
-              className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap text-sm sm:text-base ${
-                currentSection === section.id
-                  ? 'text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              style={currentSection === section.id ? {backgroundColor: '#009688'} : {}}
+              className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap text-sm sm:text-base ${currentSection === section.id
+                ? 'text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              style={currentSection === section.id ? { backgroundColor: '#009688' } : {}}
             >
               {section.label}
             </button>
@@ -328,9 +328,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.department}
-                  onChange={(e) => setNotifier({...notifier, department: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, department: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -340,9 +340,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.zs}
-                  onChange={(e) => setNotifier({...notifier, zs: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, zs: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -355,9 +355,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.commune}
-                  onChange={(e) => setNotifier({...notifier, commune: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, commune: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -367,9 +367,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.fs}
-                  onChange={(e) => setNotifier({...notifier, fs: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, fs: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -381,9 +381,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               <input
                 type="text"
                 value={notifier.fullName}
-                onChange={(e) => setNotifier({...notifier, fullName: e.target.value})}
+                onChange={(e) => setNotifier({ ...notifier, fullName: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
               />
             </div>
 
@@ -394,9 +394,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 </label>
                 <select
                   value={notifier.qualification}
-                  onChange={(e) => setNotifier({...notifier, qualification: e.target.value as any})}
+                  onChange={(e) => setNotifier({ ...notifier, qualification: e.target.value as any })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 >
                   <option value="medecin">Médecin</option>
                   <option value="pharmacien">Pharmacien</option>
@@ -413,9 +413,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.specialty || ''}
-                  onChange={(e) => setNotifier({...notifier, specialty: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, specialty: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -428,9 +428,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="tel"
                   value={notifier.telephone}
-                  onChange={(e) => setNotifier({...notifier, telephone: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, telephone: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -440,9 +440,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="email"
                   value={notifier.email}
-                  onChange={(e) => setNotifier({...notifier, email: e.target.value})}
+                  onChange={(e) => setNotifier({ ...notifier, email: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -454,9 +454,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               <input
                 type="date"
                 value={notifier.notificationDate}
-                onChange={(e) => setNotifier({...notifier, notificationDate: e.target.value})}
+                onChange={(e) => setNotifier({ ...notifier, notificationDate: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
               />
             </div>
           </div>
@@ -475,9 +475,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={patient.lastName}
-                  onChange={(e) => setPatient({...patient, lastName: e.target.value})}
+                  onChange={(e) => setPatient({ ...patient, lastName: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -487,9 +487,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={patient.firstName}
-                  onChange={(e) => setPatient({...patient, firstName: e.target.value})}
+                  onChange={(e) => setPatient({ ...patient, firstName: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -501,9 +501,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 </label>
                 <select
                   value={patient.sex}
-                  onChange={(e) => setPatient({...patient, sex: e.target.value as 'M' | 'F'})}
+                  onChange={(e) => setPatient({ ...patient, sex: e.target.value as 'M' | 'F' })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 >
                   <option value="M">Masculin</option>
                   <option value="F">Féminin</option>
@@ -516,9 +516,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="number"
                   value={patient.ageYears || ''}
-                  onChange={(e) => setPatient({...patient, ageYears: parseInt(e.target.value) || undefined})}
+                  onChange={(e) => setPatient({ ...patient, ageYears: parseInt(e.target.value) || undefined })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -529,9 +529,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   type="number"
                   step="0.1"
                   value={patient.weight || ''}
-                  onChange={(e) => setPatient({...patient, weight: parseFloat(e.target.value) || undefined})}
+                  onChange={(e) => setPatient({ ...patient, weight: parseFloat(e.target.value) || undefined })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -541,9 +541,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="number"
                   value={patient.height || ''}
-                  onChange={(e) => setPatient({...patient, height: parseInt(e.target.value) || undefined})}
+                  onChange={(e) => setPatient({ ...patient, height: parseInt(e.target.value) || undefined })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -554,9 +554,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               </label>
               <textarea
                 value={patient.address}
-                onChange={(e) => setPatient({...patient, address: e.target.value})}
+                onChange={(e) => setPatient({ ...patient, address: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 rows={2}
               />
             </div>
@@ -586,9 +586,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   <input
                     type="checkbox"
                     checked={medicalHistory[key as keyof MedicalHistory] as boolean}
-                    onChange={(e) => setMedicalHistory({...medicalHistory, [key]: e.target.checked})}
+                    onChange={(e) => setMedicalHistory({ ...medicalHistory, [key]: e.target.checked })}
                     className="w-4 h-4 rounded"
-                    style={{accentColor: '#009688'}}
+                    style={{ accentColor: '#009688' }}
                   />
                   <span className="text-sm sm:text-base text-gray-700">{label}</span>
                 </label>
@@ -601,9 +601,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               </label>
               <textarea
                 value={medicalHistory.other || ''}
-                onChange={(e) => setMedicalHistory({...medicalHistory, other: e.target.value})}
+                onChange={(e) => setMedicalHistory({ ...medicalHistory, other: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 rows={2}
               />
             </div>
@@ -637,9 +637,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   <input
                     type="checkbox"
                     checked={adverseEvent[key as keyof AdverseEvent] as boolean}
-                    onChange={(e) => setAdverseEvent({...adverseEvent, [key]: e.target.checked})}
+                    onChange={(e) => setAdverseEvent({ ...adverseEvent, [key]: e.target.checked })}
                     className="w-4 h-4 rounded"
-                    style={{accentColor: '#009688'}}
+                    style={{ accentColor: '#009688' }}
                   />
                   <span className="text-sm sm:text-base text-gray-700">{label}</span>
                 </label>
@@ -652,9 +652,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               </label>
               <textarea
                 value={adverseEvent.otherDescription || ''}
-                onChange={(e) => setAdverseEvent({...adverseEvent, otherDescription: e.target.value})}
+                onChange={(e) => setAdverseEvent({ ...adverseEvent, otherDescription: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 rows={3}
                 placeholder="Décrire les autres événements indésirables observés..."
               />
@@ -668,9 +668,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="date"
                   value={adverseEvent.administrationDate}
-                  onChange={(e) => setAdverseEvent({...adverseEvent, administrationDate: e.target.value})}
+                  onChange={(e) => setAdverseEvent({ ...adverseEvent, administrationDate: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
               <div>
@@ -680,9 +680,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="date"
                   value={adverseEvent.eventDate}
-                  onChange={(e) => setAdverseEvent({...adverseEvent, eventDate: e.target.value})}
+                  onChange={(e) => setAdverseEvent({ ...adverseEvent, eventDate: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
               </div>
             </div>
@@ -697,9 +697,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   <input
                     type="number"
                     value={adverseEvent.delayMinutes || ''}
-                    onChange={(e) => setAdverseEvent({...adverseEvent, delayMinutes: parseInt(e.target.value) || undefined})}
+                    onChange={(e) => setAdverseEvent({ ...adverseEvent, delayMinutes: parseInt(e.target.value) || undefined })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                   />
                 </div>
                 <div>
@@ -707,9 +707,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   <input
                     type="number"
                     value={adverseEvent.delayHours || ''}
-                    onChange={(e) => setAdverseEvent({...adverseEvent, delayHours: parseInt(e.target.value) || undefined})}
+                    onChange={(e) => setAdverseEvent({ ...adverseEvent, delayHours: parseInt(e.target.value) || undefined })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                   />
                 </div>
                 <div>
@@ -717,9 +717,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   <input
                     type="number"
                     value={adverseEvent.delayDays || ''}
-                    onChange={(e) => setAdverseEvent({...adverseEvent, delayDays: parseInt(e.target.value) || undefined})}
+                    onChange={(e) => setAdverseEvent({ ...adverseEvent, delayDays: parseInt(e.target.value) || undefined })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                   />
                 </div>
                 <div>
@@ -727,9 +727,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   <input
                     type="number"
                     value={adverseEvent.delayMonths || ''}
-                    onChange={(e) => setAdverseEvent({...adverseEvent, delayMonths: parseInt(e.target.value) || undefined})}
+                    onChange={(e) => setAdverseEvent({ ...adverseEvent, delayMonths: parseInt(e.target.value) || undefined })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                   />
                 </div>
               </div>
@@ -748,7 +748,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               <button
                 onClick={addProduct}
                 className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm sm:text-base"
-                style={{backgroundColor: '#009688'}}
+                style={{ backgroundColor: '#009688' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
               >
@@ -781,7 +781,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.productName}
                         onChange={(e) => updateProduct(product.id, 'productName', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                     <div>
@@ -793,7 +793,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.manufacturer}
                         onChange={(e) => updateProduct(product.id, 'manufacturer', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                   </div>
@@ -808,7 +808,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.purchaseLocation}
                         onChange={(e) => updateProduct(product.id, 'purchaseLocation', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                     <div>
@@ -820,7 +820,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.lotNumber}
                         onChange={(e) => updateProduct(product.id, 'lotNumber', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                     <div>
@@ -832,7 +832,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.expirationDate}
                         onChange={(e) => updateProduct(product.id, 'expirationDate', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                   </div>
@@ -846,7 +846,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.administrationRoute}
                         onChange={(e) => updateProduct(product.id, 'administrationRoute', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       >
                         <option value="">Sélectionner...</option>
                         <option value="Orale">Orale</option>
@@ -870,7 +870,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         onChange={(e) => updateProduct(product.id, 'dosage', e.target.value)}
                         placeholder="ex: 500mg 3x/jour"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                   </div>
@@ -884,7 +884,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                       value={product.indication}
                       onChange={(e) => updateProduct(product.id, 'indication', e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                      style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                      style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                     />
                   </div>
 
@@ -898,7 +898,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.startDate}
                         onChange={(e) => updateProduct(product.id, 'startDate', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                     <div>
@@ -910,7 +910,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         value={product.endDate}
                         onChange={(e) => updateProduct(product.id, 'endDate', e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                     <div>
@@ -923,7 +923,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         onChange={(e) => updateProduct(product.id, 'treatmentDuration', e.target.value)}
                         placeholder="ex: 7 jours"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                       />
                     </div>
                   </div>
@@ -944,9 +944,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <input
                       type="checkbox"
                       checked={productContext[key as keyof ProductContext] as boolean}
-                      onChange={(e) => setProductContext({...productContext, [key]: e.target.checked})}
+                      onChange={(e) => setProductContext({ ...productContext, [key]: e.target.checked })}
                       className="w-4 h-4 rounded"
-                      style={{accentColor: '#009688'}}
+                      style={{ accentColor: '#009688' }}
                     />
                     <span className="text-xs sm:text-sm text-gray-700">{label}</span>
                   </label>
@@ -959,9 +959,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 </label>
                 <select
                   value={productContext.acquisitionPlace}
-                  onChange={(e) => setProductContext({...productContext, acquisitionPlace: e.target.value as any})}
+                  onChange={(e) => setProductContext({ ...productContext, acquisitionPlace: e.target.value as any })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 >
                   <option value="pharmacie">Pharmacie</option>
                   <option value="formation_sanitaire">Formation Sanitaire</option>
@@ -993,9 +993,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <input
                       type="checkbox"
                       checked={severity[key as keyof SeverityEvolution] as boolean}
-                      onChange={(e) => setSeverity({...severity, [key]: e.target.checked})}
+                      onChange={(e) => setSeverity({ ...severity, [key]: e.target.checked })}
                       className="w-4 h-4 rounded"
-                      style={{accentColor: '#009688'}}
+                      style={{ accentColor: '#009688' }}
                     />
                     <span className="text-sm sm:text-base text-gray-700">{label}</span>
                   </label>
@@ -1018,9 +1018,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <input
                       type="checkbox"
                       checked={severity[key as keyof SeverityEvolution] as boolean}
-                      onChange={(e) => setSeverity({...severity, [key]: e.target.checked})}
+                      onChange={(e) => setSeverity({ ...severity, [key]: e.target.checked })}
                       className="w-4 h-4 rounded"
-                      style={{accentColor: '#009688'}}
+                      style={{ accentColor: '#009688' }}
                     />
                     <span className="text-sm sm:text-base text-gray-700">{label}</span>
                   </label>
@@ -1037,9 +1037,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <input
                       type="checkbox"
                       checked={severity.medicationStopped}
-                      onChange={(e) => setSeverity({...severity, medicationStopped: e.target.checked})}
+                      onChange={(e) => setSeverity({ ...severity, medicationStopped: e.target.checked })}
                       className="w-4 h-4 rounded"
-                      style={{accentColor: '#009688'}}
+                      style={{ accentColor: '#009688' }}
                     />
                     <span className="text-sm font-medium text-gray-900">Arrêt du médicament</span>
                   </label>
@@ -1055,9 +1055,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                           <input
                             type="checkbox"
                             checked={severity[key as keyof SeverityEvolution] as boolean}
-                            onChange={(e) => setSeverity({...severity, [key]: e.target.checked})}
+                            onChange={(e) => setSeverity({ ...severity, [key]: e.target.checked })}
                             className="w-4 h-4 rounded"
-                            style={{accentColor: '#009688'}}
+                            style={{ accentColor: '#009688' }}
                           />
                           <span className="text-sm text-gray-700">{label}</span>
                         </label>
@@ -1071,9 +1071,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <input
                       type="checkbox"
                       checked={severity.dosageReduced}
-                      onChange={(e) => setSeverity({...severity, dosageReduced: e.target.checked})}
+                      onChange={(e) => setSeverity({ ...severity, dosageReduced: e.target.checked })}
                       className="w-4 h-4 rounded"
-                      style={{accentColor: '#009688'}}
+                      style={{ accentColor: '#009688' }}
                     />
                     <span className="text-sm font-medium text-gray-900">Diminution de la dose du médicament</span>
                   </label>
@@ -1089,9 +1089,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                           <input
                             type="checkbox"
                             checked={severity[key as keyof SeverityEvolution] as boolean}
-                            onChange={(e) => setSeverity({...severity, [key]: e.target.checked})}
+                            onChange={(e) => setSeverity({ ...severity, [key]: e.target.checked })}
                             className="w-4 h-4 rounded"
-                            style={{accentColor: '#009688'}}
+                            style={{ accentColor: '#009688' }}
                           />
                           <span className="text-sm text-gray-700">{label}</span>
                         </label>
@@ -1105,9 +1105,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <input
                       type="checkbox"
                       checked={severity.medicationReadministered}
-                      onChange={(e) => setSeverity({...severity, medicationReadministered: e.target.checked})}
+                      onChange={(e) => setSeverity({ ...severity, medicationReadministered: e.target.checked })}
                       className="w-4 h-4 rounded"
-                      style={{accentColor: '#009688'}}
+                      style={{ accentColor: '#009688' }}
                     />
                     <span className="text-sm font-medium text-gray-900">Le médicament a été réadministré</span>
                   </label>
@@ -1117,9 +1117,9 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         <input
                           type="checkbox"
                           checked={severity.effectReappeared}
-                          onChange={(e) => setSeverity({...severity, effectReappeared: e.target.checked})}
+                          onChange={(e) => setSeverity({ ...severity, effectReappeared: e.target.checked })}
                           className="w-4 h-4 rounded"
-                          style={{accentColor: '#009688'}}
+                          style={{ accentColor: '#009688' }}
                         />
                         <span className="text-sm text-gray-700">L'effet indésirable est réapparu</span>
                       </label>
@@ -1164,7 +1164,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 Votre notification a été sauvegardée avec succès. Le numéro épidémiologique est:
               </p>
               <div className="bg-gray-100 rounded-lg p-3 mb-6">
-                <p className="font-mono font-bold text-lg" style={{color: '#009688'}}>
+                <p className="font-mono font-bold text-lg" style={{ color: '#009688' }}>
                   {savedReport?.epidNumber}
                 </p>
               </div>
