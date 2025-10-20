@@ -154,7 +154,7 @@ const InspectionForm: React.FC = () => {
 
   if (step === "pharmacy") {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="flex flex-col gap-4 md:flex-row items-start justify-between md:items-start mb-6 ">
             <div className="w-full flex flex-col items-center space-y-3">
@@ -338,7 +338,7 @@ const InspectionForm: React.FC = () => {
 
   if (step === "pharmacist") {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center space-x-3">
@@ -488,7 +488,7 @@ const InspectionForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Progress Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex items-center justify-between mb-4">

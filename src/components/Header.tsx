@@ -29,15 +29,15 @@ const Header: React.FC = () => {
   const { openModal } = useApp();
 
   return (
-    <header className="bg-white shadow-md border-b" style={{ borderBottomColor: '#e0f2f1' }}>
+    <header className="bg-white shadow-md border-b py-2" style={{ borderBottomColor: '#e0f2f1' }}>
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center py-3">
+        <div className="w-full flex justify-between items-center py-3">
           <div className="flex items-center space-x-2 pl-4 cursor-pointer" onClick={() => navigate('/')}>
             <div className="p-1.5 sm:p-2 rounded-lg" style={{ backgroundColor: '#009688' }}>
-              <Stethoscope className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+              <Stethoscope className="size-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">PHARMA QMS</h1>
+              <h1 className="text-lg sm:text- font-bold text-gray-900">PHARMA QMS</h1>
               <p className="text-xs sm:text-sm text-gray-600 hidden xs:block">Système de Management de la Qualité</p>
             </div>
           </div>
@@ -45,7 +45,7 @@ const Header: React.FC = () => {
 
           {isAuthenticated ? (
             <>
-              <nav className="hidden lg:flex space-x-1">
+              <nav className="hidden lg:flex space-x-1 text-sm">
                 {navItems.map(item => {
                   const path = item.id === 'home' ? '/' : `/${item.id}`;
                   const isActive = location.pathname === path || (item.id === 'assessment' && location.pathname === '/results') || (item.id === 'inspection' && location.pathname === '/inspection-results') || (item.id === 'home' && (location.pathname === '/swot' || location.pathname === '/pestel'));
@@ -64,13 +64,9 @@ const Header: React.FC = () => {
                     </button>
                   );
                 })}
-                <button
-                  onClick={logout}
-                  className="rounded-lg block w-full text-left px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
-                >
-                  Se déconnecter
-                </button>
+
               </nav>
+
 
               <div className="lg:hidden p-4 rounded-lg cursor-pointer relative" onClick={() => setOpenMenu(!openMenu)}>
                 {!openMenu ? (
@@ -124,7 +120,7 @@ const Header: React.FC = () => {
           ) : (
             <>
               <button
-                className="px-4 py-2 rounded-lg font-medium text-white mr-4"
+                className="px-4 py-2 rounded-lg font-medium text-white text-sm mr-4"
                 style={{ backgroundColor: '#009688' }}
                 onClick={() => {
                   // e.stopPropagation();
@@ -135,6 +131,13 @@ const Header: React.FC = () => {
               </button>
             </>
           )}
+
+          {isAuthenticated && <button
+            onClick={logout}
+            className="hidden w-max rounded-lg lg:block text-sm px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+          >
+            Se déconnecter
+          </button>}
 
         </div>
       </div>

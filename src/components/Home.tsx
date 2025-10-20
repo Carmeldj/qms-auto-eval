@@ -44,7 +44,7 @@ const Home: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
       {/* Hero Section */}
-      <div className="text-center mb-8 sm:mb-12">
+      <div className="mt-8 text-center mb-8 sm:mb-12">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
           Évaluez votre <span style={{ color: '#009688' }}>PHARMA QMS</span>
         </h1>
@@ -59,7 +59,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/assessment');
               }}
-              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
               style={{ backgroundColor: '#009688' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/inspection');
               }}
-              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
               style={{ backgroundColor: '#ff5722' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e64a19'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ff5722'}
@@ -85,7 +85,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/swot');
               }}
-              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
+              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm  transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
               style={{ borderColor: '#4caf50', color: '#4caf50' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#4caf50';
@@ -104,7 +104,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/pestel');
               }}
-              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
+              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm  transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
               style={{ borderColor: '#2196f3', color: '#2196f3' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2196f3';
