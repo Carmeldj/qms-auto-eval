@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { AdverseEventReport } from '../types/adverseEvents';
+import { generateDocumentCode, getCategoryByCode, getProcessForCategory } from '../data/documentClassification';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -130,6 +131,52 @@ class AdverseEventService {
     pdf.setFontSize(10);
     pdf.text('OBSERVÉS APRÈS L\'UTILISATION DE PRODUIT DE SANTÉ', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 6;
+
+    // Classification Badge (code 11.01 for Pharmacovigilance)
+    let classificationCode = '';
+    let pharmacyInitials = '';
+
+    if ((report.notifier as any)._pharmacyInitials && report.notifier.fs) {
+      pharmacyInitials = (report.notifier as any)._pharmacyInitials;
+    } else if (report.notifier.fs) {
+      const words = report.notifier.fs.trim().split(/\s+/);
+      pharmacyInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
+    }
+
+    if (pharmacyInitials) {
+      const categoryInfo = getCategoryByCode('11.01');
+      const processInfo = categoryInfo ? getProcessForCategory('11.01') : undefined;
+
+      if (processInfo) {
+        classificationCode = generateDocumentCode(pharmacyInitials, processInfo.code, '11.01');
+
+        // Badge with classification code
+        pdf.setFillColor(224, 242, 241);
+        pdf.setDrawColor(0, 150, 136);
+        pdf.setLineWidth(0.5);
+        const badgeWidth = 70;
+        const badgeHeight = 12;
+        const badgeX = (pageWidth - badgeWidth) / 2;
+        pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 2, 2, 'FD');
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 150, 136);
+        pdf.text(classificationCode, pageWidth / 2, yPosition + 8, { align: 'center' });
+        yPosition += badgeHeight + 5;
+
+        // Description of classification
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text(`Processus ${processInfo.code}: ${processInfo.name}`, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 4;
+        pdf.text(categoryInfo.name, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 7;
+
+        pdf.setTextColor(0, 0, 0);
+      }
+    }
 
     addText(`NUM EPID: ${report.epidNumber}`, 10, true, 1.2);
     addText(`Date: ${new Date(report.notifier.notificationDate).toLocaleDateString('fr-FR')}`, 10, false, 1.2);

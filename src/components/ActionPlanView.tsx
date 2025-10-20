@@ -29,7 +29,7 @@ const ActionPlanView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           Plan d'Action Qualité - 12 Mois

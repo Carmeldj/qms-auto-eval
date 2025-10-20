@@ -1,18 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Calendar, FileText, Send, Download, List } from 'lucide-react';
+import { Plus, Calendar, FileText, Send, Download, List, Settings } from 'lucide-react';
 import { OrdonnancierEntry, PRODUITS_SOUS_CONTROLE, TRIMESTRES } from '../types/ordonnancier';
 import { ordonnancierService } from '../services/OrdonnancierService';
+import ClassificationBadge from './ClassificationBadge';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const OrdonnancierModule: React.FC = () => {
-  const [view, setView] = useState<'list' | 'add' | 'trimester'>('list');
+  const [view, setView] = useState<'list' | 'add' | 'trimester' | 'settings'>('list');
   const [entries, setEntries] = useState<OrdonnancierEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<OrdonnancierEntry[]>([]);
   const [selectedTrimester, setSelectedTrimester] = useState<number>(getCurrentTrimester());
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
+  const [pharmacyName, setPharmacyName] = useState<string>('');
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
+  const [pharmacyEmail, setPharmacyEmail] = useState<string>('');
+
+  const handlePharmacyNameChange = (value: string) => {
+    setPharmacyName(value);
+    if (value.trim()) {
+      const words = value.trim().split(/\s+/);
+      const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
+      setPharmacyInitials(autoInitials);
+    }
+  };
+
+  const handleInitialsChange = (value: string) => {
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
+    setPharmacyInitials(sanitized);
+  };
 
   const [formData, setFormData] = useState<Partial<OrdonnancierEntry>>({
     dateDelivrance: new Date().toISOString().split('T')[0],
@@ -32,11 +50,29 @@ const OrdonnancierModule: React.FC = () => {
 
   useEffect(() => {
     loadEntries();
+    loadPharmacySettings();
   }, []);
 
   useEffect(() => {
     filterEntriesByTrimester();
   }, [entries, selectedTrimester, selectedYear]);
+
+  const loadPharmacySettings = () => {
+    const savedName = localStorage.getItem('pharmacyName');
+    const savedInitials = localStorage.getItem('pharmacyInitials');
+    const savedEmail = localStorage.getItem('pharmacyEmail');
+
+    if (savedName) setPharmacyName(savedName);
+    if (savedInitials) setPharmacyInitials(savedInitials);
+    if (savedEmail) setPharmacyEmail(savedEmail);
+  };
+
+  const savePharmacySettings = () => {
+    localStorage.setItem('pharmacyName', pharmacyName);
+    localStorage.setItem('pharmacyInitials', pharmacyInitials);
+    localStorage.setItem('pharmacyEmail', pharmacyEmail);
+    alert('Paramètres sauvegardés avec succès!');
+  };
 
   const loadEntries = async () => {
     setLoading(true);
@@ -97,12 +133,18 @@ const OrdonnancierModule: React.FC = () => {
   };
 
   const handleDownloadPDF = async () => {
+    if (!pharmacyName.trim()) {
+      alert('Veuillez configurer le nom de la pharmacie dans les paramètres');
+      return;
+    }
+
     try {
       await ordonnancierService.generateTrimesterPDF(
         filteredEntries,
         selectedTrimester,
         selectedYear,
-        'Officine - Nom de la pharmacie'
+        pharmacyName,
+        pharmacyInitials
       );
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -122,14 +164,20 @@ const OrdonnancierModule: React.FC = () => {
 
     if (!confirmed) return;
 
+    if (!pharmacyName.trim() || !pharmacyEmail.trim()) {
+      alert('Veuillez configurer le nom et l\'email de la pharmacie dans les paramètres');
+      return;
+    }
+
     setLoading(true);
     try {
       await ordonnancierService.sendTrimesterReport(
         filteredEntries,
         selectedTrimester,
         selectedYear,
-        'Officine - Nom de la pharmacie',
-        'pharmacie@example.com'
+        pharmacyName,
+        pharmacyEmail,
+        pharmacyInitials
       );
       alert('Rapport envoyé avec succès à l\'ABMed!');
     } catch (error) {
@@ -237,13 +285,20 @@ const OrdonnancierModule: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
-        <div className="flex items-center space-x-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-6">
           <button
             onClick={() => setView('trimester')}
             className="flex items-center space-x-2 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-all text-sm sm:text-base w-full sm:w-auto justify-center"
           >
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
             <span>Rapport Trimestriel</span>
+          </button>
+          <button
+            onClick={() => setView('settings')}
+            className="flex items-center space-x-2 bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-700 transition-all text-sm sm:text-base w-full sm:w-auto justify-center"
+          >
+            <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>Paramètres</span>
           </button>
         </div>
 
@@ -552,7 +607,7 @@ const OrdonnancierModule: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Signature / Paraphe
+                  Numéro d'ordre du pharmacien
                 </label>
                 <input
                   type="text"
@@ -562,6 +617,7 @@ const OrdonnancierModule: React.FC = () => {
                     pharmacien: {...formData.pharmacien!, signature: e.target.value}
                   })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="Ex: 123/BEN"
                 />
               </div>
             </div>
@@ -720,11 +776,107 @@ const OrdonnancierModule: React.FC = () => {
     </div>
   );
 
+  const renderSettings = () => (
+    <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Paramètres de la Pharmacie</h2>
+
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Nom de la pharmacie <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={pharmacyName}
+            onChange={(e) => handlePharmacyNameChange(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+            style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+            placeholder="Ex: Pharmacie Camp Guézo"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email de la pharmacie <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            value={pharmacyEmail}
+            onChange={(e) => setPharmacyEmail(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+            style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+            placeholder="pharmacie@example.com"
+          />
+        </div>
+
+        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-4 border-2 border-teal-200">
+          <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+            <FileText className="h-4 w-4 text-teal-600" />
+            <span>Classification Documentaire</span>
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">
+                Initiales de la pharmacie <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={pharmacyInitials}
+                onChange={(e) => handleInitialsChange(e.target.value)}
+                placeholder="Ex: PCG"
+                maxLength={3}
+                className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent font-bold uppercase tracking-wider"
+                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                3 lettres max - Auto-généré
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">
+                Code de classification
+              </label>
+              <div className="bg-white border-2 border-teal-300 rounded-lg px-3 py-2">
+                <ClassificationBadge
+                  classificationCode="11.02"
+                  pharmacyInitials={pharmacyInitials}
+                  showFullCode={true}
+                  size="small"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={savePharmacySettings}
+            className="px-6 py-3 rounded-lg text-white transition-colors duration-200"
+            style={{backgroundColor: '#009688'}}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+          >
+            Enregistrer
+          </button>
+          <button
+            onClick={() => setView('list')}
+            className="px-6 py-3 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors duration-200"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       {view === 'list' && renderList()}
       {view === 'add' && renderAddForm()}
       {view === 'trimester' && renderTrimesterView()}
+      {view === 'settings' && renderSettings()}
     </div>
   );
 };

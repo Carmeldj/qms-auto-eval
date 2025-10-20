@@ -1,5 +1,6 @@
 import { DocumentTemplate, DocumentData } from '../types/documents';
 import jsPDF from 'jspdf';
+import { generateDocumentCode, getCategoryByCode, getProcessForCategory } from '../data/documentClassification';
 
 export class DocumentService {
   private static instance: DocumentService;
@@ -116,13 +117,69 @@ export class DocumentService {
         yPosition += 6;
       };
 
+      // Generate classification code FIRST (before header)
+      let classificationCode = '';
+      let pharmacyInitials = '';
+      let categoryInfo = null;
+      let processInfo = null;
+
+      if (template.classificationCode && document.data.pharmacyName) {
+        // Use stored initials if available, otherwise extract from pharmacy name
+        if (document.data._pharmacyInitials) {
+          pharmacyInitials = document.data._pharmacyInitials;
+        } else {
+          const words = document.data.pharmacyName.trim().split(/\s+/);
+          pharmacyInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
+        }
+
+        // Get process code
+        categoryInfo = getCategoryByCode(template.classificationCode);
+        processInfo = categoryInfo ? getProcessForCategory(template.classificationCode) : undefined;
+
+        if (processInfo) {
+          classificationCode = generateDocumentCode(pharmacyInitials, processInfo.code, template.classificationCode);
+        }
+      }
+
       // En-tête du document
       yPosition = topMargin;
       addText('DOCUMENT OFFICIEL PHARMA QMS', 18, true, 'teal', 'center', 1.0);
       yPosition += 2;
       addText(template.title.toUpperCase(), 14, true, 'black', 'center', 1.0);
       yPosition += 5;
-      
+
+      // Classification Badge and Description
+      if (classificationCode && categoryInfo && processInfo) {
+        // Badge with classification code
+        pdf.setFillColor(224, 242, 241);
+        pdf.setDrawColor(0, 150, 136);
+        pdf.setLineWidth(0.5);
+        const badgeWidth = 70;
+        const badgeHeight = 12;
+        const badgeX = (pageWidth - badgeWidth) / 2;
+        pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 2, 2, 'FD');
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 150, 136);
+        pdf.text(classificationCode, pageWidth / 2, yPosition + 8, { align: 'center' });
+        yPosition += badgeHeight + 5;
+
+        // Description of classification
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.setTextColor(80, 80, 80);
+        const descLine1 = `Processus ${processInfo.code}: ${this.removeAccents(processInfo.name)}`;
+        pdf.text(descLine1, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 4;
+
+        const descLine2 = `${this.removeAccents(categoryInfo.name)}`;
+        pdf.text(descLine2, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 7;
+
+        pdf.setTextColor(0, 0, 0);
+      }
+
       // Ligne décorative
       pdf.setDrawColor(0, 150, 136);
       pdf.setLineWidth(1);
@@ -131,14 +188,18 @@ export class DocumentService {
 
       // Informations du document
       addSection('INFORMATIONS DU DOCUMENT');
-      
+
+      const pharmacyDisplayName = document.data.pharmacyName
+        ? (classificationCode ? `${document.data.pharmacyName} [${classificationCode}]` : document.data.pharmacyName)
+        : 'Non renseigne';
+
       const docInfo = [
         ['Type de document:', template.title],
         ['Categorie:', template.category],
         ['Date de creation:', new Date(document.createdAt).toLocaleDateString('fr-FR')],
         ['Heure de creation:', new Date(document.createdAt).toLocaleTimeString('fr-FR')],
         ['Numero de document:', document.id],
-        ['Pharmacie:', document.data.pharmacyName || 'Non renseigne']
+        ['Pharmacie:', pharmacyDisplayName]
       ];
       
       docInfo.forEach(([label, value]) => {

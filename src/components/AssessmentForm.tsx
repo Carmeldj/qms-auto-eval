@@ -1,62 +1,46 @@
-import React, { useEffect, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  MessageSquare,
-  CheckCircle,
-} from "lucide-react";
-import { principles, questions } from "../data/principles";
-import { pmqCategories } from "../data/principles";
-import { useAssessmentContext } from "../contexts/AssessmentContext";
-import { useNavigate } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, MessageSquare, CheckCircle } from 'lucide-react';
+import { principles, questions } from '../data/principles';
+import { pmqCategories } from '../data/principles';
+import { Assessment, Answer } from '../types';
 
-const AssessmentForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { openModal } = useApp();
+interface AssessmentFormProps {
+  assessment: Assessment;
+  onUpdateAnswer: (principleId: string, score: number, comment?: string) => void;
+  getAnswer: (principleId: string) => Answer | undefined;
+  onComplete: () => void;
+}
 
-  const { currentAssessment, startNewAssessment, updateAnswer, getAnswer, calculateScores } = useAssessmentContext();
-
-
-  useEffect(() => {
-    if (!currentAssessment) startNewAssessment();
-  }, []);
-
+const AssessmentForm: React.FC<AssessmentFormProps> = ({ 
+  assessment, 
+  onUpdateAnswer, 
+  getAnswer, 
+  onComplete 
+}) => {
   const [currentPMQ, setCurrentPMQ] = useState(1);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
 
-  const handleClearAll = () => {
-    openModal('clearAll', {
-      onConfirm: () => {
-        startNewAssessment();
-        setCurrentPMQ(1);
-        setShowComments({});
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-  };
-
-  const currentPMQPrinciples = principles.filter((p) => p.pmq === currentPMQ);
-  const currentCategory = pmqCategories.find((c) => c.id === currentPMQ);
-
-  const answeredQuestions = currentAssessment?.answers?.length;
+  const currentPMQPrinciples = principles.filter(p => p.pmq === currentPMQ);
+  const currentCategory = pmqCategories.find(c => c.id === currentPMQ);
+  
+  const answeredQuestions = assessment.answers.length;
   const totalQuestions = principles.length;
 
   const handleScoreChange = (principleId: string, score: number) => {
     const existingAnswer = getAnswer(principleId);
-    updateAnswer(principleId, score, existingAnswer?.comment);
+    onUpdateAnswer(principleId, score, existingAnswer?.comment);
   };
 
   const handleCommentChange = (principleId: string, comment: string) => {
     const existingAnswer = getAnswer(principleId);
     const score = existingAnswer?.score || 1;
-    updateAnswer(principleId, score, comment);
+    onUpdateAnswer(principleId, score, comment);
   };
 
   const toggleComment = (principleId: string) => {
-    setShowComments((prev) => ({
+    setShowComments(prev => ({
       ...prev,
-      [principleId]: !prev[principleId],
+      [principleId]: !prev[principleId]
     }));
   };
 
@@ -65,7 +49,7 @@ const AssessmentForm: React.FC = () => {
   const canComplete = answeredQuestions === totalQuestions;
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNextPMQ = () => {
@@ -87,88 +71,47 @@ const AssessmentForm: React.FC = () => {
     scrollToTop();
   };
 
-  const handleCompleteAssessment = () => {
-    if (currentAssessment) {
-      const finalAssessment = calculateScores();
-      if (finalAssessment) {
-        navigate('/results');
-      }
-    }
-  };
-
-
-
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Progress Header */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items- justify-between gap-3 sm:gap-0 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
           <div className="flex-1">
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
               PMQ {currentPMQ} - {currentCategory?.title}
             </h1>
-            <p className="text-sm sm:text-base text-gray-600">
-              {currentCategory?.description}
-            </p>
+            <p className="text-sm sm:text-base text-gray-600">{currentCategory?.description}</p>
           </div>
           <div className="text-left sm:text-right w-full sm:w-auto">
-            <div className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">
-              Progression globale
-            </div>
-            <div
-              className="text-base sm:text-lg font-semibold"
-              style={{ color: "#009688" }}
-            >
+            <div className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2">Progression globale</div>
+            <div className="text-base sm:text-lg font-semibold" style={{color: '#009688'}}>
               {answeredQuestions}/{totalQuestions} questions
-            </div>
-            <div className="mt-3">
-              <button
-                onClick={handleClearAll}
-                className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium border transition-colors duration-150"
-                style={{ borderColor: '#e0e0e0', color: '#d32f2f' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffecec')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
-              >
-                Effacer tout
-              </button>
             </div>
           </div>
         </div>
-
+        
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
+          <div 
             className="h-2 rounded-full transition-all duration-300"
-            style={{
-              backgroundColor: "#009688",
-              width: `${((answeredQuestions ?? 0) / totalQuestions) * 100}%`,
-            }}
+            style={{backgroundColor: '#009688', width: `${(answeredQuestions / totalQuestions) * 100}%` }}
           />
         </div>
       </div>
 
       {/* Questions */}
       <div className="space-y-4 sm:space-y-6">
-        {currentPMQPrinciples.map((principle) => {
-          const question = questions.find(
-            (q) => q.principleId === principle.id
-          );
+        {currentPMQPrinciples.map((principle, index) => {
+          const question = questions.find(q => q.principleId === principle.id);
           const answer = getAnswer(principle.id);
           const isCommentVisible = showComments[principle.id];
 
           return (
-            <div
-              key={principle.id}
-              className="bg-white rounded-xl shadow-md p-4 sm:p-6"
-            >
+            <div key={principle.id} className="bg-white rounded-xl shadow-md p-4 sm:p-6">
               <div className="flex items-start justify-between mb-3 sm:mb-4">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
-                    <span
-                      className="text-xs sm:text-sm font-medium px-2 sm:px-2.5 py-0.5 rounded-full"
-                      style={{ backgroundColor: "#e0f2f1", color: "#009688" }}
-                    >
-                      Question{" "}
-                      {principles.findIndex((p) => p.id === principle.id) + 1}
+                    <span className="text-xs sm:text-sm font-medium px-2 sm:px-2.5 py-0.5 rounded-full" style={{backgroundColor: '#e0f2f1', color: '#009688'}}>
+                      Question {principles.findIndex(p => p.id === principle.id) + 1}
                     </span>
                     {answer && (
                       <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
@@ -177,38 +120,30 @@ const AssessmentForm: React.FC = () => {
                   <h3 className="font-semibold text-gray-900 text-base sm:text-lg mb-2">
                     {principle.title}
                   </h3>
-                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
-                    {question?.text}
-                  </p>
+                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{question?.text}</p>
                 </div>
               </div>
 
               {/* Rating Scale */}
               <div className="mb-3 sm:mb-4">
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
-                  {question?.options.map((option) => (
+                  {question?.options.map(option => (
                     <label
                       key={option.value}
-                      className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md active:scale-95 ${answer?.score === option.value
-                        ? "shadow-md"
-                        : "border-gray-200 hover:bg-gray-50"
-                        }`}
-                      style={
+                      className={`relative flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md active:scale-95 ${
                         answer?.score === option.value
-                          ? {
-                            borderColor: "#009688",
-                            backgroundColor: "#e0f2f1",
-                          }
-                          : {}
-                      }
+                          ? 'shadow-md'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                      style={answer?.score === option.value ? {borderColor: '#009688', backgroundColor: '#e0f2f1'} : {}}
                       onMouseEnter={(e) => {
                         if (answer?.score !== option.value) {
-                          e.currentTarget.style.borderColor = "#4db6ac";
+                          e.currentTarget.style.borderColor = '#4db6ac';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (answer?.score !== option.value) {
-                          e.currentTarget.style.borderColor = "";
+                          e.currentTarget.style.borderColor = '';
                         }
                       }}
                     >
@@ -217,21 +152,15 @@ const AssessmentForm: React.FC = () => {
                         name={`score-${principle.id}`}
                         value={option.value}
                         checked={answer?.score === option.value}
-                        onChange={() =>
-                          handleScoreChange(principle.id, option.value)
-                        }
+                        onChange={() => handleScoreChange(principle.id, option.value)}
                         className="absolute opacity-0 w-full h-full cursor-pointer"
                       />
-                      <div
-                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold mb-1 sm:mb-2 transition-all duration-200 ${answer?.score === option.value
-                          ? "text-white scale-110"
-                          : "bg-gray-200 text-gray-600"
-                          }`}
-                        style={
-                          answer?.score === option.value
-                            ? { backgroundColor: "#009688" }
-                            : {}
-                        }
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold mb-1 sm:mb-2 transition-all duration-200 ${
+                        answer?.score === option.value
+                          ? 'text-white scale-110'
+                          : 'bg-gray-200 text-gray-600'
+                      }`}
+                      style={answer?.score === option.value ? {backgroundColor: '#009688'} : {}}
                       >
                         {option.value}
                       </div>
@@ -248,32 +177,22 @@ const AssessmentForm: React.FC = () => {
                 <button
                   onClick={() => toggleComment(principle.id)}
                   className="flex items-center space-x-2 text-sm font-medium transition-colors duration-200"
-                  style={{ color: "#009688" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#00796b")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#009688")
-                  }
+                  style={{color: '#009688'}}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#00796b'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#009688'}
                 >
                   <MessageSquare className="h-4 w-4" />
-                  <span>
-                    {isCommentVisible ? "Masquer" : "Ajouter"} un commentaire
-                  </span>
+                  <span>{isCommentVisible ? 'Masquer' : 'Ajouter'} un commentaire</span>
                 </button>
-
+                
                 {isCommentVisible && (
                   <div className="mt-3">
                     <textarea
                       placeholder="Ajoutez des précisions ou du contexte..."
-                      value={answer?.comment || ""}
-                      onChange={(e) =>
-                        handleCommentChange(principle.id, e.target.value)
-                      }
+                      value={answer?.comment || ''}
+                      onChange={(e) => handleCommentChange(principle.id, e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                      style={
-                        { "--tw-ring-color": "#009688" } as React.CSSProperties
-                      }
+                      style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                       rows={3}
                     />
                   </div>
@@ -290,172 +209,164 @@ const AssessmentForm: React.FC = () => {
         <div className="sm:hidden">
           <div className="flex items-center justify-between mb-4">
             <div className="text-center flex-1">
-              {/* <div className="text-sm text-gray-500 mb-2">PMQ</div> */}
+              <div className="text-sm text-gray-500 mb-2">PMQ</div>
               <div className="grid grid-cols-4 gap-1 max-w-32 mx-auto mb-2">
-                {[1, 2, 3, 4].map((pmq) => (
+                {[1, 2, 3, 4].map(pmq => (
                   <button
                     key={pmq}
                     onClick={() => handlePMQSelect(pmq)}
-                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${currentPMQ === pmq
-                      ? "text-white"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                      }`}
-                    style={
-                      currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
-                    }
+                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${
+                      currentPMQ === pmq
+                        ? 'text-white'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                    style={currentPMQ === pmq ? {backgroundColor: '#009688'} : {}}
                   >
                     {pmq}
                   </button>
                 ))}
               </div>
               <div className="grid grid-cols-3 gap-1 max-w-24 mx-auto">
-                {[5, 6, 7].map((pmq) => (
+                {[5, 6, 7].map(pmq => (
                   <button
                     key={pmq}
                     onClick={() => handlePMQSelect(pmq)}
-                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${currentPMQ === pmq
-                      ? "text-white"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                      }`}
-                    style={
-                      currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
-                    }
+                    className={`w-7 h-7 rounded-full text-xs font-medium transition-all duration-200 ${
+                      currentPMQ === pmq
+                        ? 'text-white'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                    style={currentPMQ === pmq ? {backgroundColor: '#009688'} : {}}
                   >
                     {pmq}
                   </button>
                 ))}
               </div>
             </div>
-
-
+            
+            {canGoNext ? (
+              <button
+                onClick={handleNextPMQ}
+                className="flex items-center justify-center space-x-2 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 ml-4"
+                style={{backgroundColor: '#009688'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+              >
+                <span>Suivant</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={onComplete}
+                disabled={!canComplete}
+                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-white ml-4 ${
+                  canComplete
+                    ? ''
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                style={canComplete ? {backgroundColor: '#4caf50'} : {}}
+                onMouseEnter={(e) => {
+                  if (canComplete) {
+                    e.currentTarget.style.backgroundColor = '#388e3c';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (canComplete) {
+                    e.currentTarget.style.backgroundColor = '#4caf50';
+                  }
+                }}
+              >
+                <CheckCircle className="h-4 w-4" />
+                <span>Terminer</span>
+              </button>
+            )}
           </div>
-
+          
           <button
             onClick={handlePreviousPMQ}
             disabled={!canGoPrevious}
-            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 w-full ${canGoPrevious
-              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              : "bg-gray-50 text-gray-400 cursor-not-allowed"
-              }`}
+            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 w-full ${
+              canGoPrevious
+                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+            }`}
           >
             <ChevronLeft className="h-5 w-5" />
             <span>Précédent</span>
           </button>
-          {canGoNext ? (
-            <button
-              onClick={handleNextPMQ}
-              className="mt-4 w-full flex items-center justify-center space-x-2 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200"
-              style={{ backgroundColor: "#009688" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#00796b")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "#009688")
-              }
-            >
-              <span>Suivant</span>
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              onClick={handleCompleteAssessment}
-              disabled={!canComplete}
-              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-white ml-4 ${canComplete
-                ? ""
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              style={canComplete ? { backgroundColor: "#4caf50" } : {}}
-              onMouseEnter={(e) => {
-                if (canComplete) {
-                  e.currentTarget.style.backgroundColor = "#388e3c";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (canComplete) {
-                  e.currentTarget.style.backgroundColor = "#4caf50";
-                }
-              }}
-            >
-              <CheckCircle className="h-4 w-4" />
-              <span>Terminer</span>
-            </button>
-          )}
         </div>
 
         {/* Desktop Layout */}
         <div className="hidden sm:flex justify-between items-center">
-          <button
-            onClick={handlePreviousPMQ}
-            disabled={!canGoPrevious}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${canGoPrevious
-              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              : "bg-gray-50 text-gray-400 cursor-not-allowed"
-              }`}
-          >
-            <ChevronLeft className="h-5 w-5" />
-            <span>Précédent</span>
-          </button>
+        <button
+          onClick={handlePreviousPMQ}
+          disabled={!canGoPrevious}
+          className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+            canGoPrevious
+              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          <ChevronLeft className="h-5 w-5" />
+          <span>Précédent</span>
+        </button>
 
-          <div className="text-center">
-            <div className="text-sm text-gray-500 mb-1">PMQ</div>
-            <div className="flex space-x-2 justify-center">
-              {[1, 2, 3, 4, 5, 6, 7].map((pmq) => (
-                <button
-                  key={pmq}
-                  onClick={() => handlePMQSelect(pmq)}
-                  className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${currentPMQ === pmq
-                    ? "text-white"
-                    : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                    }`}
-                  style={
-                    currentPMQ === pmq ? { backgroundColor: "#009688" } : {}
-                  }
-                >
-                  {pmq}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {canGoNext ? (
-            <button
-              onClick={handleNextPMQ}
-              className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200"
-              style={{ backgroundColor: "#009688" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#00796b")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "#009688")
-              }
-            >
-              <span>Suivant</span>
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          ) : (
-            <button
-              onClick={handleCompleteAssessment}
-              disabled={!canComplete}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 text-white ${canComplete
-                ? ""
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+        <div className="text-center">
+          <div className="text-sm text-gray-500 mb-1">PMQ</div>
+          <div className="flex space-x-2 justify-center">
+            {[1, 2, 3, 4, 5, 6, 7].map(pmq => (
+              <button
+                key={pmq}
+                onClick={() => handlePMQSelect(pmq)}
+                className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-200 ${
+                  currentPMQ === pmq
+                    ? 'text-white'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                 }`}
-              style={canComplete ? { backgroundColor: "#4caf50" } : {}}
-              onMouseEnter={(e) => {
-                if (canComplete) {
-                  e.currentTarget.style.backgroundColor = "#388e3c";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (canComplete) {
-                  e.currentTarget.style.backgroundColor = "#4caf50";
-                }
-              }}
-            >
-              <CheckCircle className="h-5 w-5" />
-              <span>Terminer l'évaluation</span>
-            </button>
-          )}
+                style={currentPMQ === pmq ? {backgroundColor: '#009688'} : {}}
+              >
+                {pmq}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {canGoNext ? (
+          <button
+            onClick={handleNextPMQ}
+            className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200"
+            style={{backgroundColor: '#009688'}}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+          >
+            <span>Suivant</span>
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        ) : (
+          <button
+            onClick={onComplete}
+            disabled={!canComplete}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 text-white ${
+              canComplete
+                ? ''
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            style={canComplete ? {backgroundColor: '#4caf50'} : {}}
+            onMouseEnter={(e) => {
+              if (canComplete) {
+                e.currentTarget.style.backgroundColor = '#388e3c';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canComplete) {
+                e.currentTarget.style.backgroundColor = '#4caf50';
+              }
+            }}
+          >
+            <CheckCircle className="h-5 w-5" />
+            <span>Terminer l'évaluation</span>
+          </button>
+        )}
         </div>
       </div>
     </div>

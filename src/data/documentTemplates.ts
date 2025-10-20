@@ -1,4 +1,5 @@
 import { DocumentTemplate } from '../types/documents';
+import { documentClassificationMapping } from './documentClassificationMapping';
 
 export const documentTemplates: DocumentTemplate[] = [
   // Organisation et RH
@@ -8,6 +9,7 @@ export const documentTemplates: DocumentTemplate[] = [
     category: 'Organisation',
     description: 'Représentation visuelle de la structure organisationnelle',
     estimatedTime: '15-20 min',
+    classificationCode: documentClassificationMapping['organization-chart'],
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'titulaire', label: 'Pharmacien titulaire', type: 'text', required: true, placeholder: 'Nom du titulaire' },
@@ -42,6 +44,7 @@ export const documentTemplates: DocumentTemplate[] = [
     category: 'Ressources Humaines',
     description: 'Description détaillée des fonctions et responsabilités',
     estimatedTime: '20-25 min',
+    classificationCode: documentClassificationMapping['job-description'],
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'jobTitle', label: 'Intitulé du poste', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Préparateur en pharmacie', 'Vendeur/Assistant', 'Responsable qualité', 'Stagiaire'] },
@@ -251,6 +254,35 @@ export const documentTemplates: DocumentTemplate[] = [
     ]
   },
 
+  // Gestion des déchets
+  {
+    id: 'pharmaceutical-waste',
+    title: 'Liste des déchets pharmaceutiques',
+    category: 'Environnement',
+    description: 'Enregistrement détaillé des déchets pharmaceutiques collectés',
+    estimatedTime: '10-15 min',
+    classificationCode: documentClassificationMapping['pharmaceutical-waste'],
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'recordDate', label: 'Date d\'enregistrement', type: 'date', required: true },
+      { id: 'wasteType', label: 'Type de déchet', type: 'select', required: true, options: ['Médicaments périmés', 'Médicaments non utilisés', 'Stupéfiants', 'Cytostatiques', 'Déchets d\'activités de soins à risques infectieux (DASRI)', 'Autres déchets dangereux'] },
+      { id: 'productName', label: 'Nom du produit', type: 'text', required: true, placeholder: 'Dénomination du médicament ou produit' },
+      { id: 'laboratoryName', label: 'Laboratoire', type: 'text', required: true, placeholder: 'Nom du laboratoire fabricant' },
+      { id: 'batchNumber', label: 'Numéro de lot', type: 'text', required: false, placeholder: 'Numéro de lot' },
+      { id: 'expiryDate', label: 'Date de péremption', type: 'date', required: false },
+      { id: 'quantity', label: 'Quantité', type: 'number', required: true, placeholder: 'Nombre d\'unités' },
+      { id: 'unit', label: 'Unité', type: 'select', required: true, options: ['Boîte(s)', 'Flacon(s)', 'Ampoule(s)', 'Comprimé(s)', 'Gélule(s)', 'Sachet(s)', 'Tube(s)', 'Kg', 'Litre(s)', 'Unité(s)'] },
+      { id: 'weight', label: 'Poids approximatif (kg)', type: 'number', required: false, placeholder: 'Poids en kilogrammes' },
+      { id: 'origin', label: 'Origine', type: 'select', required: true, options: ['Stock officine', 'Retour patient', 'Retour EHPAD', 'Retour établissement de santé', 'Autre'] },
+      { id: 'collectionDate', label: 'Date de collecte', type: 'date', required: false },
+      { id: 'collector', label: 'Collecteur', type: 'text', required: false, placeholder: 'Organisme de collecte' },
+      { id: 'eliminationMode', label: 'Mode d\'élimination', type: 'select', required: false, options: ['Incinération', 'Cyclamed', 'Prestataire spécialisé', 'En attente de collecte'] },
+      { id: 'traceabilityNumber', label: 'Numéro de traçabilité', type: 'text', required: false, placeholder: 'Numéro du bordereau de suivi' },
+      { id: 'recorder', label: 'Enregistré par', type: 'text', required: true, placeholder: 'Nom de la personne' },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières', rows: 3 }
+    ]
+  },
+
   // Analyse pharmaceutique
   {
     id: 'prescription-analysis',
@@ -282,6 +314,13 @@ export const documentTemplates: DocumentTemplate[] = [
     ]
   }
 ];
+
+// Apply classification codes to all templates that don't have one
+documentTemplates.forEach(template => {
+  if (!template.classificationCode && documentClassificationMapping[template.id]) {
+    template.classificationCode = documentClassificationMapping[template.id];
+  }
+});
 
 export const getDocumentTemplateById = (id: string): DocumentTemplate | undefined => {
   return documentTemplates.find(template => template.id === id);
