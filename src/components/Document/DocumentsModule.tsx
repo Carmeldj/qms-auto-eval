@@ -155,22 +155,22 @@ const DocumentsModule: React.FC = () => {
                     </div>
                     <p className="text-sm text-gray-600 mb-3">{template.description}</p>
                     <div className="flex items-center space-x-4 text-xs text-gray-500">
-                      <span className="flex items-center space-x-1">
+                      <span className="w-max flex items-center space-x-1">
                         <Clock className="h-3 w-3" />
-                        <span>{template.estimatedTime}</span>
+                        <span className='text-center'>{template.estimatedTime}</span>
                       </span>
                       <span className="flex items-center space-x-1">
                         <FileText className="h-3 w-3" />
-                        <span>{template.fields.length} champs</span>
+                        <span className='text-center '>{template.fields.length} champs</span>
                       </span>
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      <span className="text-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                         {template.category}
                       </span>
                     </div>
                   </div>
                   <button
                     onClick={() => handleCreateDocument(template.id)}
-                    className="w-full md:w-max flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
+                    className="w-full md:w-max flex items-center justify-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
                     style={{backgroundColor: '#009688'}}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}

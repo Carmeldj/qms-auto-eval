@@ -90,9 +90,18 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-6 w-full ">
+        <button
+          onClick={onCancel}
+          className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour</span>
+        </button>
+      </div>
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {template.title}
@@ -102,22 +111,15 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
               Temps estimé : {template.estimatedTime}
             </p>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={onCancel}
-              className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
-            >
-              <X className="h-4 w-4" />
-              <span>Retour</span>
-            </button>
+          <div className="mt-4 w-full lg:w-max flex items-center justify-between">
+
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid()}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
-                isFormValid()
-                  ? "text-white"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${isFormValid()
+                ? "text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               style={isFormValid() ? { backgroundColor: "#009688" } : {}}
               onMouseEnter={(e) => {
                 if (isFormValid()) {
@@ -178,11 +180,10 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         <button
           onClick={handleGeneratePDF}
           disabled={!isFormValid()}
-          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${
-            isFormValid()
-              ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${isFormValid()
+            ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           style={isFormValid() ? { backgroundColor: "#009688" } : {}}
           onMouseEnter={(e) => {
             if (isFormValid()) {
