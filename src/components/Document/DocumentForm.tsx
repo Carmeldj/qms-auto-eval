@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { X, Download, AlertCircle, CheckCircle } from "lucide-react";
+import { X, Download, AlertCircle, CheckCircle, FileText } from "lucide-react";
 import { DocumentTemplate } from "../../types/documents";
 import { documentService } from "../../services/DocumentService";
+import ClassificationBadge from '../ClassificationBadge';
 
 interface DocumentFormProps {
   template: DocumentTemplate;
@@ -10,13 +11,28 @@ interface DocumentFormProps {
 
 const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
 
   const handleInputChange = (fieldId: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [fieldId]: value,
     }));
+
+    // Auto-generate initials when pharmacy name is entered
+    if (fieldId === 'pharmacyName' && value.trim()) {
+      const words = value.trim().split(/\s+/);
+      const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
+      setPharmacyInitials(autoInitials);
+    }
   };
+
+  const handleInitialsChange = (value: string) => {
+    // Allow only uppercase letters, max 3 characters
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
+    setPharmacyInitials(sanitized);
+  };
+
 
   const isFormValid = () => {
     const requiredFields = template.fields.filter((field) => field.required);
@@ -110,6 +126,15 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
             <p className="text-sm text-gray-500 mt-1">
               Temps estimé : {template.estimatedTime}
             </p>
+            {template.classificationCode && (
+              <div className="mt-3">
+                <ClassificationBadge
+                  classificationCode={template.classificationCode}
+                  pharmacyInitials={formData.pharmacyName ? formData.pharmacyName.split(' ').map(w => w[0]).join('').substring(0, 3) : ''}
+                  size="small"
+                />
+              </div>
+            )}
           </div>
           <div className="mt-4 w-full lg:w-max flex items-center justify-between">
 
@@ -138,6 +163,50 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
           </div>
         </div>
       </div>
+
+       {/* Classification Info Section */}
+      {template.classificationCode && (
+        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl shadow-md p-6 border-2 border-teal-200">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+            <FileText className="h-5 w-5 text-teal-600" />
+            <span>Classification Documentaire</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Initiales de la pharmacie <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={pharmacyInitials}
+                onChange={(e) => handleInitialsChange(e.target.value)}
+                placeholder="Ex: PCG"
+                maxLength={3}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent font-bold text-lg uppercase tracking-wider"
+                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                3 lettres maximum - Généré automatiquement à partir du nom
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Code de classification
+              </label>
+              <div className="bg-white border-2 border-teal-300 rounded-lg px-4 py-3">
+                <ClassificationBadge
+                  classificationCode={template.classificationCode}
+                  pharmacyInitials={pharmacyInitials}
+                  showFullCode={true}
+                  size="medium"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       <div className="bg-white rounded-xl shadow-md p-6">

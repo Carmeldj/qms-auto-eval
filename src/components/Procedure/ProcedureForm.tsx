@@ -14,9 +14,10 @@ import {
   ProcedureStep,
   ProcedureIndicator,
   ProcedureAnnex,
-} from "../../types/procedures";
+} from "../../types/procedure";
 import { procedureService } from "../../services/ProcedureService";
 import { procedureDefaults } from "../../data/procedureDefaults";
+import ClassificationBadge from '../ClassificationBadge';
 
 interface ProcedureFormProps {
   template: ProcedureTemplate;
@@ -41,6 +42,24 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
     objective: defaults?.objective || "",
     scope: defaults?.scope || "",
   });
+
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
+
+  const handlePharmacyNameChange = (value: string) => {
+    setInfo(prev => ({ ...prev, pharmacyName: value }));
+
+    // Auto-generate initials
+    if (value.trim()) {
+      const words = value.trim().split(/\s+/);
+      const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
+      setPharmacyInitials(autoInitials);
+    }
+  };
+
+  const handleInitialsChange = (value: string) => {
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
+    setPharmacyInitials(sanitized);
+  };
 
   const [steps, setSteps] = useState<ProcedureStep[]>(
     defaults?.steps.map((step, index) => ({
@@ -209,15 +228,15 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-       <div className="mb-6 w-full ">
-         <button
-                onClick={onCancel}
-                className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
-              >
-                <X className="h-4 w-4" />
-                <span>Retour</span>
-              </button>
-       </div>
+      <div className="mb-6 w-full ">
+        <button
+          onClick={onCancel}
+          className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour</span>
+        </button>
+      </div>
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex flex-col md:flex-row items-center justify-between">
@@ -231,11 +250,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid()}
-              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
-                isFormValid()
+              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${isFormValid()
                   ? "text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+                }`}
               style={isFormValid() ? { backgroundColor: "#009688" } : {}}
               onMouseEnter={(e) => {
                 if (isFormValid()) {
@@ -264,11 +282,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
               <button
                 key={section.id}
                 onClick={() => setCurrentSection(section.id as any)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${
-                  currentSection === section.id
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${currentSection === section.id
                     ? "text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
                 style={
                   currentSection === section.id
                     ? { backgroundColor: "#009688" }
@@ -300,15 +317,58 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                   type="text"
                   required
                   value={info.pharmacyName}
-                  onChange={(e) =>
-                    setInfo({ ...info, pharmacyName: e.target.value })
-                  }
+                  onChange={(e) => handlePharmacyNameChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
                     { "--tw-ring-color": "#009688" } as React.CSSProperties
                   }
                 />
               </div>
+
+              {/* Classification Section */}
+              {template.classificationCode && (
+                <div className="col-span-2 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-4 border-2 border-teal-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+                    <FileText className="h-4 w-4 text-teal-600" />
+                    <span>Classification Documentaire</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Initiales de la pharmacie <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={pharmacyInitials}
+                        onChange={(e) => handleInitialsChange(e.target.value)}
+                        placeholder="Ex: PCG"
+                        maxLength={3}
+                        className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent font-bold uppercase tracking-wider"
+                        style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        3 lettres max - Auto-généré
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Code de classification
+                      </label>
+                      <div className="bg-white border-2 border-teal-300 rounded-lg px-3 py-2">
+                        <ClassificationBadge
+                          classificationCode={template.classificationCode}
+                          pharmacyInitials={pharmacyInitials}
+                          showFullCode={true}
+                          size="small"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Auteur de la procédure *
@@ -908,11 +968,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
         <button
           onClick={handleGeneratePDF}
           disabled={!isFormValid()}
-          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${
-            isFormValid()
+          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${isFormValid()
               ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
           style={isFormValid() ? { backgroundColor: "#009688" } : {}}
           onMouseEnter={(e) => {
             if (isFormValid()) {

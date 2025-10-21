@@ -5,6 +5,7 @@ export interface ProcedureTemplate {
   description: string;
   isRequired: boolean;
   estimatedTime: string;
+  classificationCode?: string;
 }
 
 export interface ProcedureInfo {

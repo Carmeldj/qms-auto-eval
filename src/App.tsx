@@ -13,6 +13,7 @@ import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";
 import PESTELAnalysis from "./components/Analysis/PESTELAnalysis";
 import LoginModule from "./components/Auth/LoginModule";
+import WasteManagementModule from "./components/WasteManagmentModule";
 
 function App() {
 
@@ -63,6 +64,9 @@ function App() {
           <Route
             path="/pharmacovigilance"
             element={<AdverseEventsModule />} />
+            <Route
+            path="/waste-management"
+            element={<WasteManagementModule />} />
         </Routes>
       </main>
 

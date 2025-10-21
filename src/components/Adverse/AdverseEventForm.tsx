@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Download, AlertCircle, CheckCircle, Mail, Loader2 } from 'lucide-react';
+import { X, Download, AlertCircle, CheckCircle, Mail, Loader2, FileText } from 'lucide-react';
 import {
   NotifierInfo,
   PatientInfo,
@@ -11,6 +11,7 @@ import {
   AdverseEventReport
 } from '../../types/adverseEvents';
 import { adverseEventService } from '../../services/AdverseEventService';
+import ClassificationBadge from '../ClassificationBadge';
 
 interface AdverseEventFormProps {
   onCancel: () => void;
@@ -22,6 +23,22 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
   const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [savedReport, setSavedReport] = useState<AdverseEventReport | null>(null);
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
+
+  const handlePharmacyNameChange = (value: string) => {
+    setNotifier(prev => ({ ...prev, fs: value }));
+
+    if (value.trim()) {
+      const words = value.trim().split(/\s+/);
+      const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
+      setPharmacyInitials(autoInitials);
+    }
+  };
+
+  const handleInitialsChange = (value: string) => {
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
+    setPharmacyInitials(sanitized);
+  };
 
   const [notifier, setNotifier] = useState<NotifierInfo>({
     department: '',
@@ -167,7 +184,10 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
     return {
       id: Date.now().toString(),
       epidNumber: generateEpidNumber(),
-      notifier,
+      notifier: {
+        ...notifier,
+        _pharmacyInitials: pharmacyInitials
+      } as any,
       patient,
       medicalHistory,
       adverseEvent,
@@ -367,10 +387,52 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.fs}
-                  onChange={(e) => setNotifier({ ...notifier, fs: e.target.value })}
+                   onChange={(e) => handlePharmacyNameChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
                   style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
+              </div>
+            </div>
+
+            {/* Classification Section */}
+            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-4 border-2 border-teal-200 mt-4">
+              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+                <FileText className="h-4 w-4 text-teal-600" />
+                <span>Classification Documentaire</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">
+                    Initiales de la pharmacie <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={pharmacyInitials}
+                    onChange={(e) => handleInitialsChange(e.target.value)}
+                    placeholder="Ex: PCG"
+                    maxLength={3}
+                    className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent font-bold uppercase tracking-wider"
+                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    3 lettres max - Auto-généré
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">
+                    Code de classification
+                  </label>
+                  <div className="bg-white border-2 border-teal-300 rounded-lg px-3 py-2">
+                    <ClassificationBadge
+                      classificationCode="11.01"
+                      pharmacyInitials={pharmacyInitials}
+                      showFullCode={true}
+                      size="small"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

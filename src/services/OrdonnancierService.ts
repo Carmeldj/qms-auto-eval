@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { OrdonnancierEntry, TRIMESTRES } from '../types/ordonnancier';
+import { generateDocumentCode, getCategoryByCode, getProcessForCategory } from '../data/documentClassification';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -9,7 +10,8 @@ class OrdonnancierService {
     entries: OrdonnancierEntry[],
     trimestre: number,
     annee: number,
-    pharmacieName: string
+    pharmacieName: string,
+    pharmacyInitials?: string
   ): Promise<void> {
     const pdf = new jsPDF('l', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -51,7 +53,45 @@ class OrdonnancierService {
       yPosition,
       { align: 'center' }
     );
-    yPosition += 8;
+    yPosition += 6;
+
+    // Classification Badge (code 11.02 for Ordonnancier)
+    if (pharmacyInitials) {
+      const categoryInfo = getCategoryByCode('11.02');
+      const processInfo = categoryInfo ? getProcessForCategory('11.02') : undefined;
+
+      if (processInfo) {
+        const classificationCode = generateDocumentCode(pharmacyInitials, processInfo.code, '11.02');
+
+        // Badge with classification code
+        pdf.setFillColor(224, 242, 241);
+        pdf.setDrawColor(0, 150, 136);
+        pdf.setLineWidth(0.5);
+        const badgeWidth = 70;
+        const badgeHeight = 12;
+        const badgeX = (pageWidth - badgeWidth) / 2;
+        pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 2, 2, 'FD');
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 150, 136);
+        pdf.text(classificationCode, pageWidth / 2, yPosition + 8, { align: 'center' });
+        yPosition += badgeHeight + 5;
+
+        // Description of classification
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text(`Processus ${processInfo.code}: ${processInfo.name}`, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 4;
+        pdf.text(categoryInfo?.name ?? '', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 7;
+
+        pdf.setTextColor(0, 0, 0);
+      }
+    }
+
+    yPosition += 2;
 
     pdf.setFontSize(10);
     pdf.text(`Pharmacie: ${pharmacieName}`, margin, yPosition);
@@ -59,39 +99,41 @@ class OrdonnancierService {
     pdf.text(`Total de délivrances: ${entries.length}`, margin, yPosition);
     yPosition += 8;
 
-    const colWidths = [15, 25, 45, 25, 45, 55, 20, 20];
+    const colWidths = [12, 32, 25, 18, 18, 28, 18, 45, 20, 20];
     const headers = [
-      'N° ordre',
-      'Date',
-      'Prescripteur\n(Nom et prénoms)',
-      'N° ordre\ndes médecins',
-      'Nom et adresse\ndu malade',
-      'Nature, dose et\nquantité du produit',
-      'Prix de\nvente',
-      'Date et\nsignature'
+      'Numéro',
+      'Désignation du produit\n(Nom, forme\npharmaceutique et\nprésentation)',
+      'Dénomination\ncommune\ninternationale',
+      'Quantité',
+      'Unité\n(plaquette,\nboite,\nampoule)',
+      'Prix',
+      'Prescripteur',
+      'Formation sanitaire ayant prescrite',
+      'Date de\nprescription',
+      'Date de\ndispensation'
     ];
 
     pdf.setFillColor(230, 230, 230);
-    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 15, 'F');
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 20, 'F');
 
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(8);
+    pdf.setFontSize(7);
     let xPosition = margin;
 
     headers.forEach((header, i) => {
       const lines = header.split('\n');
-      const lineHeight = 4;
+      const lineHeight = 3.5;
       const startY = yPosition + 3;
 
       lines.forEach((line, lineIndex) => {
         pdf.text(line, xPosition + colWidths[i] / 2, startY + lineIndex * lineHeight, { align: 'center' });
       });
 
-      pdf.rect(xPosition, yPosition, colWidths[i], 15);
+      pdf.rect(xPosition, yPosition, colWidths[i], 20);
       xPosition += colWidths[i];
     });
 
-    yPosition += 15;
+    yPosition += 20;
 
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
@@ -102,19 +144,21 @@ class OrdonnancierService {
         yPosition = margin;
 
         pdf.setFillColor(230, 230, 230);
-        pdf.rect(margin, yPosition, pageWidth - 2 * margin, 15, 'F');
+        pdf.rect(margin, yPosition, pageWidth - 2 * margin, 20, 'F');
         xPosition = margin;
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(8);
+        pdf.setFontSize(7);
         headers.forEach((header, i) => {
           const lines = header.split('\n');
+          const lineHeight = 3.5;
+          const startY = yPosition + 3;
           lines.forEach((line, lineIndex) => {
-            pdf.text(line, xPosition + colWidths[i] / 2, yPosition + 3 + lineIndex * 4, { align: 'center' });
+            pdf.text(line, xPosition + colWidths[i] / 2, startY + lineIndex * lineHeight, { align: 'center' });
           });
-          pdf.rect(xPosition, yPosition, colWidths[i], 15);
+          pdf.rect(xPosition, yPosition, colWidths[i], 20);
           xPosition += colWidths[i];
         });
-        yPosition += 15;
+        yPosition += 20;
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(7);
       }
@@ -124,13 +168,15 @@ class OrdonnancierService {
 
       const rowData = [
         entry.numeroOrdre.toString(),
-        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
-        entry.prescripteur.nomPrenoms,
-        entry.prescripteur.numeroOrdre || '',
-        `${entry.patient.nomPrenoms}\n${entry.patient.adresse || ''}`,
-        `${entry.produit.nature}\n${entry.produit.dose ? entry.produit.dose + ' - ' : ''}Qté: ${entry.produit.quantite}`,
+        entry.produit.nature,
+        '',
+        entry.produit.quantite.toString(),
+        entry.produit.dose || '',
         `${entry.prixVente} F`,
-        entry.pharmacien.signature || ''
+        entry.prescripteur.nomPrenoms,
+        entry.patient.adresse || '',
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')
       ];
 
       rowData.forEach((data, i) => {
@@ -171,9 +217,10 @@ class OrdonnancierService {
     entries: OrdonnancierEntry[],
     trimestre: number,
     annee: number,
-    pharmacieName: string
+    pharmacieName: string,
+    pharmacyInitials?: string
   ): string {
-    const pdf = this.createTrimesterPDF(entries, trimestre, annee, pharmacieName);
+    const pdf = this.createTrimesterPDF(entries, trimestre, annee, pharmacieName, pharmacyInitials);
     return pdf.output('datauristring').split(',')[1];
   }
 
@@ -181,7 +228,8 @@ class OrdonnancierService {
     entries: OrdonnancierEntry[],
     trimestre: number,
     annee: number,
-    pharmacieName: string
+    pharmacieName: string,
+    pharmacyInitials?: string
   ): jsPDF {
     const pdf = new jsPDF('l', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -217,43 +265,84 @@ class OrdonnancierService {
       yPosition,
       { align: 'center' }
     );
-    yPosition += 8;
+    yPosition += 6;
+
+    // Classification Badge (code 11.02 for Ordonnancier)
+    if (pharmacyInitials) {
+      const categoryInfo = getCategoryByCode('11.02');
+      const processInfo = categoryInfo ? getProcessForCategory('11.02') : undefined;
+
+      if (processInfo) {
+        const classificationCode = generateDocumentCode(pharmacyInitials, processInfo.code, '11.02');
+
+        // Badge with classification code
+        pdf.setFillColor(224, 242, 241);
+        pdf.setDrawColor(0, 150, 136);
+        pdf.setLineWidth(0.5);
+        const badgeWidth = 70;
+        const badgeHeight = 12;
+        const badgeX = (pageWidth - badgeWidth) / 2;
+        pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 2, 2, 'FD');
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 150, 136);
+        pdf.text(classificationCode, pageWidth / 2, yPosition + 8, { align: 'center' });
+        yPosition += badgeHeight + 5;
+
+        // Description of classification
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text(`Processus ${processInfo.code}: ${processInfo.name}`, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 4;
+        pdf.text(categoryInfo?.name ?? '', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 7;
+
+        pdf.setTextColor(0, 0, 0);
+      }
+    }
+
+    yPosition += 2;
+
     pdf.setFontSize(10);
     pdf.text(`Pharmacie: ${pharmacieName}`, margin, yPosition);
     yPosition += 5;
     pdf.text(`Total de délivrances: ${entries.length}`, margin, yPosition);
     yPosition += 8;
 
-    const colWidths = [15, 25, 45, 25, 45, 55, 20, 20];
+    const colWidths = [12, 32, 25, 18, 18, 28, 18, 45, 20, 20];
     const headers = [
-      'N° ordre',
-      'Date',
-      'Prescripteur\n(Nom et prénoms)',
-      'N° ordre\ndes médecins',
-      'Nom et adresse\ndu malade',
-      'Nature, dose et\nquantité du produit',
-      'Prix de\nvente',
-      'Date et\nsignature'
+      'Numéro',
+      'Désignation du produit\n(Nom, forme\npharmaceutique et\nprésentation)',
+      'Dénomination\ncommune\ninternationale',
+      'Quantité',
+      'Unité\n(plaquette,\nboite,\nampoule)',
+      'Prix',
+      'Prescripteur',
+      'Formation sanitaire ayant prescrite',
+      'Date de\nprescription',
+      'Date de\ndispensation'
     ];
 
     pdf.setFillColor(230, 230, 230);
-    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 15, 'F');
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 20, 'F');
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(8);
+    pdf.setFontSize(7);
     let xPosition = margin;
 
     headers.forEach((header, i) => {
       const lines = header.split('\n');
-      const lineHeight = 4;
+      const lineHeight = 3.5;
       const startY = yPosition + 3;
       lines.forEach((line, lineIndex) => {
         pdf.text(line, xPosition + colWidths[i] / 2, startY + lineIndex * lineHeight, { align: 'center' });
       });
-      pdf.rect(xPosition, yPosition, colWidths[i], 15);
+      pdf.rect(xPosition, yPosition, colWidths[i], 20);
       xPosition += colWidths[i];
     });
 
-    yPosition += 15;
+    yPosition += 20;
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
 
@@ -262,19 +351,21 @@ class OrdonnancierService {
         pdf.addPage();
         yPosition = margin;
         pdf.setFillColor(230, 230, 230);
-        pdf.rect(margin, yPosition, pageWidth - 2 * margin, 15, 'F');
+        pdf.rect(margin, yPosition, pageWidth - 2 * margin, 20, 'F');
         xPosition = margin;
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(8);
+        pdf.setFontSize(7);
         headers.forEach((header, i) => {
           const lines = header.split('\n');
+          const lineHeight = 3.5;
+          const startY = yPosition + 3;
           lines.forEach((line, lineIndex) => {
-            pdf.text(line, xPosition + colWidths[i] / 2, yPosition + 3 + lineIndex * 4, { align: 'center' });
+            pdf.text(line, xPosition + colWidths[i] / 2, startY + lineIndex * lineHeight, { align: 'center' });
           });
-          pdf.rect(xPosition, yPosition, colWidths[i], 15);
+          pdf.rect(xPosition, yPosition, colWidths[i], 20);
           xPosition += colWidths[i];
         });
-        yPosition += 15;
+        yPosition += 20;
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(7);
       }
@@ -283,13 +374,15 @@ class OrdonnancierService {
       xPosition = margin;
       const rowData = [
         entry.numeroOrdre.toString(),
-        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
-        entry.prescripteur.nomPrenoms,
-        entry.prescripteur.numeroOrdre || '',
-        `${entry.patient.nomPrenoms}\n${entry.patient.adresse || ''}`,
-        `${entry.produit.nature}\n${entry.produit.dose ? entry.produit.dose + ' - ' : ''}Qté: ${entry.produit.quantite}`,
+        entry.produit.nature,
+        '',
+        entry.produit.quantite.toString(),
+        entry.produit.dose || '',
         `${entry.prixVente} F`,
-        entry.pharmacien.signature || ''
+        entry.prescripteur.nomPrenoms,
+        entry.patient.adresse || '',
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')
       ];
 
       rowData.forEach((data, i) => {
@@ -310,10 +403,11 @@ class OrdonnancierService {
     trimestre: number,
     annee: number,
     pharmacieName: string,
-    pharmacieEmail: string
+    pharmacieEmail: string,
+    pharmacyInitials?: string
   ): Promise<void> {
     try {
-      const pdfBase64 = this.generatePDFBase64(entries, trimestre, annee, pharmacieName);
+      const pdfBase64 = this.generatePDFBase64(entries, trimestre, annee, pharmacieName, pharmacyInitials);
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/send-ordonnancier-email`, {
         method: 'POST',

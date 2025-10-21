@@ -1,4 +1,4 @@
-import { Procedure } from '../types/procedures';
+import { Procedure } from '../types/procedure';
 import jsPDF from 'jspdf';
 
 export class ProcedureService {

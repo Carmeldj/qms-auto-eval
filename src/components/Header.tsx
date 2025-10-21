@@ -16,7 +16,8 @@ const Header: React.FC = () => {
     { id: 'procedures', label: 'Procédures' },
     { id: 'traceability', label: 'Traçabilité' },
     { id: 'pharmacovigilance', label: 'Pharmacovigilance' },
-    { id: 'ordonnancier', label: 'Ordonnancier' }
+    { id: 'ordonnancier', label: 'Ordonnancier' },
+    { id: 'waste-management', label: 'Déchets' }
   ];
 
   const handleNav = (id: string) => {
@@ -43,7 +44,7 @@ const Header: React.FC = () => {
           </div>
 
 
-          {isAuthenticated ? (
+          {!isAuthenticated ? (
             <>
               <nav className="hidden lg:flex space-x-1 text-sm">
                 {navItems.map(item => {
