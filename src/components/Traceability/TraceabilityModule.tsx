@@ -101,7 +101,7 @@ const TraceabilityModule: React.FC = () => {
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <Clock className="h-8 w-8" style={{color: '#009688'}} />
+          <Clock className="h-8 w-8 mx-auto mb-2" style={{color: '#009688'}} />
           <div className="text-2xl font-bold" style={{color: '#009688'}}>
             2-5min
           </div>

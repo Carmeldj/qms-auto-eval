@@ -24,6 +24,9 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       const words = value.trim().split(/\s+/);
       const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
       setPharmacyInitials(autoInitials);
+
+      // const autoInitials = value.replace(/\s+/g, '').substring(0, 3).toUpperCase();
+      // setPharmacyInitials(autoInitials);
     }
   };
 
@@ -117,7 +120,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       </div>
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {template.title}
@@ -130,13 +133,14 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
               <div className="mt-3">
                 <ClassificationBadge
                   classificationCode={template.classificationCode}
-                  pharmacyInitials={formData.pharmacyName ? formData.pharmacyName.split(' ').map(w => w[0]).join('').substring(0, 3) : ''}
-                  size="small"
+                  pharmacyInitials={pharmacyInitials}
+                  showFullCode={true}
+                  size="medium"
                 />
               </div>
             )}
           </div>
-          <div className="mt-4 w-full lg:w-max flex items-center justify-between">
+          <div className="w-full lg:w-max flex items-center justify-between ">
 
             <button
               onClick={handleGeneratePDF}
@@ -164,15 +168,15 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         </div>
       </div>
 
-       {/* Classification Info Section */}
+      {/* Classification Info Section */}
       {template.classificationCode && (
-        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl shadow-md p-6 border-2 border-teal-200">
+        <div className="mb-8 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl shadow-md p-6 border-2 border-teal-200">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
             <FileText className="h-5 w-5 text-teal-600" />
             <span>Classification Documentaire</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Initiales de la pharmacie <span className="text-red-500">*</span>
@@ -183,8 +187,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
                 onChange={(e) => handleInitialsChange(e.target.value)}
                 placeholder="Ex: PCG"
                 maxLength={3}
-                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent font-bold text-lg uppercase tracking-wider"
-                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent font-bold text-sm uppercase tracking-wider"
+                style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
               />
               <p className="text-xs text-gray-500 mt-1">
                 3 lettres maximum - Généré automatiquement à partir du nom

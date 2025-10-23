@@ -249,7 +249,7 @@ export default function WasteManagementModule() {
 
     if (showSaved) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-3 sm:p-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                         <button
@@ -317,8 +317,8 @@ export default function WasteManagementModule() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-3 sm:p-8">
-            <div className="max-w-[1800px] mx-auto">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+            <div className="">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                     <button
                         onClick={() => {
