@@ -8,20 +8,23 @@ import { AppProvider } from "./contexts/AppContext";
 import RouteGuard from "./components/RouteGuards.tsx";
 import { AssessmentProvider } from "./contexts/AssessmentContext.tsx";
 import { InspectionProvider } from "./contexts/InspectionContext.tsx";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
       <AppProvider>
-        <AssessmentProvider>
-          <InspectionProvider>
-            <BrowserRouter>
-              <RouteGuard>
-                <App />
-              </RouteGuard>
-            </BrowserRouter>
-          </InspectionProvider>
-        </AssessmentProvider>
+        <SubscriptionProvider>
+          <AssessmentProvider>
+            <InspectionProvider>
+              <BrowserRouter>
+                <RouteGuard>
+                  <App />
+                </RouteGuard>
+              </BrowserRouter>
+            </InspectionProvider>
+          </AssessmentProvider>
+        </SubscriptionProvider>
       </AppProvider>
     </AuthProvider>
   </StrictMode>

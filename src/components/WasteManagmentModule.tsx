@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Download, Save, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Download, Save, ArrowLeft, X } from 'lucide-react';
 import { PharmaceuticalWasteEntry, PharmaceuticalWasteDocument } from '../types/waste';
 import { WasteService } from '../services/WasteService';
 import jsPDF from 'jspdf';
@@ -252,13 +252,22 @@ export default function WasteManagementModule() {
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-                        <button
+                        {/* <button
                             onClick={() => setShowSaved(false)}
                             className="flex items-center text-emerald-600 hover:text-emerald-700"
                         >
                             <ArrowLeft className="w-5 h-5 mr-2" />
                             Retour
-                        </button>
+                        </button> */}
+                        <div className="">
+                            <button
+                                onClick={() => setShowSaved(false)}
+                                className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+                            >
+                                <X className="h-4 w-4" />
+                                <span>Retour</span>
+                            </button>
+                        </div>
                         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Documents Enregistrés</h1>
                         <div className="hidden sm:block w-24"></div>
                     </div>
@@ -320,17 +329,19 @@ export default function WasteManagementModule() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
             <div className="">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-                    <button
-                        onClick={() => {
-                            navigate("/")
-                        }}
-                        className="flex items-center text-emerald-600 hover:text-emerald-700"
-                    >
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        Retour
-                    </button>
+                    <div className=" ">
+                        <button
+                            onClick={() => {
+                                navigate("/")
+                            }}
+                            className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
+                        >
+                            <X className="h-4 w-4" />
+                            <span>Retour</span>
+                        </button>
+                    </div>
                     <div className="flex items-center gap-2 sm:gap-3">
-                        <Trash2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600" />
+                        {/* <Trash2 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600" /> */}
                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Liste des Déchets Pharmaceutiques</h1>
                     </div>
                     <button
