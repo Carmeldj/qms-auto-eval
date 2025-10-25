@@ -2,6 +2,15 @@ import { ProcedureTemplate } from '../types/procedures';
 import { procedureClassificationMapping } from './documentClassificationMapping';
 
 export const procedureTemplates: ProcedureTemplate[] = [
+  // Modèle vierge
+  {
+    id: 'blank-template',
+    title: 'Nouvelle procédure (modèle vierge)',
+    category: 'Personnalisé',
+    description: 'Créez votre propre procédure à partir d\'un modèle vierge entièrement personnalisable',
+    isRequired: false,
+    estimatedTime: '20-60 min'
+  },
   // Dispensation et conseil
   {
     id: 'dispensation',

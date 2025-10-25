@@ -82,6 +82,25 @@ const ProceduresModule: React.FC = () => {
         </div>
       </div>
 
+      {/* Create Blank Procedure Button */}
+      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-white text-center sm:text-left">
+            <h2 className="text-lg sm:text-xl font-bold mb-2">Créer une procédure personnalisée</h2>
+            <p className="text-sm sm:text-base text-teal-50">
+              Démarrez avec un modèle vierge et créez votre propre procédure sur mesure
+            </p>
+          </div>
+          <button
+            onClick={() => handleCreateProcedure('blank-template')}
+            className="flex items-center space-x-2 bg-white text-teal-600 px-6 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-all duration-200 shadow-md whitespace-nowrap"
+          >
+            <FileText className="h-5 w-5" />
+            <span>Nouveau modèle vierge</span>
+          </button>
+        </div>
+      </div>
+
       {/* Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6 sm:mb-8">
         <div className="bg-white rounded-lg shadow-md p-4 text-center">

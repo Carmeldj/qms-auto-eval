@@ -205,8 +205,8 @@ export default function WasteManagementModule({ onBack }: WasteManagementModuleP
         entry.productNature.substring(0, 22),
         entry.expiryDate,
         entry.quantity.toString(),
-        entry.unitPrice.toFixed(2),
-        entry.totalPrice.toFixed(2)
+        Math.round(entry.unitPrice).toString(),
+        Math.round(entry.totalPrice).toString()
       ];
 
       let x = 10;
@@ -223,7 +223,7 @@ export default function WasteManagementModule({ onBack }: WasteManagementModuleP
     y += 8;
     doc.setFontSize(11);
     doc.setFont(undefined, 'bold');
-    doc.text(`Total général: ${totalPrice.toFixed(2)} DZD`, 220, y);
+    doc.text(`Total général: ${Math.round(totalPrice)} FCFA`, 220, y);
 
     doc.save(`dechets_pharmaceutiques_${startDate}_${endDate}.pdf`);
   };
@@ -537,7 +537,7 @@ export default function WasteManagementModule({ onBack }: WasteManagementModuleP
                       />
                     </td>
                     <td className="border border-gray-300 px-2 py-1 text-center text-sm font-medium">
-                      {entry.totalPrice.toFixed(2)}
+                      {Math.round(entry.totalPrice)}
                     </td>
                     <td className="border border-gray-300 px-2 py-1 text-center">
                       <button
@@ -565,7 +565,7 @@ export default function WasteManagementModule({ onBack }: WasteManagementModuleP
             <div className="mt-6 flex justify-center sm:justify-end">
               <div className="bg-emerald-50 px-4 sm:px-6 py-3 sm:py-4 rounded-lg">
                 <p className="text-base sm:text-lg font-semibold text-gray-800">
-                  Total général: {entries.reduce((sum, entry) => sum + entry.totalPrice, 0).toFixed(2)} DH
+                  Total général: {Math.round(entries.reduce((sum, entry) => sum + entry.totalPrice, 0))} FCFA
                 </p>
               </div>
             </div>

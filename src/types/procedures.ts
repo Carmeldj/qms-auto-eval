@@ -25,6 +25,7 @@ export interface ProcedureStep {
   order: number;
   description: string;
   responsible: string;
+  concernedPersons: string[];
   documents: string[];
   duration?: string;
 }

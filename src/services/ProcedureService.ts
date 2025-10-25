@@ -152,13 +152,20 @@ export class ProcedureService {
       }
 
       // En-tete du document avec design ameliore
-      addText('PROCEDURE OFFICINALE', 18, true, 'teal', 'center', 1.0);
+      addText(`PROCEDURE DE : ${procedure.info.title.toUpperCase()}`, 18, true, 'teal', 'center', 1.0);
       yPosition += 2;
       addText(procedure.info.pharmacyName.toUpperCase(), 14, true, 'black', 'center', 1.0);
       yPosition += 5;
 
       // Classification Badge and Description
       if (classificationCode && categoryInfo && processInfo) {
+        // Label "Code d'identification du document"
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(9);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Code d\'identification du document', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 6;
+
         // Badge with classification code
         pdf.setFillColor(224, 242, 241);
         pdf.setDrawColor(0, 150, 136);
@@ -173,6 +180,19 @@ export class ProcedureService {
         pdf.setTextColor(0, 150, 136);
         pdf.text(classificationCode, pageWidth / 2, yPosition + 8, { align: 'center' });
         yPosition += badgeHeight + 5;
+
+        // Légende explicative du code
+        pdf.setFont('helvetica', 'italic');
+        pdf.setFontSize(7);
+        pdf.setTextColor(100, 100, 100);
+
+        // Décomposer le code (ex: ABC-PR-001)
+        const codeParts = classificationCode.split('-');
+        if (codeParts.length === 3) {
+          const legendText = `(${codeParts[0]}: Pharmacie | ${codeParts[1]}: Processus ${processInfo.code} | ${codeParts[2]}: Reference)`;
+          pdf.text(legendText, pageWidth / 2, yPosition, { align: 'center' });
+          yPosition += 5;
+        }
 
         // Description of classification
         pdf.setFont('helvetica', 'normal');
@@ -254,6 +274,11 @@ export class ProcedureService {
           yPosition -= 1;
         }
 
+        if (step.concernedPersons && step.concernedPersons.length > 0) {
+          addText(`> Personnes concernees: ${step.concernedPersons.join(', ')}`, 10, false, 'gray', 'left', 1.1);
+          yPosition -= 1;
+        }
+
         if (step.duration) {
           addText(`> Duree estimee: ${step.duration}`, 10, false, 'gray', 'left', 1.1);
           yPosition -= 1;
@@ -317,76 +342,48 @@ export class ProcedureService {
       yPosition -= 1;
       addText(`Systeme: PHARMA QMS - Module Procedures v1.0`, 10, false, 'gray', 'left', 1.1);
 
-      // Instructions de travail - Nouvelle page dédiée
+      // Instructions de travail - Format paysage
       addFooter();
-      pdf.addPage();
-      yPosition = topMargin;
+      pdf.addPage('a4', 'landscape');
 
-      addSection('INSTRUCTIONS DE TRAVAIL - FLUX DE PROCESSUS');
+      const landscapeWidth = pdf.internal.pageSize.getWidth();
+      const landscapeHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      yPosition = margin;
 
-      yPosition += 5;
+      // Titre
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('INSTRUCTIONS DE TRAVAIL', margin, yPosition);
+      yPosition += 10;
 
-      // Tableau avec les étapes de la procédure
-      const tableStartY = yPosition;
-      const colWidths = [10, 55, 45, 55]; // N°, ETAPE, RESPONSABLE, KPI+DOCS
-      const rowHeight = 22;
-      const tableX = leftMargin;
+      // Tableau des colonnes: QUOI / COMMENT / QUAND / QUI / MOYENS / KPI / RESPONSABLE
+      const colWidths = [40, 60, 30, 35, 40, 35, 35]; // Total: ~275
+      const headerHeight = 10;
+      const rowHeight = 20;
 
-      // En-têtes du tableau avec double ligne
-      pdf.setFillColor(0, 150, 136);
-      pdf.setDrawColor(0, 150, 136);
+      // En-têtes (SANS couleur, juste bordures noires)
+      pdf.setDrawColor(0, 0, 0);
       pdf.setLineWidth(0.5);
-
-      // Première ligne: QUOI, QUI, COMMENT (hauteur augmentée pour meilleure visibilité)
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(10);
-
-      // Première colonne vide (N°)
-      pdf.rect(tableX, yPosition, colWidths[0], 7, 'FD');
-
-      // QUOI - au-dessus de ETAPE (blanc)
-      pdf.rect(tableX + colWidths[0], yPosition, colWidths[1], 7, 'FD');
-      pdf.setTextColor(255, 255, 255);
-      pdf.text('QUOI', tableX + colWidths[0] + colWidths[1] / 2, yPosition + 5, { align: 'center' });
-
-      // QUI - au-dessus de RESPONSABLE (noir)
-      pdf.rect(tableX + colWidths[0] + colWidths[1], yPosition, colWidths[2], 7, 'FD');
+      pdf.setFontSize(8);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('QUI', tableX + colWidths[0] + colWidths[1] + colWidths[2] / 2, yPosition + 5, { align: 'center' });
 
-      // COMMENT - au-dessus de KPI/DOCUMENTS (noir sur fond blanc)
-      pdf.setFillColor(255, 255, 255);
-      pdf.setDrawColor(0, 150, 136);
-      pdf.rect(tableX + colWidths[0] + colWidths[1] + colWidths[2], yPosition, colWidths[3], 7, 'FD');
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('COMMENT', tableX + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3] / 2, yPosition + 5, { align: 'center' });
+      let xPos = margin;
+      const headers = ['QUOI', 'COMMENT', 'QUAND', 'QUI', 'MOYENS', 'KPI', 'RESPONSABLE'];
 
-      // Restaurer le fond teal pour la suite
-      pdf.setFillColor(0, 150, 136);
-
-      yPosition += 7;
-
-      // Deuxième ligne: détails
-      let xPos = tableX;
-      const subHeaders = ['N°', 'ETAPE', 'RESPONSABLE', 'KPI / DOCUMENTS'];
-
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(7);
-      pdf.setTextColor(255, 255, 255);
-
-      subHeaders.forEach((header, i) => {
-        pdf.rect(xPos, yPosition, colWidths[i], 6, 'FD');
-        pdf.text(header, xPos + colWidths[i] / 2, yPosition + 4.5, { align: 'center' });
+      headers.forEach((header, i) => {
+        pdf.rect(xPos, yPosition, colWidths[i], headerHeight);
+        pdf.text(header, xPos + colWidths[i] / 2, yPosition + 7, { align: 'center' });
         xPos += colWidths[i];
       });
 
-      yPosition += 6;
+      yPosition += headerHeight;
 
-      // Corps du tableau - utiliser les étapes de la procédure
-      pdf.setDrawColor(180, 180, 180);
-      pdf.setLineWidth(0.3);
+      // Lignes de données (SANS remplissage de couleur)
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setTextColor(0, 0, 0);
 
       // Mapper les indicateurs aux étapes
@@ -400,135 +397,66 @@ export class ProcedureService {
 
       procedure.steps.forEach((step, index) => {
         // Vérifier si on dépasse la page
-        if (yPosition > pageHeight - bottomMargin - rowHeight - 15) {
-          return; // Ne pas dépasser
+        if (yPosition > landscapeHeight - margin - rowHeight) {
+          return;
         }
 
-        xPos = tableX;
+        xPos = margin;
 
-        // Couleur alternée pour les lignes
-        if (index % 2 === 0) {
-          pdf.setFillColor(250, 250, 250);
-        } else {
-          pdf.setFillColor(255, 255, 255);
-        }
-
-        // Dessiner toute la ligne avec couleur de fond
-        pdf.rect(xPos, yPosition, colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3], rowHeight, 'F');
-
-        // Bordures
-        colWidths.forEach((width) => {
-          pdf.rect(xPos, yPosition, width, rowHeight);
-          xPos += width;
-        });
-
-        xPos = tableX;
-
-        // Colonne 1: N° (numéro dans cercle)
-        pdf.setFillColor(0, 150, 136);
-        pdf.circle(xPos + 5, yPosition + rowHeight / 2, 4, 'F');
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(9);
-        pdf.setTextColor(255, 255, 255);
-        pdf.text(`${step.order}`, xPos + 5, yPosition + rowHeight / 2 + 2.5, { align: 'center' });
+        // QUOI - Description de l'étape
+        pdf.rect(xPos, yPosition, colWidths[0], rowHeight);
+        const quoiLines = pdf.splitTextToSize(this.removeAccents(step.description), colWidths[0] - 3);
+        pdf.text(quoiLines.slice(0, 4), xPos + 1.5, yPosition + 4);
         xPos += colWidths[0];
 
-        // Colonne 2: ETAPE (description)
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(8);
-        pdf.setTextColor(0, 0, 0);
-        const stepLines = pdf.splitTextToSize(this.removeAccents(step.description), colWidths[1] - 4);
-        const stepText = stepLines.slice(0, 3).join(' '); // Max 3 lignes
-        pdf.text(stepText, xPos + 2, yPosition + 6, { maxWidth: colWidths[1] - 4 });
+        // COMMENT - Documents utilisés
+        pdf.rect(xPos, yPosition, colWidths[1], rowHeight);
+        const commentText = step.documents.length > 0
+          ? step.documents.join(', ')
+          : 'Selon procedure standard';
+        const commentLines = pdf.splitTextToSize(this.removeAccents(commentText), colWidths[1] - 3);
+        pdf.text(commentLines.slice(0, 4), xPos + 1.5, yPosition + 4);
         xPos += colWidths[1];
 
-        // Colonne 3: RESPONSABLE
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(8);
-        pdf.setTextColor(0, 100, 100);
-        const respLines = pdf.splitTextToSize(this.removeAccents(step.responsible), colWidths[2] - 4);
-        respLines.slice(0, 2).forEach((line: string, i: number) => {
-          pdf.text(line, xPos + 2, yPosition + 8 + (i * 5));
-        });
+        // QUAND - Durée
+        pdf.rect(xPos, yPosition, colWidths[2], rowHeight);
+        const quandText = step.duration || 'Variable';
+        pdf.text(this.removeAccents(quandText), xPos + 1.5, yPosition + 10);
         xPos += colWidths[2];
 
-        // Colonne 4: INDICATEUR + DOCUMENTS
-        let kpiYPos = yPosition + 5;
+        // QUI - Personnes concernées
+        pdf.rect(xPos, yPosition, colWidths[3], rowHeight);
+        const quiText = step.concernedPersons && step.concernedPersons.length > 0
+          ? step.concernedPersons.join(', ')
+          : 'Tout le personnel';
+        const quiLines = pdf.splitTextToSize(this.removeAccents(quiText), colWidths[3] - 3);
+        pdf.text(quiLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[3];
 
-        // KPI
-        const kpi = stepIndicators.get(index) || 'Conformite';
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(7);
-        pdf.setTextColor(0, 100, 100);
-        pdf.text('KPI:', xPos + 2, kpiYPos);
+        // MOYENS - Documents/Outils
+        pdf.rect(xPos, yPosition, colWidths[4], rowHeight);
+        const moyensText = step.documents.length > 0
+          ? step.documents.slice(0, 2).join(', ')
+          : 'Registres qualite';
+        const moyensLines = pdf.splitTextToSize(this.removeAccents(moyensText), colWidths[4] - 3);
+        pdf.text(moyensLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[4];
 
-        pdf.setFont('helvetica', 'italic');
-        pdf.setFontSize(7);
-        pdf.setTextColor(60, 60, 60);
-        const kpiText = pdf.splitTextToSize(this.removeAccents(kpi), colWidths[3] - 18);
-        pdf.text(kpiText[0] || kpi, xPos + 12, kpiYPos);
+        // KPI - Indicateur
+        pdf.rect(xPos, yPosition, colWidths[5], rowHeight);
+        const kpiText = stepIndicators.get(index) || 'Conformite';
+        const kpiLines = pdf.splitTextToSize(this.removeAccents(kpiText), colWidths[5] - 3);
+        pdf.text(kpiLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[5];
 
-        kpiYPos += 5;
-
-        // Documents/Registres
-        if (step.documents && step.documents.length > 0) {
-          pdf.setFont('helvetica', 'bold');
-          pdf.setFontSize(7);
-          pdf.setTextColor(0, 100, 100);
-          pdf.text('Doc:', xPos + 2, kpiYPos);
-
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(6);
-          pdf.setTextColor(40, 40, 40);
-          const docsText = step.documents.slice(0, 2).join(', ');
-          const docLines = pdf.splitTextToSize(this.removeAccents(docsText), colWidths[3] - 18);
-          docLines.slice(0, 2).forEach((line: string, i: number) => {
-            pdf.text(line, xPos + 12, kpiYPos + (i * 4));
-          });
-        } else {
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(6);
-          pdf.setTextColor(120, 120, 120);
-          pdf.text('Registre qualite', xPos + 2, kpiYPos);
-        }
+        // RESPONSABLE
+        pdf.rect(xPos, yPosition, colWidths[6], rowHeight);
+        const respLines = pdf.splitTextToSize(this.removeAccents(step.responsible), colWidths[6] - 3);
+        pdf.text(respLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[6];
 
         yPosition += rowHeight;
       });
-
-      yPosition += 8;
-
-      // Légende compacte
-      if (yPosition < pageHeight - bottomMargin - 30) {
-        pdf.setDrawColor(200, 200, 200);
-        pdf.setLineWidth(0.3);
-        pdf.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-        yPosition += 6;
-
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(8);
-        pdf.setTextColor(0, 150, 136);
-        pdf.text('NOTES IMPORTANTES', leftMargin, yPosition);
-        yPosition += 6;
-
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(7);
-        pdf.setTextColor(0, 0, 0);
-
-        const notes = [
-          'Respecter ordre chronologique des etapes',
-          'Chaque responsable valide avant passage etape suivante',
-          'Documenter tout ecart ou deviation dans registre qualite'
-        ];
-
-        notes.forEach((note) => {
-          if (yPosition < pageHeight - bottomMargin - 8) {
-            pdf.setFillColor(0, 150, 136);
-            pdf.circle(leftMargin + 3, yPosition - 1, 0.8, 'F');
-            pdf.text(note, leftMargin + 7, yPosition);
-            yPosition += 5;
-          }
-        });
-      }
 
       yPosition += 5;
 

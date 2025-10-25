@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, X, Plus, Trash2, FileText, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { Save, X, Plus, Trash2, FileText, Download, AlertCircle, CheckCircle, UserPlus } from 'lucide-react';
 import { ProcedureTemplate, ProcedureInfo, ProcedureStep, ProcedureIndicator, ProcedureAnnex } from '../types/procedures';
 import { procedureService } from '../services/ProcedureService';
 import { procedureDefaults } from '../data/procedureDefaults';
@@ -92,6 +92,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({ template, onCancel }) => 
       order: steps.length + 1,
       description: '',
       responsible: '',
+      concernedPersons: [],
       documents: [],
       duration: ''
     };
@@ -484,24 +485,97 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({ template, onCancel }) => 
                           <option value="">Sélectionner...</option>
                           <option value="Pharmacien titulaire">Pharmacien titulaire</option>
                           <option value="Pharmacien adjoint">Pharmacien adjoint</option>
-                          <option value="Préparateur">Préparateur</option>
+                          <option value="Auxiliaire en pharmacie">Auxiliaire en pharmacie</option>
                           <option value="Tout le personnel">Tout le personnel</option>
                           <option value="Personnel désigné">Personnel désigné</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Durée estimée
+                          Personnes concernées
                         </label>
-                        <input
-                          type="text"
-                          value={step.duration}
-                          onChange={(e) => updateStep(step.id, 'duration', e.target.value)}
-                          placeholder="ex: 5-10 minutes"
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
-                        />
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap gap-2 min-h-[40px] border border-gray-300 rounded-lg p-2">
+                            {step.concernedPersons && step.concernedPersons.length > 0 ? (
+                              step.concernedPersons.map((person, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm text-white"
+                                  style={{backgroundColor: '#009688'}}
+                                >
+                                  {person}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newPersons = [...step.concernedPersons];
+                                      newPersons.splice(idx, 1);
+                                      updateStep(step.id, 'concernedPersons', newPersons);
+                                    }}
+                                    className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 text-sm">Aucune personne ajoutée</span>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Nom de la personne ou fonction..."
+                              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent text-sm"
+                              style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const input = e.currentTarget;
+                                  const value = input.value.trim();
+                                  if (value) {
+                                    const currentPersons = step.concernedPersons || [];
+                                    updateStep(step.id, 'concernedPersons', [...currentPersons, value]);
+                                    input.value = '';
+                                  }
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                const value = input.value.trim();
+                                if (value) {
+                                  const currentPersons = step.concernedPersons || [];
+                                  updateStep(step.id, 'concernedPersons', [...currentPersons, value]);
+                                  input.value = '';
+                                }
+                              }}
+                              className="flex items-center gap-1 px-3 py-2 text-white rounded-lg text-sm transition-all duration-200"
+                              style={{backgroundColor: '#009688'}}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+                            >
+                              <UserPlus className="h-4 w-4" />
+                              <span>Ajouter</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Durée estimée
+                      </label>
+                      <input
+                        type="text"
+                        value={step.duration}
+                        onChange={(e) => updateStep(step.id, 'duration', e.target.value)}
+                        placeholder="ex: 5-10 minutes"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                      />
                     </div>
 
                     <div>
