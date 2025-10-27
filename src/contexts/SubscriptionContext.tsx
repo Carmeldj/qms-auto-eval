@@ -20,7 +20,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
             const status = await subscriptionApi.checkSubscriptionStatus();
             // console.log(status);
 
-            if (status?.subscriptionStatus !== 'active') {
+            if (status?.subscriptionStatus === 'active') {
                 setHasSubscription(true);
             } else {
                 setHasSubscription(false);
