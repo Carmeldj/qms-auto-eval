@@ -138,6 +138,7 @@ class OrdonnancierService {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
 
+    // @ts-ignore
     entries.forEach((entry, index) => {
       if (yPosition > pageHeight - 20) {
         pdf.addPage();

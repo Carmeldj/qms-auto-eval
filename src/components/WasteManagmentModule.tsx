@@ -1,13 +1,13 @@
-import  { useState, useEffect } from 'react';
-import { Trash2, Plus, Download, Save, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Trash2, Plus, Download, Save, ArrowLeft, X } from 'lucide-react';
 import { PharmaceuticalWasteEntry, PharmaceuticalWasteDocument } from '../types/waste';
 import { WasteService } from '../services/WasteService';
 import jsPDF from 'jspdf';
 import { useNavigate } from 'react-router-dom';
 
+
 export default function WasteManagementModule() {
     const navigate = useNavigate();
-
     const [structureName, setStructureName] = useState('');
     const [structureAddress, setStructureAddress] = useState('');
     const [responsibleName, setResponsibleName] = useState('');
@@ -138,7 +138,7 @@ export default function WasteManagementModule() {
 
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
-        doc.text('Liste des Produits Périmés', 148, 15, { align: 'center' });
+        doc.text('Liste des Déchets Pharmaceutiques', 148, 15, { align: 'center' });
 
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
@@ -162,7 +162,7 @@ export default function WasteManagementModule() {
 
         const drawHeaders = (yPos: number) => {
             let x = 10;
-            // doc.setFillColor(52, 211, 153);
+            doc.setFillColor(52, 211, 153);
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(8);
             doc.setFont('helvetica', 'bold');
@@ -187,6 +187,7 @@ export default function WasteManagementModule() {
         doc.setFontSize(7.5);
         doc.setFont('helvetica', 'normal');
 
+        // @ts-ignore
         entries.forEach((entry, index) => {
             if (y > 185) {
                 doc.addPage('a4', 'landscape');
@@ -204,8 +205,8 @@ export default function WasteManagementModule() {
                 entry.productNature.substring(0, 22),
                 entry.expiryDate,
                 entry.quantity.toString(),
-                entry.unitPrice.toFixed(2),
-                entry.totalPrice.toFixed(2)
+                Math.round(entry.unitPrice).toString(),
+                Math.round(entry.totalPrice).toString()
             ];
 
             let x = 10;
@@ -222,7 +223,7 @@ export default function WasteManagementModule() {
         y += 8;
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Total général: ${totalPrice.toFixed(2)} DZD`, 220, y);
+        doc.text(`Total général: ${Math.round(totalPrice)} FCFA`, 220, y);
 
         doc.save(`dechets_pharmaceutiques_${startDate}_${endDate}.pdf`);
     };
@@ -249,25 +250,16 @@ export default function WasteManagementModule() {
 
     if (showSaved) {
         return (
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-3 sm:p-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-                        {/* <button
+                        <button
                             onClick={() => setShowSaved(false)}
                             className="flex items-center text-emerald-600 hover:text-emerald-700"
                         >
                             <ArrowLeft className="w-5 h-5 mr-2" />
                             Retour
-                        </button> */}
-                        <div className="">
-                            <button
-                                onClick={() => setShowSaved(false)}
-                                className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
-                            >
-                                <X className="h-4 w-4" />
-                                <span>Retour</span>
-                            </button>
-                        </div>
+                        </button>
                         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Documents Enregistrés</h1>
                         <div className="hidden sm:block w-24"></div>
                     </div>
@@ -326,8 +318,8 @@ export default function WasteManagementModule() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-            <div className="">
+        <div className="min-h-screen  p-3 sm:p-8">
+            <div className="max-w-[1800px] mx-auto">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                     <div className=" ">
                         <button
@@ -549,7 +541,7 @@ export default function WasteManagementModule() {
                                                     />
                                                 </td>
                                                 <td className="border border-gray-300 px-2 py-1 text-center text-sm font-medium">
-                                                    {entry.totalPrice.toFixed(2)}
+                                                    {Math.round(entry.totalPrice)}
                                                 </td>
                                                 <td className="border border-gray-300 px-2 py-1 text-center">
                                                     <button
@@ -577,7 +569,7 @@ export default function WasteManagementModule() {
                         <div className="mt-6 flex justify-center sm:justify-end">
                             <div className="bg-emerald-50 px-4 sm:px-6 py-3 sm:py-4 rounded-lg">
                                 <p className="text-base sm:text-lg font-semibold text-gray-800">
-                                    Total général: {entries.reduce((sum, entry) => sum + entry.totalPrice, 0).toFixed(2)} DH
+                                    Total général: {Math.round(entries.reduce((sum, entry) => sum + entry.totalPrice, 0))} FCFA
                                 </p>
                             </div>
                         </div>

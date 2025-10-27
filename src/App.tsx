@@ -7,7 +7,7 @@ import Results from "./components/Results";
 import InspectionResults from "./components/Inspection/InspectionResults";
 import ProceduresModule from "./components/Procedure/ProceduresModule";
 import TraceabilityModule from "./components/Traceability/TraceabilityModule";
-import DocumentsModule from "./components/Document/DocumentsModule";
+// import DocumentsModule from "./components/Document/DocumentsModule";
 import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
 import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";

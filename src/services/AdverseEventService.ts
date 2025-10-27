@@ -107,6 +107,7 @@ class AdverseEventService {
       }
     };
 
+    // @ts-ignore
     const addCheckbox = (x: number, y: number, checked: boolean) => {
       pdf.rect(x, y - 3, 3, 3);
       if (checked) {
