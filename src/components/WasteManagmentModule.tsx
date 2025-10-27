@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Download, Save, ArrowLeft, X } from 'lucide-react';
+import  { useState, useEffect } from 'react';
+import { Trash2, Plus, Download, Save, X } from 'lucide-react';
 import { PharmaceuticalWasteEntry, PharmaceuticalWasteDocument } from '../types/waste';
 import { WasteService } from '../services/WasteService';
 import jsPDF from 'jspdf';
@@ -138,7 +138,7 @@ export default function WasteManagementModule() {
 
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
-        doc.text('Liste des Déchets Pharmaceutiques', 148, 15, { align: 'center' });
+        doc.text('Liste des Produits Périmés', 148, 15, { align: 'center' });
 
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
@@ -162,7 +162,7 @@ export default function WasteManagementModule() {
 
         const drawHeaders = (yPos: number) => {
             let x = 10;
-            doc.setFillColor(52, 211, 153);
+            // doc.setFillColor(52, 211, 153);
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(8);
             doc.setFont('helvetica', 'bold');

@@ -1,3 +1,6 @@
+// just two payments options
+
+
 export default function SubscriptionPage() {
     return (
         <div className="h-max flex flex-col items-center justify-center p-8 bg-white rounded-lg">
@@ -20,7 +23,7 @@ export default function SubscriptionPage() {
                     }}
                     className="space-y-6"
                 >
-                    <div className="flex gap-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                         <label className="flex-1">
                             <input className="peer sr-only" type="radio" name="plan" value="Basic" defaultChecked />
                             <div className="border rounded-lg p-4 flex flex-col gap-2 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-200">
