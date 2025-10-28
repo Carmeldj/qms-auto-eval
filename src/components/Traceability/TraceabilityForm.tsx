@@ -54,7 +54,7 @@ const TraceabilityForm: React.FC<TraceabilityFormProps> = ({
         author: user?.name || user?.email || formData.pharmacyName || "Unknown",
         version: "1.0",
         accessLevel: DocumentAccessLevel.RESTRICTED,
-        status: DocumentStatus.PUBLISHED,
+        status: DocumentStatus.ACTIVE,
         tags: [template.category, "traçabilité", template.id],
       });
 

@@ -195,7 +195,7 @@ const OrdonnancierModule: React.FC = () => {
         author: user?.name || user?.email || pharmacyName,
         version: "1.0",
         accessLevel: DocumentAccessLevel.RESTRICTED,
-        status: DocumentStatus.PUBLISHED,
+        status: DocumentStatus.ACTIVE,
         tags: [
           "ordonnancier",
           `T${selectedTrimester}`,
