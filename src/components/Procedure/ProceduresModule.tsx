@@ -36,15 +36,15 @@ const ProceduresModule: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
               Module PROCÉDURES
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Rédaction rapide de procédures officinales avec export PDF direct
             </p>
           </div>
@@ -52,7 +52,7 @@ const ProceduresModule: React.FC = () => {
       </div>
 
       {/* Category Filter */}
-      <div className="bg-white rounded-xl shadow-md p-4 mb-8">
+      <div className="bg-white rounded-xl shadow-md p-3 sm:p-4 mb-6 sm:mb-8">
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedCategory('all')}
@@ -82,54 +82,73 @@ const ProceduresModule: React.FC = () => {
         </div>
       </div>
 
+      {/* Create Blank Procedure Button */}
+      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-white text-center sm:text-left">
+            <h2 className="text-lg sm:text-xl font-bold mb-2">Créer une procédure personnalisée</h2>
+            <p className="text-sm sm:text-base text-teal-50">
+              Démarrez avec un modèle vierge et créez votre propre procédure sur mesure
+            </p>
+          </div>
+          <button
+            onClick={() => handleCreateProcedure('blank-template')}
+            className="flex items-center space-x-2 bg-white text-teal-600 px-6 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-all duration-200 shadow-md whitespace-nowrap"
+          >
+            <FileText className="h-5 w-5" />
+            <span>Nouveau modèle vierge</span>
+          </button>
+        </div>
+      </div>
+
       {/* Statistics */}
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6 sm:mb-8">
         <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-gray-900">
+          <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mx-auto mb-2" />
+          <div className="text-xl sm:text-2xl font-bold text-gray-900">
             {procedureTemplates.length}
           </div>
-          <div className="text-sm text-gray-600">Modèles disponibles</div>
+          <div className="text-xs sm:text-sm text-gray-600">Modèles disponibles</div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <CheckCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-red-600">
+          <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 mx-auto mb-2" />
+          <div className="text-xl sm:text-2xl font-bold text-red-600">
             {procedureTemplates.filter(t => t.isRequired).length}
           </div>
-          <div className="text-sm text-gray-600">Procédures obligatoires</div>
+          <div className="text-xs sm:text-sm text-gray-600">Procédures obligatoires</div>
         </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-4 text-center">
-          <Clock className="h-8 w-8" style={{color: '#009688'}} />
-          <div className="text-2xl font-bold" style={{color: '#009688'}}>
+
+        <div className="bg-white rounded-lg shadow-md p-4 text-center sm:col-span-2 md:col-span-1">
+          <Clock className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" style={{color: '#009688'}} />
+          <div className="text-xl sm:text-2xl font-bold" style={{color: '#009688'}}>
             25-35min
           </div>
-          <div className="text-sm text-gray-600">Temps moyen de rédaction</div>
+          <div className="text-xs sm:text-sm text-gray-600">Temps moyen de rédaction</div>
         </div>
       </div>
 
       {/* Procedures List */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
           Modèles de Procédures Disponibles
         </h3>
-        
-        <div className="grid lg:grid-cols-2 gap-4">
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredTemplates.map(template => (
-            <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
-              <div className="flex flex-col md:flex-row items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-semibold text-gray-900">{template.title}</h4>
+            <div key={template.id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all duration-200">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{template.title}</h4>
                     {template.isRequired && (
-                      <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                      <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">
                         Obligatoire
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{template.description}</p>
-                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-3">{template.description}</p>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
                     <span className="flex items-center space-x-1">
                       <Clock className="h-3 w-3" />
                       <span>{template.estimatedTime}</span>
@@ -141,7 +160,7 @@ const ProceduresModule: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleCreateProcedure(template.id)}
-                  className="w-full md:w-max flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-4 md:mt-0 md:ml-4"
+                  className="flex items-center justify-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 w-full sm:w-auto sm:ml-4 text-sm"
                   style={{backgroundColor: '#009688'}}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
@@ -156,7 +175,7 @@ const ProceduresModule: React.FC = () => {
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-8">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mt-6 sm:mt-8">
         <h3 className="text-lg font-bold text-blue-900 mb-3">
           Comment utiliser ce module
         </h3>

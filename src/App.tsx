@@ -7,12 +7,15 @@ import Results from "./components/Results";
 import InspectionResults from "./components/Inspection/InspectionResults";
 import ProceduresModule from "./components/Procedure/ProceduresModule";
 import TraceabilityModule from "./components/Traceability/TraceabilityModule";
-import DocumentsModule from "./components/Document/DocumentsModule";
+// import DocumentsModule from "./components/Document/DocumentsModule";
 import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
 import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";
 import PESTELAnalysis from "./components/Analysis/PESTELAnalysis";
 import LoginModule from "./components/Auth/LoginModule";
+import WasteManagementModule from "./components/WasteManagmentModule";
+import SubscriptionPage from "./components/SubscriptionPage";
+import SubscriptionLayout from "./layouts/SubscriptionLayout";
 
 function App() {
 
@@ -22,47 +25,25 @@ function App() {
       <Header />
       <main>
         <Routes>
-          <Route
-            path="/"
-            element={<Home />}
-          />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginModule />} />
-          <Route
-            path="/assessment"
-            element={<AssessmentForm />}
-          />
-          <Route
-            path="/inspection"
-            element={<InspectionForm />} />
-          <Route
-            path="/results"
-            element={<Results />}
-          />
-          <Route
-            path="/inspection-results"
-            element={<InspectionResults />}
-          />
-          <Route
-            path="/swot"
-            element={<SWOTAnalysis />} />
-          <Route
-            path="/pestel"
-            element={<PESTELAnalysis />} />
-          <Route
-            path="/ordonnancier"
-            element={<OrdonnancierModule />} />
-          <Route
-            path="/procedures"
-            element={<ProceduresModule />} />
-          <Route
-            path="/traceability"
-            element={<TraceabilityModule />} />
-          <Route
-            path="/documents"
-            element={<DocumentsModule />} />
-          <Route
-            path="/pharmacovigilance"
-            element={<AdverseEventsModule />} />
+
+          {/* Protected routes under subscription layout */}
+          <Route element={<SubscriptionLayout />}>
+            <Route path="/assessment" element={<AssessmentForm />} />
+            <Route path="/inspection" element={<InspectionForm />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/inspection-results" element={<InspectionResults />} />
+            <Route path="/swot" element={<SWOTAnalysis />} />
+            <Route path="/pestel" element={<PESTELAnalysis />} />
+            <Route path="/ordonnancier" element={<OrdonnancierModule />} />
+            <Route path="/procedures" element={<ProceduresModule />} />
+            <Route path="/traceability" element={<TraceabilityModule />} />
+            {/* <Route path="/documents" element={<DocumentsModule />} /> */}
+            <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
+            <Route path="/waste-management" element={<WasteManagementModule />} />
+            <Route path="/subscribe" element={<SubscriptionPage />} />
+          </Route>
         </Routes>
       </main>
 

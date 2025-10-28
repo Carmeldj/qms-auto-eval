@@ -79,6 +79,8 @@ export interface TraceabilityTemplate {
   title: string;
   description: string;
   category: string;
+  classification?: string;
+  processCode?: string;
   fields: TraceabilityField[];
 }
 

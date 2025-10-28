@@ -4,6 +4,7 @@ export interface DocumentTemplate {
   category: string;
   description: string;
   estimatedTime: string;
+  classificationCode?: string;
   fields: DocumentField[];
 }
 

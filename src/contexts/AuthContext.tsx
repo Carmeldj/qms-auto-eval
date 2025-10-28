@@ -21,9 +21,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = !!user;
-  console.log(isAuthenticated);
-  
+  const isAuthenticated = !!user;  
 
   // Check if user is already authenticated on app load
   const checkAuthStatus = async () => {

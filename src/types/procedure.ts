@@ -5,6 +5,7 @@ export interface ProcedureTemplate {
   description: string;
   isRequired: boolean;
   estimatedTime: string;
+  classificationCode?: string;
 }
 
 export interface ProcedureInfo {
@@ -24,6 +25,7 @@ export interface ProcedureStep {
   order: number;
   description: string;
   responsible: string;
+  concernedPersons: string[];
   documents: string[];
   duration?: string;
 }

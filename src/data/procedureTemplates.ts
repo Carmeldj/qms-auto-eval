@@ -1,6 +1,16 @@
-import { ProcedureTemplate } from '../types/procedures';
+import { ProcedureTemplate } from '../types/procedure';
+import { procedureClassificationMapping } from './documentClassificationMapping';
 
 export const procedureTemplates: ProcedureTemplate[] = [
+  // Modèle vierge
+  {
+    id: 'blank-template',
+    title: 'Nouvelle procédure (modèle vierge)',
+    category: 'Personnalisé',
+    description: 'Créez votre propre procédure à partir d\'un modèle vierge entièrement personnalisable',
+    isRequired: false,
+    estimatedTime: '20-60 min'
+  },
   // Dispensation et conseil
   {
     id: 'dispensation',
@@ -251,6 +261,13 @@ export const procedureTemplates: ProcedureTemplate[] = [
     estimatedTime: '20-30 min'
   }
 ];
+
+// Apply classification codes to all templates that don't have one
+procedureTemplates.forEach(template => {
+  if (!template.classificationCode && procedureClassificationMapping[template.id]) {
+    template.classificationCode = procedureClassificationMapping[template.id];
+  }
+});
 
 export const getProceduresByCategory = (category: string): ProcedureTemplate[] => {
   return procedureTemplates.filter(template => template.category === category);

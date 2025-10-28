@@ -1,4 +1,5 @@
 import { DocumentTemplate } from '../types/documents';
+import { documentClassificationMapping } from './documentClassificationMapping';
 
 export const documentTemplates: DocumentTemplate[] = [
   // Organisation et RH
@@ -8,6 +9,7 @@ export const documentTemplates: DocumentTemplate[] = [
     category: 'Organisation',
     description: 'Représentation visuelle de la structure organisationnelle',
     estimatedTime: '15-20 min',
+    classificationCode: documentClassificationMapping['organization-chart'],
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'titulaire', label: 'Pharmacien titulaire', type: 'text', required: true, placeholder: 'Nom du titulaire' },
@@ -42,9 +44,10 @@ export const documentTemplates: DocumentTemplate[] = [
     category: 'Ressources Humaines',
     description: 'Description détaillée des fonctions et responsabilités',
     estimatedTime: '20-25 min',
+    classificationCode: documentClassificationMapping['job-description'],
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
-      { id: 'jobTitle', label: 'Intitulé du poste', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Préparateur en pharmacie', 'Vendeur/Assistant', 'Responsable qualité', 'Stagiaire'] },
+      { id: 'jobTitle', label: 'Intitulé du poste', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Auxiliaire en pharmacie', 'Vendeur/Assistant', 'Responsable qualité', 'Stagiaire'] },
       { id: 'holderName', label: 'Nom du titulaire du poste', type: 'text', required: true, placeholder: 'Nom de la personne' },
       { id: 'reportingTo', label: 'Rattachement hiérarchique', type: 'text', required: true, placeholder: 'Supérieur hiérarchique' },
       { id: 'mission', label: 'Mission principale', type: 'textarea', required: true, placeholder: 'Description de la mission principale du poste', rows: 3 },
@@ -113,7 +116,7 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'date', label: 'Date', type: 'date', required: true },
       { id: 'time', label: 'Heure', type: 'text', required: true, placeholder: 'HH:MM' },
       { id: 'author', label: 'Auteur du message', type: 'text', required: true, placeholder: 'Nom de la personne' },
-      { id: 'recipients', label: 'Destinataires', type: 'select', required: true, options: ['Toute l\'équipe', 'Pharmaciens', 'Préparateurs', 'Vendeurs', 'Équipe du matin', 'Équipe de l\'après-midi', 'Personne spécifique'] },
+      { id: 'recipients', label: 'Destinataires', type: 'select', required: true, options: ['Toute l\'équipe', 'Pharmaciens', 'Auxiliaires en pharmacie', 'Vendeurs', 'Équipe du matin', 'Équipe de l\'après-midi', 'Personne spécifique'] },
       { id: 'priority', label: 'Priorité', type: 'select', required: true, options: ['Information', 'Important', 'Urgent', 'Très urgent'] },
       { id: 'category', label: 'Catégorie', type: 'select', required: true, options: ['Information générale', 'Procédure', 'Stock', 'Client', 'Fournisseur', 'Maintenance', 'Formation', 'Réglementation', 'Autre'] },
       { id: 'subject', label: 'Objet', type: 'text', required: true, placeholder: 'Sujet du message' },
@@ -212,7 +215,7 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'supervisorName', label: 'Nom du maître de stage', type: 'text', required: true, placeholder: 'Pharmacien superviseur' },
       { id: 'supervisorTitle', label: 'Titre du superviseur', type: 'text', required: true, placeholder: 'Pharmacien titulaire/adjoint' },
       { id: 'internName', label: 'Nom du stagiaire', type: 'text', required: true, placeholder: 'Nom et prénom du stagiaire' },
-      { id: 'internLevel', label: 'Niveau d\'études', type: 'select', required: true, options: ['3ème année Pharmacie', '4ème année Pharmacie', '5ème année Pharmacie', '6ème année Pharmacie', 'Préparateur en pharmacie', 'Autre'] },
+      { id: 'internLevel', label: 'Niveau d\'études', type: 'select', required: true, options: ['3ème année Pharmacie', '4ème année Pharmacie', '5ème année Pharmacie', '6ème année Pharmacie', 'Auxiliaire en pharmacie', 'Autre'] },
       { id: 'institution', label: 'Établissement de formation', type: 'text', required: true, placeholder: 'Université/École' },
       { id: 'startDate', label: 'Date de début', type: 'date', required: true },
       { id: 'endDate', label: 'Date de fin', type: 'date', required: true },
@@ -234,7 +237,7 @@ export const documentTemplates: DocumentTemplate[] = [
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'participantName', label: 'Nom du participant', type: 'text', required: true, placeholder: 'Nom et prénom' },
-      { id: 'participantTitle', label: 'Fonction', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Préparateur en pharmacie', 'Vendeur/Assistant', 'Stagiaire'] },
+      { id: 'participantTitle', label: 'Fonction', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Auxiliaire en pharmacie', 'Vendeur/Assistant', 'Stagiaire'] },
       { id: 'trainingTitle', label: 'Intitulé de la formation', type: 'text', required: true, placeholder: 'Titre de la formation' },
       { id: 'trainingType', label: 'Type de formation', type: 'select', required: true, options: ['Formation continue', 'Formation réglementaire', 'Formation technique', 'Formation qualité', 'Autre'] },
       { id: 'organizer', label: 'Organisme formateur', type: 'text', required: true, placeholder: 'Nom de l\'organisme' },
@@ -248,6 +251,35 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'certification', label: 'Certification obtenue', type: 'text', required: false, placeholder: 'Nom du certificat/diplôme' },
       { id: 'validityPeriod', label: 'Période de validité', type: 'text', required: false, placeholder: 'Ex: 3 ans' },
       { id: 'issueDate', label: 'Date de délivrance', type: 'date', required: true }
+    ]
+  },
+
+  // Gestion des déchets
+  {
+    id: 'pharmaceutical-waste',
+    title: 'Liste des déchets pharmaceutiques',
+    category: 'Environnement',
+    description: 'Enregistrement détaillé des déchets pharmaceutiques collectés',
+    estimatedTime: '10-15 min',
+    classificationCode: documentClassificationMapping['pharmaceutical-waste'],
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'recordDate', label: 'Date d\'enregistrement', type: 'date', required: true },
+      { id: 'wasteType', label: 'Type de déchet', type: 'select', required: true, options: ['Médicaments périmés', 'Médicaments non utilisés', 'Stupéfiants', 'Cytostatiques', 'Déchets d\'activités de soins à risques infectieux (DASRI)', 'Autres déchets dangereux'] },
+      { id: 'productName', label: 'Nom du produit', type: 'text', required: true, placeholder: 'Dénomination du médicament ou produit' },
+      { id: 'laboratoryName', label: 'Laboratoire', type: 'text', required: true, placeholder: 'Nom du laboratoire fabricant' },
+      { id: 'batchNumber', label: 'Numéro de lot', type: 'text', required: false, placeholder: 'Numéro de lot' },
+      { id: 'expiryDate', label: 'Date de péremption', type: 'date', required: false },
+      { id: 'quantity', label: 'Quantité', type: 'number', required: true, placeholder: 'Nombre d\'unités' },
+      { id: 'unit', label: 'Unité', type: 'select', required: true, options: ['Boîte(s)', 'Flacon(s)', 'Ampoule(s)', 'Comprimé(s)', 'Gélule(s)', 'Sachet(s)', 'Tube(s)', 'Kg', 'Litre(s)', 'Unité(s)'] },
+      { id: 'weight', label: 'Poids approximatif (kg)', type: 'number', required: false, placeholder: 'Poids en kilogrammes' },
+      { id: 'origin', label: 'Origine', type: 'select', required: true, options: ['Stock officine', 'Retour patient', 'Retour EHPAD', 'Retour établissement de santé', 'Autre'] },
+      { id: 'collectionDate', label: 'Date de collecte', type: 'date', required: false },
+      { id: 'collector', label: 'Collecteur', type: 'text', required: false, placeholder: 'Organisme de collecte' },
+      { id: 'eliminationMode', label: 'Mode d\'élimination', type: 'select', required: false, options: ['Incinération', 'Cyclamed', 'Prestataire spécialisé', 'En attente de collecte'] },
+      { id: 'traceabilityNumber', label: 'Numéro de traçabilité', type: 'text', required: false, placeholder: 'Numéro du bordereau de suivi' },
+      { id: 'recorder', label: 'Enregistré par', type: 'text', required: true, placeholder: 'Nom de la personne' },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières', rows: 3 }
     ]
   },
 
@@ -282,6 +314,13 @@ export const documentTemplates: DocumentTemplate[] = [
     ]
   }
 ];
+
+// Apply classification codes to all templates that don't have one
+documentTemplates.forEach(template => {
+  if (!template.classificationCode && documentClassificationMapping[template.id]) {
+    template.classificationCode = documentClassificationMapping[template.id];
+  }
+});
 
 export const getDocumentTemplateById = (id: string): DocumentTemplate | undefined => {
   return documentTemplates.find(template => template.id === id);

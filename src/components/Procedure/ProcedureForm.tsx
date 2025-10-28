@@ -7,6 +7,7 @@ import {
   Download,
   AlertCircle,
   CheckCircle,
+  UserPlus,
 } from "lucide-react";
 import {
   ProcedureTemplate,
@@ -14,9 +15,13 @@ import {
   ProcedureStep,
   ProcedureIndicator,
   ProcedureAnnex,
-} from "../../types/procedures";
+} from "../../types/procedure";
 import { procedureService } from "../../services/ProcedureService";
 import { procedureDefaults } from "../../data/procedureDefaults";
+import ClassificationBadge from "../ClassificationBadge";
+import { uploadAndSaveDocument } from "../../utils/documentUploadHelper";
+import { DocumentAccessLevel, DocumentStatus } from "../../types/documents";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface ProcedureFormProps {
   template: ProcedureTemplate;
@@ -27,6 +32,8 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
   template,
   onCancel,
 }) => {
+  const { user } = useAuth();
+
   // Get default values for this template
   const defaults = procedureDefaults[template.id];
 
@@ -42,12 +49,38 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
     scope: defaults?.scope || "",
   });
 
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
+
+  const handlePharmacyNameChange = (value: string) => {
+    setInfo((prev) => ({ ...prev, pharmacyName: value }));
+
+    // Auto-generate initials
+    if (value.trim()) {
+      const words = value.trim().split(/\s+/);
+      const autoInitials = words
+        .map((w) => w[0])
+        .join("")
+        .substring(0, 3)
+        .toUpperCase();
+      setPharmacyInitials(autoInitials);
+    }
+  };
+
+  const handleInitialsChange = (value: string) => {
+    const sanitized = value
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .substring(0, 3);
+    setPharmacyInitials(sanitized);
+  };
+
   const [steps, setSteps] = useState<ProcedureStep[]>(
     defaults?.steps.map((step, index) => ({
       id: (index + 1).toString(),
       order: index + 1,
       description: step.description,
       responsible: step.responsible,
+      concernedPersons: step.concernedPersons || [],
       documents: step.documents,
       duration: step.duration || "",
     })) || [
@@ -56,6 +89,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
         order: 1,
         description: "",
         responsible: "",
+        concernedPersons: [],
         documents: [],
         duration: "",
       },
@@ -92,6 +126,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       order: steps.length + 1,
       description: "",
       responsible: "",
+      concernedPersons: [],
       documents: [],
       duration: "",
     };
@@ -174,7 +209,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
     const procedure = {
       id: Date.now().toString(),
       templateId: template.id,
-      info,
+      info: {
+        ...info,
+        _pharmacyInitials: pharmacyInitials, // Store initials
+      } as any,
       steps: steps.filter((s) => s.description.trim() !== ""),
       indicators,
       annexes,
@@ -183,7 +221,29 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
     };
 
     try {
-      await procedureService.generatePDF(procedure);
+      // Generate PDF and get blob
+      const result = await procedureService.generatePDF(procedure);
+      const { blob, fileName } = result;
+
+      // Upload and save to API
+      await uploadAndSaveDocument(blob, fileName, {
+        title: `Procédure - ${info.title}`,
+        type: "procedure",
+        category: template.category,
+        description: `Procédure ${template.title} pour ${info.pharmacyName}`,
+        author: user?.name || user?.email || info.author,
+        version: info.version,
+        accessLevel: DocumentAccessLevel.RESTRICTED,
+        status: DocumentStatus.DRAFT,
+        tags: [template.category, "procédure", info.pharmacyName],
+      });
+
+      // Also trigger download for user
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Erreur lors de la génération du PDF");
@@ -208,28 +268,30 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="mb-6 w-full ">
+        <button
+          onClick={onCancel}
+          className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+        >
+          <X className="h-4 w-4" />
+          <span>Retour</span>
+        </button>
+      </div>
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row  items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="w-max text-2xl font-bold text-gray-900 mb-2">
               Rédiger - {template.title}
             </h1>
             <p className="text-gray-600">{template.description}</p>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={onCancel}
-              className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
-            >
-              <X className="h-4 w-4" />
-              <span>Retour</span>
-            </button>
+          <div className="mt-4 md:mt-0 w-full lg:w-max flex items-center justify-between">
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid()}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
+              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
                 isFormValid()
                   ? "text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -298,15 +360,63 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                   type="text"
                   required
                   value={info.pharmacyName}
-                  onChange={(e) =>
-                    setInfo({ ...info, pharmacyName: e.target.value })
-                  }
+                  onChange={(e) => handlePharmacyNameChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
                     { "--tw-ring-color": "#009688" } as React.CSSProperties
                   }
                 />
               </div>
+
+              {/* Classification Section */}
+              {template.classificationCode && (
+                <div className="col-span-2 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-4 border-2 border-teal-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+                    <FileText className="h-4 w-4 text-teal-600" />
+                    <span>Classification Documentaire</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Initiales de la pharmacie{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={pharmacyInitials}
+                        onChange={(e) => handleInitialsChange(e.target.value)}
+                        placeholder="Ex: PCG"
+                        maxLength={3}
+                        className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent font-bold uppercase tracking-wider"
+                        style={
+                          {
+                            "--tw-ring-color": "#009688",
+                          } as React.CSSProperties
+                        }
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        3 lettres max - Auto-généré
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Code de classification
+                      </label>
+                      <div className="bg-white border-2 border-teal-300 rounded-lg px-3 py-2">
+                        <ClassificationBadge
+                          classificationCode={template.classificationCode}
+                          pharmacyInitials={pharmacyInitials}
+                          showFullCode={true}
+                          size="small"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Auteur de la procédure *
@@ -519,7 +629,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                           <option value="Pharmacien adjoint">
                             Pharmacien adjoint
                           </option>
-                          <option value="Préparateur">Préparateur</option>
+                          <option value="Auxiliaire en pharmacie">
+                            Auxiliaire en pharmacie
+                          </option>
                           <option value="Tout le personnel">
                             Tout le personnel
                           </option>
@@ -530,23 +642,124 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Durée estimée
+                          Personnes concernées
                         </label>
-                        <input
-                          type="text"
-                          value={step.duration}
-                          onChange={(e) =>
-                            updateStep(step.id, "duration", e.target.value)
-                          }
-                          placeholder="ex: 5-10 minutes"
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
-                        />
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap gap-2 min-h-[40px] border border-gray-300 rounded-lg p-2">
+                            {step.concernedPersons &&
+                            step.concernedPersons.length > 0 ? (
+                              step.concernedPersons.map((person, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm text-white"
+                                  style={{ backgroundColor: "#009688" }}
+                                >
+                                  {person}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newPersons = [
+                                        ...step.concernedPersons,
+                                      ];
+                                      newPersons.splice(idx, 1);
+                                      updateStep(
+                                        step.id,
+                                        "concernedPersons",
+                                        newPersons
+                                      );
+                                    }}
+                                    className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-400 text-sm">
+                                Aucune personne ajoutée
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Nom de la personne ou fonction..."
+                              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent text-sm"
+                              style={
+                                {
+                                  "--tw-ring-color": "#009688",
+                                } as React.CSSProperties
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  const input = e.currentTarget;
+                                  const value = input.value.trim();
+                                  if (value) {
+                                    const currentPersons =
+                                      step.concernedPersons || [];
+                                    updateStep(step.id, "concernedPersons", [
+                                      ...currentPersons,
+                                      value,
+                                    ]);
+                                    input.value = "";
+                                  }
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                const input = e.currentTarget
+                                  .previousElementSibling as HTMLInputElement;
+                                const value = input.value.trim();
+                                if (value) {
+                                  const currentPersons =
+                                    step.concernedPersons || [];
+                                  updateStep(step.id, "concernedPersons", [
+                                    ...currentPersons,
+                                    value,
+                                  ]);
+                                  input.value = "";
+                                }
+                              }}
+                              className="flex items-center gap-1 px-3 py-2 text-white rounded-lg text-sm transition-all duration-200"
+                              style={{ backgroundColor: "#009688" }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "#00796b")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  "#009688")
+                              }
+                            >
+                              <UserPlus className="h-4 w-4" />
+                              <span>Ajouter</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Durée estimée
+                      </label>
+                      <input
+                        type="text"
+                        value={step.duration}
+                        onChange={(e) =>
+                          updateStep(step.id, "duration", e.target.value)
+                        }
+                        placeholder="ex: 5-10 minutes"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                        style={
+                          {
+                            "--tw-ring-color": "#009688",
+                          } as React.CSSProperties
+                        }
+                      />
                     </div>
 
                     <div>

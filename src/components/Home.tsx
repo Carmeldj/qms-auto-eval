@@ -44,7 +44,7 @@ const Home: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
       {/* Hero Section */}
-      <div className="text-center mb-8 sm:mb-12">
+      <div className="mt-8 text-center mb-8 sm:mb-12">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
           Évaluez votre <span style={{ color: '#009688' }}>PHARMA QMS</span>
         </h1>
@@ -59,7 +59,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/assessment');
               }}
-              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
               style={{ backgroundColor: '#009688' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/inspection');
               }}
-              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
               style={{ backgroundColor: '#ff5722' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e64a19'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ff5722'}
@@ -85,7 +85,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/swot');
               }}
-              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
+              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm  transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
               style={{ borderColor: '#4caf50', color: '#4caf50' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#4caf50';
@@ -104,7 +104,7 @@ const Home: React.FC = () => {
               onClick={() => {
                 navigate('/pestel');
               }}
-              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
+              className="flex items-center justify-center space-x-2 bg-white border-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm  transform hover:scale-105 active:scale-95 transition-all duration-200 shadow hover:shadow-md"
               style={{ borderColor: '#2196f3', color: '#2196f3' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2196f3';
@@ -135,6 +135,74 @@ const Home: React.FC = () => {
         ))}
       </div>
 
+      {/* Demos videos */}
+      <div className="mb-10 sm:mb-16">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 text-center">
+          Vidéos démonstratives
+        </h2>
+        <p className="text-center text-gray-600 text-sm sm:text-base mb-6 max-w-2xl mx-auto px-2">
+          Découvrez en quelques minutes comment utiliser l'outil : Evaluation, Procédures, Traçabilité, Pharmacovigilance, Ordonnancier, Périmés.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
+          {[
+            {
+              id: 'evaluation',
+              src: 'https://www.youtube.com/embed/M7lc1UVf-VE',
+              title: "Faire une évaluation",
+              description: "Tour rapide des principales fonctionnalités et du flux d'évaluation."
+            },
+            {
+              id: 'procedures',
+              src: 'https://www.youtube.com/embed/PzSeTJytt6k',
+              title: "Créer des procédures",
+              description: "Découvrez comment créer des procédures officinales standardisées."
+            },
+            {
+              id: 'tracability',
+              src: 'https://www.youtube.com/embed/MSMsAMbSLnY',
+              title: "Gérer la traçabilité",
+              description: "Découvrez comment assurer la traçabilité de vos produits."
+            },
+            {
+              id: 'pharmacovigilance',
+              src: 'https://www.youtube.com/embed/1WAAYsE_3gE',
+              title: "Gérer la pharmacovigilance",
+              description: "Découvrez comment être à jour sur les sujets de pharmacovigilance."
+            },
+            {
+              id: 'ordonnancier',
+              src: 'https://www.youtube.com/embed/_xN2uQ21TiA',
+              title: "Gérer l'ordonnancier",
+              description: "Découvrez comment créer des gérer des ordonnances."
+            },
+            {
+              id: 'waste',
+              src: 'https://www.youtube.com/embed/Xif6gUk8ZiA',
+              title: "Gérer des périmés",
+              description: "Découvrez comment comment gérer efficacement vos produits périmés."
+            }
+          ].map(video => (
+            <div key={video.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="w-full h-48 sm:h-56 lg:h-40 bg-black">
+                <iframe
+                  title={video.title}
+                  src={video.src}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="p-3 sm:p-4">
+                <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">{video.title}</h3>
+                <p className="text-gray-600 text-xs sm:text-sm">{video.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* PMQ Categories */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">
@@ -152,7 +220,7 @@ const Home: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                      {pmq.name}
+                      {pmq.title}
                     </h3>
                     <p className="text-gray-600 text-xs sm:text-sm">{pmq.description}</p>
                   </div>
