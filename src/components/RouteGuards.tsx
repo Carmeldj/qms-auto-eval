@@ -10,7 +10,6 @@ const PROTECTED_PREFIXES = [
     '/inspection',
     '/results',
     '/inspection-results',
-    // '/documents',
     '/procedures',
     '/traceability',
     '/pharmacovigilance',
