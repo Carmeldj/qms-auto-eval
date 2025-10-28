@@ -328,10 +328,11 @@ export class ProcedureService {
       yPosition += 2;
 
       // Etapes de la procedure
-      addSection("DESCRIPTION DETAILLEE");
-
-      procedure.steps.forEach((step: any) => {
-        addText(`ETAPE ${step.order}`, 11, true, "teal", "left", 1.0);
+      addSection('DESCRIPTION DETAILLEE');
+      
+      //@ts-ignore
+      procedure.steps.forEach((step: any, index: any) => {
+        addText(`ETAPE ${step.order}`, 11, true, 'teal', 'left', 1.0);
         yPosition -= 1;
         addText(step.description, 10, false, "black", "left", 1.2);
 
@@ -507,9 +508,10 @@ export class ProcedureService {
 
       // Instructions de travail - Format paysage
       addFooter();
-      pdf.addPage("a4", "landscape");
-
-      // const landscapeWidth = pdf.internal.pageSize.getWidth();
+      pdf.addPage('a4', 'landscape');
+      
+      //@ts-ignore
+      const landscapeWidth = pdf.internal.pageSize.getWidth();
       const landscapeHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
       yPosition = margin;
