@@ -33,7 +33,6 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
     "notifier" | "patient" | "history" | "event" | "products" | "severity"
   >("notifier");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [savedReport, setSavedReport] = useState<AdverseEventReport | null>(
     null
@@ -291,8 +290,6 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
       }
     }
 
-    setIsSending(true);
-
     try {
       const reportToSend = savedReport || createReport();
       const pdfBase64 = adverseEventService.generatePDFBase64(reportToSend);
@@ -303,7 +300,6 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
       console.error("Error sending email:", error);
       alert("Erreur lors de l'envoi de l'email. Veuillez réessayer.");
     } finally {
-      setIsSending(false);
     }
   };
 
@@ -396,8 +392,11 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     await adverseEventService.saveReport(report);
                     setSavedReport(report);
                   } catch (err) {
-                    console.error('Erreur lors de la sauvegarde du rapport:', err);
-                    alert('Erreur lors de la sauvegarde du rapport');
+                    console.error(
+                      "Erreur lors de la sauvegarde du rapport:",
+                      err
+                    );
+                    alert("Erreur lors de la sauvegarde du rapport");
                     return;
                   }
                 }
@@ -1855,14 +1854,20 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                         await adverseEventService.saveReport(report);
                         setSavedReport(report);
                       } catch (err) {
-                        console.error('Erreur lors de la sauvegarde du rapport:', err);
-                        alert('Erreur lors de la sauvegarde du rapport');
+                        console.error(
+                          "Erreur lors de la sauvegarde du rapport:",
+                          err
+                        );
+                        alert("Erreur lors de la sauvegarde du rapport");
                         return;
                       }
                     }
 
                     // Pre-fill mailto (attachments aren't supported via mailto)
-                    const toPrompt = window.prompt("Entrez l'adresse email de l'agence :", "abmed@abmed.bj");
+                    const toPrompt = window.prompt(
+                      "Entrez l'adresse email de l'agence :",
+                      "abmed@abmed.bj"
+                    );
                     if (!toPrompt) {
                       alert("Adresse email non fournie. Opération annulée.");
                       return;
@@ -1879,20 +1884,25 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                       ``,
                       `Veuillez trouver ci-joint la notification d'effet indésirable (EPID: ${report.epidNumber}).`,
                       ``,
-                      `Notificateur: ${notifier.fullName || ''}`,
-                      `Formation Sanitaire: ${notifier.fs || ''}`,
-                      `Téléphone: ${notifier.telephone || ''}`,
+                      `Notificateur: ${notifier.fullName || ""}`,
+                      `Formation Sanitaire: ${notifier.fs || ""}`,
+                      `Téléphone: ${notifier.telephone || ""}`,
                       ``,
-                      `Cordialement.`
-                    ].join('\n');
+                      `Cordialement.`,
+                    ].join("\n");
 
-                    const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    const mailto = `mailto:${encodeURIComponent(
+                      to
+                    )}?subject=${encodeURIComponent(
+                      subject
+                    )}&body=${encodeURIComponent(body)}`;
                     window.location.href = mailto;
                   }}
-                  className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${isFormValid()
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
+                  className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${
+                    isFormValid()
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                   aria-disabled={!isFormValid()}
                 >
                   <Mail className="h-4 w-4" />
