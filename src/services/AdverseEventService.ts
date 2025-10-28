@@ -92,13 +92,14 @@ class AdverseEventService {
     return pdf.output("datauristring").split(",")[1];
   }
 
-  async generatePDF(report: AdverseEventReport): Promise<void> {
+  async generatePDF(report: AdverseEventReport): Promise<any> {
     const pdf = this.createPDF(report);
     const fileName = `notification-abmed-${report.epidNumber.replace(
       /\//g,
       "-"
     )}.pdf`;
-    pdf.save(fileName);
+    const pdfBlob = pdf.output("blob");
+    return { blob: pdfBlob, fileName };
   }
 
   private createPDF(report: AdverseEventReport): jsPDF {

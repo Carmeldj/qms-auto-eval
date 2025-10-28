@@ -44,7 +44,7 @@ export class DocumentService {
   public async generatePDF(
     template: DocumentTemplate,
     document: DocumentData
-  ): Promise<void> {
+  ): Promise<any> {
     try {
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -413,7 +413,8 @@ export class DocumentService {
       const fileName = `document-${safeTemplateTitle}-${
         new Date().toISOString().split("T")[0]
       }-${document.id}.pdf`;
-      pdf.save(fileName);
+      const pdfBlob = pdf.output("blob");
+      return { blob: pdfBlob, fileName };
     } catch (error) {
       console.error("Error generating document PDF:", error);
       throw new Error(
