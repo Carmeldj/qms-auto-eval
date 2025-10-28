@@ -61,11 +61,8 @@ export enum DocumentAccessLevel {
 
 export enum DocumentStatus {
   DRAFT = "draft",
-  PENDING_REVIEW = "pending_review",
-  APPROVED = "approved",
-  PUBLISHED = "published",
-  ARCHIVED = "archived",
-  REJECTED = "rejected",
+  ACTIVE = "active",
+  EXPIRED = "expired",
 }
 
 export interface CreateDocumentDto {

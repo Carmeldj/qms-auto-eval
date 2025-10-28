@@ -105,7 +105,7 @@ const InspectionResults: React.FC = () => {
             report.pharmacistInfo.lastName,
         version: "1.0",
         accessLevel: DocumentAccessLevel.RESTRICTED,
-        status: DocumentStatus.PUBLISHED,
+        status: DocumentStatus.ACTIVE,
         tags: ["inspection", "conformité", report.pharmacyInfo.name],
       });
 
