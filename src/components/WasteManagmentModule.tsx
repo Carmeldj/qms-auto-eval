@@ -162,19 +162,31 @@ export default function WasteManagementModule() {
 
         const drawHeaders = (yPos: number) => {
             let x = 10;
-            doc.setFillColor(52, 211, 153);
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(8);
+
+            // Always reset colors before drawing headers
+            doc.setFillColor(240, 240, 240); // Light gray background
+            doc.setDrawColor(0, 0, 0);       // Black border
+            doc.setLineWidth(0.2);
+            doc.setTextColor(0, 0, 0);       // Black text
+            doc.setFontSize(8.5);
             doc.setFont('helvetica', 'bold');
 
             headers.forEach((header, i) => {
-                doc.rect(x, yPos, colWidths[i], rowHeight, 'F');
-                const lines = doc.splitTextToSize(header, colWidths[i] - 2);
-                const textHeight = lines.length * 3;
-                const startTextY = yPos + (rowHeight - textHeight) / 2 + 3;
-                lines.forEach((line: string, lineIndex: number) => {
-                    doc.text(line, x + colWidths[i] / 2, startTextY + (lineIndex * 3), { align: 'center' });
+                // Draw light-filled box with border
+                doc.rect(x, yPos, colWidths[i], rowHeight, 'S');
+
+                const padding = 4;
+                const textWidth = colWidths[i] - padding;
+                const lines = doc.splitTextToSize(header, textWidth);
+                const lineHeight = 3;
+                const textHeight = lines.length * lineHeight;
+                const startTextY = yPos + (rowHeight - textHeight) / 2 + lineHeight - 0.5;
+
+                // Draw text centered and readable
+                lines.forEach((line: any, lineIndex: any) => {
+                    doc.text(line, x + colWidths[i] / 2, startTextY + (lineIndex * lineHeight), { align: 'center' });
                 });
+
                 x += colWidths[i];
             });
         };

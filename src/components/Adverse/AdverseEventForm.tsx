@@ -217,6 +217,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
     }
   };
 
+  //@ts-ignore
   const handleSendEmail = async () => {
     if (!savedReport) {
       const report = createReport();
@@ -313,55 +314,55 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
             <a
               href="#"
               onClick={async (e) => {
-              e.preventDefault();
-              if (!isFormValid()) return;
+                e.preventDefault();
+                if (!isFormValid()) return;
 
-              // Ensure we have a saved report
-              let report = savedReport;
-              if (!report) {
-                report = createReport();
-                try {
-                await adverseEventService.saveReport(report);
-                setSavedReport(report);
-                } catch (err) {
-                console.error('Erreur lors de la sauvegarde du rapport:', err);
-                alert('Erreur lors de la sauvegarde du rapport');
-                return;
+                // Ensure we have a saved report
+                let report = savedReport;
+                if (!report) {
+                  report = createReport();
+                  try {
+                    await adverseEventService.saveReport(report);
+                    setSavedReport(report);
+                  } catch (err) {
+                    console.error('Erreur lors de la sauvegarde du rapport:', err);
+                    alert('Erreur lors de la sauvegarde du rapport');
+                    return;
+                  }
                 }
-              }
 
-              // Pre-fill mailto (attachments aren't supported via mailto)
+                // Pre-fill mailto (attachments aren't supported via mailto)
                 const toPrompt = window.prompt("Entrez l'adresse email de l'agence :", "abmed@abmed.bj");
                 if (!toPrompt) {
-                alert("Adresse email non fournie. Opération annulée.");
-                return;
+                  alert("Adresse email non fournie. Opération annulée.");
+                  return;
                 }
                 const to = toPrompt.trim();
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(to)) {
-                alert("Adresse email invalide. Veuillez réessayer.");
-                return;
+                  alert("Adresse email invalide. Veuillez réessayer.");
+                  return;
                 }
-              const subject = `Notification Effet Indésirable - ${report.epidNumber}`;
-              const body = [
-                `Bonjour,`,
-                ``,
-                `Veuillez trouver ci-joint la notification d'effet indésirable (EPID: ${report.epidNumber}).`,
-                ``,
-                `Notificateur: ${notifier.fullName || ''}`,
-                `Formation Sanitaire: ${notifier.fs || ''}`,
-                `Téléphone: ${notifier.telephone || ''}`,
-                ``,
-                `Cordialement.`
-              ].join('\n');
+                const subject = `Notification Effet Indésirable - ${report.epidNumber}`;
+                const body = [
+                  `Bonjour,`,
+                  ``,
+                  `Veuillez trouver ci-joint la notification d'effet indésirable (EPID: ${report.epidNumber}).`,
+                  ``,
+                  `Notificateur: ${notifier.fullName || ''}`,
+                  `Formation Sanitaire: ${notifier.fs || ''}`,
+                  `Téléphone: ${notifier.telephone || ''}`,
+                  ``,
+                  `Cordialement.`
+                ].join('\n');
 
-              const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-              window.location.href = mailto;
+                const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailto;
               }}
               className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${isFormValid()
-              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               aria-disabled={!isFormValid()}
             >
               <Mail className="h-4 w-4" />
@@ -444,7 +445,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="text"
                   value={notifier.fs}
-                   onChange={(e) => handlePharmacyNameChange(e.target.value)}
+                  onChange={(e) => handlePharmacyNameChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
                   style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                 />
@@ -470,7 +471,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     placeholder="Ex: PCG"
                     maxLength={3}
                     className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent font-bold uppercase tracking-wider"
-                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     3 lettres max - Auto-généré
@@ -1034,42 +1035,42 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     </div>
                     {(() => {
                       const computeTreatmentDuration = (start?: string, end?: string) => {
-                      if (!start && !end) return '';
-                      if (start && !end) return `Début: ${start}`;
-                      if (!start && end) return `Fin: ${end}`;
+                        if (!start && !end) return '';
+                        if (start && !end) return `Début: ${start}`;
+                        if (!start && end) return `Fin: ${end}`;
 
-                      const s = new Date(start!);
-                      const e = new Date(end!);
-                      if (isNaN(s.getTime()) || isNaN(e.getTime())) return '';
+                        const s = new Date(start!);
+                        const e = new Date(end!);
+                        if (isNaN(s.getTime()) || isNaN(e.getTime())) return '';
 
-                      const msPerDay = 24 * 60 * 60 * 1000;
-                      // inclusive of start and end
-                      const days = Math.floor((e.getTime() - s.getTime()) / msPerDay) + 1;
-                      if (days < 0) return 'Dates invalides';
+                        const msPerDay = 24 * 60 * 60 * 1000;
+                        // inclusive of start and end
+                        const days = Math.floor((e.getTime() - s.getTime()) / msPerDay) + 1;
+                        if (days < 0) return 'Dates invalides';
 
-                      if (days < 30) {
-                        return `${days} jour${days > 1 ? 's' : ''}`;
-                      }
+                        if (days < 30) {
+                          return `${days} jour${days > 1 ? 's' : ''}`;
+                        }
 
-                      const months = Math.floor(days / 30);
-                      const rem = days % 30;
-                      return `${months} mois${months > 1 ? 's' : ''}${rem ? ' ' + rem + ' jour' + (rem > 1 ? 's' : '') : ''}`;
+                        const months = Math.floor(days / 30);
+                        const rem = days % 30;
+                        return `${months} mois${months > 1 ? 's' : ''}${rem ? ' ' + rem + ' jour' + (rem > 1 ? 's' : '') : ''}`;
                       };
 
                       const duration = computeTreatmentDuration(product.startDate, product.endDate);
 
                       return (
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        Durée du traitement
-                        </label>
-                        <div
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base bg-gray-50 text-gray-800"
-                        title={duration || ''}
-                        >
-                        {duration || '—'}
+                        <div>
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                            Durée du traitement
+                          </label>
+                          <div
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base bg-gray-50 text-gray-800"
+                            title={duration || ''}
+                          >
+                            {duration || '—'}
+                          </div>
                         </div>
-                      </div>
                       );
                     })()}
                   </div>
@@ -1316,7 +1317,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               </div>
               <input type="email" className='w-full h-10 p-4 mb-4' />
               <div className="space-y-3">
-                {!isSending && (
+                {/* {!isSending && (
                   <button
                     onClick={handleSendEmail}
                     className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200"
@@ -1333,7 +1334,64 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     <Loader2 className="h-5 w-5 animate-spin" />
                     <span>Envoi en cours...</span>
                   </button>
-                )}
+                )} */}
+                <a
+                  href="#"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!isFormValid()) return;
+
+                    // Ensure we have a saved report
+                    let report = savedReport;
+                    if (!report) {
+                      report = createReport();
+                      try {
+                        await adverseEventService.saveReport(report);
+                        setSavedReport(report);
+                      } catch (err) {
+                        console.error('Erreur lors de la sauvegarde du rapport:', err);
+                        alert('Erreur lors de la sauvegarde du rapport');
+                        return;
+                      }
+                    }
+
+                    // Pre-fill mailto (attachments aren't supported via mailto)
+                    const toPrompt = window.prompt("Entrez l'adresse email de l'agence :", "abmed@abmed.bj");
+                    if (!toPrompt) {
+                      alert("Adresse email non fournie. Opération annulée.");
+                      return;
+                    }
+                    const to = toPrompt.trim();
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(to)) {
+                      alert("Adresse email invalide. Veuillez réessayer.");
+                      return;
+                    }
+                    const subject = `Notification Effet Indésirable - ${report.epidNumber}`;
+                    const body = [
+                      `Bonjour,`,
+                      ``,
+                      `Veuillez trouver ci-joint la notification d'effet indésirable (EPID: ${report.epidNumber}).`,
+                      ``,
+                      `Notificateur: ${notifier.fullName || ''}`,
+                      `Formation Sanitaire: ${notifier.fs || ''}`,
+                      `Téléphone: ${notifier.telephone || ''}`,
+                      ``,
+                      `Cordialement.`
+                    ].join('\n');
+
+                    const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    window.location.href = mailto;
+                  }}
+                  className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${isFormValid()
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  aria-disabled={!isFormValid()}
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>Envoyez à l'agence sanitaire</span>
+                </a>
                 <button
                   onClick={() => setShowSuccessModal(false)}
                   className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
