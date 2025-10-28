@@ -127,13 +127,14 @@ class AdverseEventService {
       }
     };
 
-    // const addCheckbox = (x: number, y: number, checked: boolean) => {
-    //   pdf.rect(x, y - 3, 3, 3);
-    //   if (checked) {
-    //     pdf.setFontSize(12);
-    //     pdf.text("✓", x + 0.5, y);
-    //   }
-    // };
+    // @ts-ignore
+    const addCheckbox = (x: number, y: number, checked: boolean) => {
+      pdf.rect(x, y - 3, 3, 3);
+      if (checked) {
+        pdf.setFontSize(12);
+        pdf.text("✓", x + 0.5, y);
+      }
+    };
 
     pdf.setTextColor(0, 0, 0);
 

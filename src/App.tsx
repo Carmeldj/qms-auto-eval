@@ -7,7 +7,7 @@ import Results from "./components/Results";
 import InspectionResults from "./components/Inspection/InspectionResults";
 import ProceduresModule from "./components/Procedure/ProceduresModule";
 import TraceabilityModule from "./components/Traceability/TraceabilityModule";
-import DocumentsModule from "./components/Document/DocumentsModule";
+// import DocumentsModule from "./components/Document/DocumentsModule";
 import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
 import OrdonnancierModule from "./components/OrdonnancierModule";
 import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";
@@ -39,7 +39,7 @@ function App() {
             <Route path="/ordonnancier" element={<OrdonnancierModule />} />
             <Route path="/procedures" element={<ProceduresModule />} />
             <Route path="/traceability" element={<TraceabilityModule />} />
-            <Route path="/documents" element={<DocumentsModule />} />
+            {/* <Route path="/documents" element={<DocumentsModule />} /> */}
             <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
             <Route path="/waste-management" element={<WasteManagementModule />} />
             <Route path="/subscribe" element={<SubscriptionPage />} />

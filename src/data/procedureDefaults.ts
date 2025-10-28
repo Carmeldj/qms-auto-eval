@@ -4,6 +4,7 @@ export interface ProcedureDefaults {
   steps: Array<{
     description: string;
     responsible: string;
+    concernedPersons: string[];
     documents: string[];
     duration?: string;
   }>;
@@ -22,55 +23,92 @@ export interface ProcedureDefaults {
 }
 
 export const procedureDefaults: Record<string, ProcedureDefaults> = {
+  'blank-template': {
+    objective: "",
+    scope: "",
+    steps: [
+      {
+        description: "",
+        responsible: "",
+        concernedPersons: [],
+        documents: [],
+        duration: ""
+      }
+    ],
+    indicators: [
+      {
+        name: "",
+        description: "",
+        target: "",
+        frequency: ""
+      }
+    ],
+    annexes: [
+      {
+        title: "",
+        type: 'document',
+        description: "",
+        reference: ""
+      }
+    ]
+  },
   'dispensation': {
     objective: "Assurer une dispensation sécurisée et conforme des médicaments en respectant les bonnes pratiques officinales et la réglementation en vigueur, tout en garantissant la sécurité du patient et la qualité du service pharmaceutique.",
     scope: "Cette procédure s'applique à toute dispensation de médicaments sur ordonnance ou en automédication, réalisée par le personnel pharmaceutique habilité de l'officine, pour tous types de patients (adultes, enfants, femmes enceintes, personnes âgées).",
     steps: [
       {
         description: "Accueillir le patient et recueillir sa demande en s'assurant de la confidentialité des échanges",
-        responsible: "Pharmacien ou préparateur",
+        responsible: "Pharmacien ou auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Cahier de liaison", "Registre de confidentialité"],
         duration: "2-3 minutes"
       },
       {
         description: "Vérifier l'identité du patient et l'authenticité de l'ordonnance (signature, cachet, date de prescription)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Ordonnancier", "Guide de vérification des ordonnances"],
         duration: "3-5 minutes"
       },
       {
         description: "Effectuer l'analyse pharmaceutique : vérifier les interactions, contre-indications, posologies et cohérence thérapeutique",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Vidal", "Base de données interactions", "Dossier pharmaceutique"],
         duration: "5-10 minutes"
       },
       {
         description: "Préparer les médicaments en vérifiant la concordance entre prescription et délivrance (DCI, dosage, forme galénique)",
-        responsible: "Préparateur sous supervision",
+        responsible: "Auxiliaire en pharmacie sous supervision",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Bon de préparation", "Étiquettes de dispensation"],
         duration: "5-8 minutes"
       },
       {
         description: "Effectuer le double contrôle pharmaceutique avant remise au patient",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de contrôle", "Ordonnancier"],
         duration: "2-3 minutes"
       },
       {
         description: "Délivrer les conseils pharmaceutiques adaptés : posologie, mode d'administration, effets indésirables, précautions",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiches conseils patients", "Guide des bonnes pratiques"],
         duration: "5-10 minutes"
       },
       {
         description: "Enregistrer la dispensation dans l'ordonnancier et le système informatique",
-        responsible: "Pharmacien ou préparateur",
+        responsible: "Pharmacien ou auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Ordonnancier", "Système informatique"],
         duration: "2-3 minutes"
       },
       {
         description: "Archiver l'ordonnance selon la réglementation en vigueur",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Système d'archivage", "Registre des ordonnances"],
         duration: "1-2 minutes"
       }
@@ -134,48 +172,56 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Vérifier la validité formelle de l'ordonnance : date, identification du prescripteur, signature et cachet",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Guide de validation des ordonnances", "Répertoire des prescripteurs"],
         duration: "2-3 minutes"
       },
       {
         description: "Contrôler l'identification du patient : nom, prénom, âge, poids si nécessaire",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Pièce d'identité patient", "Carnet de santé"],
         duration: "1-2 minutes"
       },
       {
         description: "Analyser la cohérence thérapeutique : indication, posologie, durée de traitement, voie d'administration",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Vidal", "RCP médicaments", "Thériaque"],
         duration: "5-8 minutes"
       },
       {
         description: "Rechercher les interactions médicamenteuses entre les différents médicaments prescrits",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Base interactions", "Logiciel d'aide à la dispensation"],
         duration: "3-5 minutes"
       },
       {
         description: "Vérifier les contre-indications en fonction du profil patient (âge, grossesse, pathologies)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Dossier pharmaceutique", "Historique patient"],
         duration: "3-5 minutes"
       },
       {
         description: "Contrôler les posologies et adapter si nécessaire selon l'âge, le poids et la fonction rénale",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Tableaux posologiques", "Calculateur de clairance"],
         duration: "3-5 minutes"
       },
       {
         description: "Documenter l'analyse et les interventions pharmaceutiques réalisées",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'analyse pharmaceutique", "Registre des interventions"],
         duration: "2-3 minutes"
       },
       {
         description: "Contacter le prescripteur si nécessaire pour clarification ou modification",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de communication médecin", "Téléphone"],
         duration: "5-10 minutes"
       }
@@ -240,48 +286,56 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Organiser l'espace de dispensation pour minimiser les risques : séparation des médicaments, étiquetage clair, éclairage adapté",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan d'aménagement", "Guide d'organisation spatiale"],
         duration: "1 jour"
       },
       {
         description: "Mettre en place le système de double contrôle : vérification par une seconde personne avant délivrance",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure de double contrôle", "Fiche de vérification"],
         duration: "5 minutes par dispensation"
       },
       {
         description: "Utiliser la règle des 5B : Bon patient, Bon médicament, Bonne dose, Bonne voie, Bon moment",
         responsible: "Tout le personnel",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Affichage règle 5B", "Check-list de vérification"],
         duration: "2-3 minutes"
       },
       {
         description: "Séparer physiquement les médicaments à consonance similaire (LASA - Look Alike Sound Alike)",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Liste médicaments LASA", "Plan de rangement"],
         duration: "30 minutes par réorganisation"
       },
       {
         description: "Implémenter la lecture à voix haute lors de la préparation des médicaments",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure de verbalisation", "Formation du personnel"],
         duration: "1 minute par médicament"
       },
       {
         description: "Utiliser des codes couleurs pour les médicaments à haut risque (insulines, anticoagulants, cytotoxiques)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Code couleur médicaments", "Étiquettes de signalisation"],
         duration: "Variable"
       },
       {
         description: "Mettre en place un système de déclaration et d'analyse des erreurs et des presque-erreurs",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de déclaration d'erreur", "Registre des incidents"],
         duration: "10-15 minutes par déclaration"
       },
       {
         description: "Organiser des formations régulières sur la prévention des erreurs et les retours d'expérience",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Programme de formation", "Support pédagogique"],
         duration: "2 heures par trimestre"
       }
@@ -344,49 +398,57 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
     steps: [
       {
         description: "Effectuer un contrôle systématique des dates de péremption lors de chaque réception de marchandises",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Bon de livraison", "Fiche de contrôle réception"],
         duration: "10-15 minutes par livraison"
       },
       {
         description: "Appliquer la règle FEFO (First Expired, First Out) lors du rangement des produits",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure FEFO", "Étiquettes de datage"],
         duration: "5 minutes par produit"
       },
       {
         description: "Réaliser un contrôle mensuel systématique des dates de péremption par zone de stockage",
         responsible: "Pharmacien adjoint",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning de contrôle", "Fiche de relevé péremptions"],
         duration: "2-3 heures par mois"
       },
       {
         description: "Identifier et isoler immédiatement les produits périmés dans une zone dédiée et sécurisée",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Étiquettes 'PERIME'", "Registre des produits périmés"],
         duration: "5 minutes par produit"
       },
       {
         description: "Enregistrer les produits périmés dans le registre dédié avec toutes les informations requises",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre des destructions", "Inventaire des périmés"],
         duration: "10 minutes par lot"
       },
       {
         description: "Organiser la collecte et la destruction selon les filières agréées (Cyclamed, DASTRI)",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Contrat Cyclamed", "Bon d'enlèvement DASTRI"],
         duration: "1 heure par collecte"
       },
       {
         description: "Analyser les causes de péremption et ajuster les commandes pour optimiser la rotation",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Analyse ABC", "Historique des ventes"],
         duration: "2 heures par trimestre"
       },
       {
         description: "Former le personnel aux bonnes pratiques de gestion des péremptions",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Support de formation", "Procédures affichées"],
         duration: "1 heure par semestre"
       }
@@ -450,49 +512,57 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
     steps: [
       {
         description: "Vérifier l'identité du livreur et l'agrément du fournisseur avant acceptation de la livraison",
-        responsible: "Pharmacien ou préparateur",
+        responsible: "Pharmacien ou auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Liste des fournisseurs agréés", "Pièce d'identité livreur"],
         duration: "3-5 minutes"
       },
       {
         description: "Contrôler l'intégrité des colis et l'absence de dommages apparents (emballages, température)",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de contrôle réception", "Thermomètre"],
         duration: "5-10 minutes"
       },
       {
         description: "Vérifier la concordance entre bon de livraison et commande (références, quantités, prix)",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Bon de commande", "Bon de livraison"],
         duration: "10-15 minutes"
       },
       {
         description: "Contrôler les dates de péremption et refuser les produits à DLC courte (< 6 mois)",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Politique de DLC minimale", "Fiche de contrôle"],
         duration: "5-10 minutes"
       },
       {
         description: "Vérifier l'intégrité des conditionnements primaires et secondaires",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Guide de contrôle visuel", "Loupe si nécessaire"],
         duration: "10-15 minutes"
       },
       {
         description: "Contrôler la chaîne du froid pour les produits thermosensibles (2-8°C)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Enregistreur de température", "Procédure chaîne du froid"],
         duration: "5 minutes"
       },
       {
         description: "Enregistrer la réception dans le système informatique et l'ordonnancier si nécessaire",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Logiciel de gestion", "Ordonnancier"],
         duration: "10-15 minutes"
       },
       {
         description: "Ranger les produits selon les conditions de conservation requises (température, lumière, humidité)",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan de rangement", "Conditions de stockage"],
         duration: "15-30 minutes"
       }
@@ -551,42 +621,48 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
   },
 
   'supervision-preposes': {
-    objective: "Assurer une supervision efficace et continue des actes pharmaceutiques réalisés par les préposés, conformément aux articles L5125-20 du Code de la Santé Publique français et à la réglementation béninoise, pour garantir la sécurité des patients et la qualité des prestations.",
-    scope: "Cette procédure s'applique à tous les préposés de l'officine (préparateurs en pharmacie, étudiants en pharmacie, vendeurs) dans l'exercice de leurs fonctions sous la responsabilité du pharmacien, incluant la dispensation, le conseil et la gestion des stocks.",
+    objective: "Assurer une supervision efficace et continue des actes pharmaceutiques réalisés par les membres du personnel, conformément aux articles L5125-20 du Code de la Santé Publique français et à la réglementation béninoise, pour garantir la sécurité des patients et la qualité des prestations.",
+    scope: "Cette procédure s'applique à tous les membres du personnel de l'officine (auxiliaires en pharmacie en pharmacie, étudiants en pharmacie, vendeurs) dans l'exercice de leurs fonctions sous la responsabilité du pharmacien, incluant la dispensation, le conseil et la gestion des stocks.",
     steps: [
       {
         description: "Définir clairement les actes autorisés pour chaque catégorie de préposé selon leur qualification",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiches de poste", "Matrice de délégation", "Code de la Santé Publique"],
         duration: "1 heure par poste"
       },
       {
         description: "Mettre en place un système de supervision directe pour les actes sensibles (stupéfiants, conseil thérapeutique)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure de supervision", "Registre de contrôle"],
         duration: "Continu"
       },
       {
-        description: "Effectuer des contrôles aléatoires sur les dispensations réalisées par les préposés",
+        description: "Effectuer des contrôles aléatoires sur les dispensations réalisées par les membres du personnel",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille de contrôle", "Fiche d'évaluation"],
         duration: "15 minutes par contrôle"
       },
       {
         description: "Organiser des formations régulières sur les bonnes pratiques et la réglementation",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Programme de formation", "Supports pédagogiques"],
         duration: "2 heures par mois"
       },
       {
         description: "Documenter les écarts observés et mettre en place des actions correctives",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de non-conformité", "Plan d'action"],
         duration: "30 minutes par écart"
       },
       {
-        description: "Évaluer périodiquement les compétences et l'autonomie des préposés",
+        description: "Évaluer périodiquement les compétences et l'autonomie des membres du personnel",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille d'évaluation", "Entretien individuel"],
         duration: "1 heure par trimestre"
       }
@@ -605,8 +681,8 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
         frequency: "Annuel"
       },
       {
-        name: "Taux d'incidents liés aux préposés",
-        description: "Incidents causés par préposés / Total incidents × 100",
+        name: "Taux d'incidents liés aux membres du personnel",
+        description: "Incidents causés par membres du personnel / Total incidents × 100",
         target: "< 5%",
         frequency: "Mensuel"
       }
@@ -615,11 +691,11 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         title: "Code de la Santé Publique - Article L5125-20",
         type: "regulation",
-        description: "Dispositions relatives aux préposés en pharmacie",
+        description: "Dispositions relatives aux membres du personnel en pharmacie",
         reference: "Légifrance - Code de la Santé Publique"
       },
       {
-        title: "Arrêté béninois sur les préposés en pharmacie",
+        title: "Arrêté béninois sur les membres du personnel en pharmacie",
         type: "regulation",
         description: "Réglementation nationale sur la supervision",
         reference: "Ministère de la Santé du Bénin"
@@ -627,7 +703,7 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         title: "Grille d'évaluation des compétences",
         type: "form",
-        description: "Outil d'évaluation périodique des préposés"
+        description: "Outil d'évaluation périodique des membres du personnel"
       }
     ]
   },
@@ -639,36 +715,42 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Organiser les zones de stockage selon les exigences de température, humidité et luminosité",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan d'aménagement", "Spécifications techniques"],
         duration: "1 journée"
       },
       {
         description: "Classer les produits par famille thérapeutique et ordre alphabétique pour faciliter la dispensation",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan de rangement", "Étiquetage des rayons"],
         duration: "4 heures"
       },
       {
         description: "Appliquer la règle FEFO (First Expired, First Out) pour optimiser la rotation des stocks",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure FEFO", "Étiquettes de datage"],
         duration: "10 minutes par produit"
       },
       {
         description: "Maintenir les conditions environnementales requises (température 15-25°C, humidité <60%)",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Enregistreurs température/humidité", "Fiche de surveillance"],
         duration: "5 minutes par contrôle"
       },
       {
         description: "Séparer physiquement les produits périmés, défectueux ou en quarantaine",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Étiquettes de statut", "Zone de quarantaine"],
         duration: "Variable"
       },
       {
         description: "Effectuer des inventaires tournants pour vérifier la concordance stock physique/informatique",
         responsible: "Pharmacien adjoint",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'inventaire", "Logiciel de gestion"],
         duration: "2 heures par zone"
       }
@@ -721,42 +803,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Identifier les médicaments à risque de rupture en surveillant les alertes ANSM et grossistes",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Site ANSM", "Communications grossistes", "Base DP-Ruptures"],
         duration: "15 minutes par jour"
       },
       {
         description: "Mettre en place des seuils d'alerte automatiques dans le logiciel de gestion",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Paramétrage logiciel", "Seuils par produit"],
         duration: "2 heures"
       },
       {
         description: "Constituer un stock de sécurité pour les médicaments essentiels et chroniques",
         responsible: "Pharmacien adjoint",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Liste médicaments essentiels", "Calcul stock sécurité"],
         duration: "1 heure par mois"
       },
       {
         description: "Rechercher des alternatives thérapeutiques en cas de rupture confirmée",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Répertoire générique", "Thésaurus thérapeutique"],
         duration: "10-15 minutes par recherche"
       },
       {
         description: "Informer les patients et proposer des solutions (substitution, fractionnement, orientation)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'information patient", "Carnet de liaison"],
         duration: "5-10 minutes par patient"
       },
       {
         description: "Contacter les prescripteurs pour validation des alternatives thérapeutiques",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de communication médecin", "Téléphone"],
         duration: "5 minutes par contact"
       },
       {
         description: "Tenir un registre des ruptures et des actions entreprises pour traçabilité",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre des ruptures", "Fiche de suivi"],
         duration: "5 minutes par rupture"
       }
@@ -809,36 +898,42 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Paramétrer le système informatique avec seuils d'alerte et codes de gestion par produit",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Logiciel de gestion", "Paramètres par produit"],
         duration: "1 journée"
       },
       {
         description: "Effectuer des inventaires tournants selon une planification mensuelle par zone",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning inventaire", "Fiche de comptage"],
         duration: "2 heures par zone"
       },
       {
         description: "Analyser les écarts d'inventaire et identifier les causes (vol, casse, erreur saisie)",
         responsible: "Pharmacien adjoint",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Rapport d'écart", "Analyse des causes"],
         duration: "1 heure par écart"
       },
       {
         description: "Mettre à jour les stocks informatiques et ajuster les valorisations comptables",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Logiciel comptable", "Justificatifs d'ajustement"],
         duration: "30 minutes par ajustement"
       },
       {
         description: "Calculer les indicateurs de performance : rotation, couverture, démarque",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Tableau de bord", "Indicateurs de gestion"],
         duration: "2 heures par mois"
       },
       {
         description: "Optimiser les commandes en fonction de l'historique et des prévisions de vente",
         responsible: "Pharmacien adjoint",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Historique ventes", "Prévisions saisonnières"],
         duration: "1 heure par commande"
       }
@@ -891,42 +986,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Aménager une zone de quarantaine physiquement séparée, sécurisée et clairement identifiée",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan d'aménagement", "Signalétique quarantaine"],
         duration: "1 journée"
       },
       {
         description: "Identifier immédiatement les produits à mettre en quarantaine avec étiquetage spécifique",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Étiquettes QUARANTAINE", "Fiche d'identification"],
         duration: "5 minutes par produit"
       },
       {
         description: "Bloquer informatiquement les produits en quarantaine pour empêcher leur dispensation",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Logiciel de gestion", "Procédure de blocage"],
         duration: "2 minutes par produit"
       },
       {
         description: "Enregistrer la mise en quarantaine avec motif, date et responsable dans un registre dédié",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre de quarantaine", "Fiche de traçabilité"],
         duration: "10 minutes par enregistrement"
       },
       {
         description: "Investiguer les causes de la non-conformité et documenter les résultats",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'investigation", "Rapport d'analyse"],
         duration: "30 minutes à 2 heures"
       },
       {
         description: "Décider du devenir des produits : libération, destruction, retour fournisseur",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de décision", "Bon de destruction/retour"],
         duration: "15 minutes par décision"
       },
       {
         description: "Effectuer la levée de quarantaine avec déblocage informatique et traçabilité",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Bon de libération", "Mise à jour informatique"],
         duration: "5 minutes par libération"
       }
@@ -979,42 +1081,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Installer un coffre-fort ou armoire forte agréée, scellée au mur, avec double serrure",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Certificat d'agrément coffre", "Procès-verbal installation"],
         duration: "1 journée"
       },
       {
         description: "Organiser la gestion des clés avec responsabilité nominative et traçabilité des accès",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre des clés", "Fiche de responsabilité"],
         duration: "30 minutes"
       },
       {
         description: "Classer les produits par catégorie réglementaire et ordre alphabétique dans le coffre",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Classification réglementaire", "Plan de rangement"],
         duration: "1 heure"
       },
       {
         description: "Enregistrer tous les mouvements (entrées/sorties) dans le registre spécial coté et paraphé",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre stupéfiants", "Ordonnancier sécurisé"],
         duration: "5 minutes par mouvement"
       },
       {
         description: "Effectuer un inventaire mensuel avec rapprochement stock physique/comptable",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'inventaire", "Registre de contrôle"],
         duration: "2 heures par mois"
       },
       {
         description: "Déclarer immédiatement tout vol, perte ou anomalie aux autorités compétentes",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Formulaire de déclaration", "Main courante"],
         duration: "1 heure"
       },
       {
         description: "Organiser la destruction des produits périmés selon la procédure réglementaire",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procès-verbal destruction", "Présence autorités"],
         duration: "2 heures"
       }
@@ -1073,42 +1182,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Installer des équipements de réfrigération pharmaceutique avec alarmes de température",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Spécifications techniques", "Certificat de conformité"],
         duration: "1 journée"
       },
       {
         description: "Réaliser la cartographie thermique des zones de stockage avec enregistreurs",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Rapport de cartographie", "Enregistreurs température"],
         duration: "1 semaine"
       },
       {
         description: "Paramétrer les seuils d'alarme et les systèmes d'alerte automatique",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Paramétrage alarmes", "Procédure d'urgence"],
         duration: "2 heures"
       },
       {
         description: "Effectuer la surveillance quotidienne des températures avec enregistrement",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de relevé", "Enregistreurs continus"],
         duration: "10 minutes par jour"
       },
       {
         description: "Organiser le transport des produits sensibles avec contenants isothermes validés",
-        responsible: "Préparateur",
+        responsible: "Auxiliaire en pharmacie",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Glacières qualifiées", "Enregistreurs transport"],
         duration: "15 minutes par transport"
       },
       {
         description: "Gérer les excursions de température avec évaluation d'impact et décision qualité",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure excursion", "Fiche d'évaluation"],
         duration: "1 heure par incident"
       },
       {
         description: "Maintenir la traçabilité complète de la chaîne du froid de la réception à la dispensation",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre chaîne froid", "Certificats transport"],
         duration: "5 minutes par produit"
       }
@@ -1161,42 +1277,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Installer des sondes de température/humidité étalonnées dans chaque zone de stockage",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Certificats d'étalonnage", "Plan d'implantation sondes"],
         duration: "1 journée"
       },
       {
         description: "Paramétrer les seuils d'alerte selon les spécifications des produits stockés",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Spécifications produits", "Paramétrage système"],
         duration: "2 heures"
       },
       {
         description: "Effectuer les relevés quotidiens manuels et vérifier les enregistrements automatiques",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de relevé quotidien", "Système d'enregistrement"],
         duration: "15 minutes par jour"
       },
       {
         description: "Analyser les tendances et identifier les dérives avant dépassement des seuils",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Graphiques de tendance", "Analyse statistique"],
         duration: "30 minutes par semaine"
       },
       {
         description: "Gérer les alarmes avec procédure d'urgence et actions correctives immédiates",
         responsible: "Pharmacien de garde",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure d'urgence", "Fiche d'intervention"],
         duration: "Variable selon incident"
       },
       {
         description: "Effectuer l'étalonnage périodique des instruments de mesure",
         responsible: "Prestataire agréé",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Certificats d'étalonnage", "Planning maintenance"],
         duration: "1 journée par an"
       },
       {
         description: "Archiver les enregistrements selon les exigences réglementaires de traçabilité",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Archives électroniques", "Sauvegarde sécurisée"],
         duration: "1 heure par mois"
       }
@@ -1249,42 +1372,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Définir les points de mesure représentatifs dans chaque zone selon sa géométrie",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan des locaux", "Grille de points de mesure"],
         duration: "2 heures"
       },
       {
         description: "Installer des enregistreurs étalonnés aux points définis pendant la période d'étude",
         responsible: "Prestataire qualifié",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Enregistreurs étalonnés", "Certificats métrologie"],
         duration: "1 journée"
       },
       {
         description: "Effectuer les mesures en continu pendant au minimum 7 jours en conditions normales",
         responsible: "Système automatique",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Enregistrements continus", "Conditions d'exploitation"],
         duration: "7 jours minimum"
       },
       {
         description: "Analyser les données et identifier les zones chaudes, froides et les gradients",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Logiciel d'analyse", "Rapport statistique"],
         duration: "4 heures"
       },
       {
         description: "Établir la cartographie finale avec zones homogènes et recommandations d'implantation",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Cartographie colorée", "Recommandations stockage"],
         duration: "2 heures"
       },
       {
         description: "Valider la cartographie et définir l'emplacement optimal des sondes permanentes",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Rapport de validation", "Plan d'implantation sondes"],
         duration: "1 heure"
       },
       {
         description: "Renouveler la cartographie annuellement ou après modification des locaux",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning de renouvellement", "Historique cartographies"],
         duration: "1 semaine par an"
       }
@@ -1337,42 +1467,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Établir l'inventaire complet des équipements avec identification unique et criticité",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Inventaire équipements", "Étiquetage identification"],
         duration: "1 journée"
       },
       {
         description: "Créer un dossier individuel par équipement avec historique et documentation technique",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Dossier équipement", "Documentation constructeur"],
         duration: "2 heures par équipement"
       },
       {
         description: "Planifier les interventions préventives selon les recommandations constructeur",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning maintenance", "Recommandations constructeur"],
         duration: "4 heures par an"
       },
       {
         description: "Enregistrer chaque intervention avec date, nature, intervenant et résultats",
         responsible: "Intervenant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'intervention", "Rapport technique"],
         duration: "15 minutes par intervention"
       },
       {
         description: "Archiver tous les documents : bons d'intervention, factures, certificats",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Classeur maintenance", "Archive électronique"],
         duration: "10 minutes par document"
       },
       {
         description: "Effectuer le suivi des garanties, contrats de maintenance et échéances",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Tableau de suivi", "Contrats maintenance"],
         duration: "2 heures par trimestre"
       },
       {
         description: "Analyser les pannes récurrentes et optimiser la maintenance préventive",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Analyse des pannes", "Optimisation planning"],
         duration: "4 heures par an"
       }
@@ -1425,42 +1562,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Classifier les équipements par criticité et définir les stratégies de maintenance adaptées",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Matrice de criticité", "Stratégies maintenance"],
         duration: "1 journée"
       },
       {
         description: "Établir les gammes de maintenance préventive selon les recommandations constructeur",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Gammes maintenance", "Manuels constructeur"],
         duration: "4 heures par équipement"
       },
       {
         description: "Planifier les interventions préventives avec optimisation des ressources",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning annuel", "Optimisation charges"],
         duration: "1 journée par an"
       },
       {
         description: "Réaliser les interventions préventives selon les gammes définies",
         responsible: "Technicien qualifié",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Gamme d'intervention", "Check-list contrôle"],
         duration: "Variable selon équipement"
       },
       {
         description: "Gérer les pannes avec diagnostic, réparation et analyse des causes",
         responsible: "Technicien/Prestataire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de panne", "Rapport d'intervention"],
         duration: "Variable selon panne"
       },
       {
         description: "Gérer les pièces de rechange avec stock de sécurité pour équipements critiques",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Stock pièces", "Fournisseurs agréés"],
         duration: "2 heures par trimestre"
       },
       {
         description: "Évaluer les performances de maintenance et optimiser le programme",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Indicateurs performance", "Plan d'amélioration"],
         duration: "4 heures par an"
       }
@@ -1513,36 +1657,42 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Installer un système de surveillance automatique avec enregistrement continu",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Système de surveillance", "Certificats conformité"],
         duration: "1 journée"
       },
       {
         description: "Configurer les seuils d'alerte selon les spécifications des produits stockés",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Paramétrage système", "Spécifications produits"],
         duration: "2 heures"
       },
       {
         description: "Effectuer les relevés quotidiens et vérifier la cohérence des enregistrements",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de relevé", "Contrôle cohérence"],
         duration: "10 minutes par jour"
       },
       {
         description: "Analyser les tendances hebdomadaires et identifier les dérives potentielles",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Analyse de tendance", "Graphiques évolution"],
         duration: "30 minutes par semaine"
       },
       {
         description: "Gérer les alarmes avec procédure d'urgence et évaluation d'impact produits",
         responsible: "Pharmacien de garde",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure alarme", "Évaluation impact"],
         duration: "Variable selon incident"
       },
       {
         description: "Archiver les enregistrements selon les exigences réglementaires",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Archive électronique", "Sauvegarde sécurisée"],
         duration: "1 heure par mois"
       }
@@ -1595,42 +1745,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Désactiver l'alarme et effectuer le contrôle visuel de l'intégrité des locaux",
         responsible: "Premier arrivant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Code alarme", "Check-list contrôle"],
         duration: "5 minutes"
       },
       {
         description: "Vérifier le fonctionnement des équipements critiques (réfrigération, informatique)",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Check-list équipements", "Relevé températures"],
         duration: "10 minutes"
       },
       {
         description: "Contrôler l'état des stocks sensibles et des zones de quarantaine",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Contrôle stocks", "Vérification quarantaine"],
         duration: "15 minutes"
       },
       {
         description: "Initialiser les systèmes informatiques et vérifier les sauvegardes",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure démarrage", "Contrôle sauvegarde"],
         duration: "10 minutes"
       },
       {
         description: "Préparer la caisse avec fonds de roulement et vérifier les moyens de paiement",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fonds de caisse", "Test terminaux"],
         duration: "10 minutes"
       },
       {
         description: "Effectuer le contrôle de fermeture : caisse, équipements, sécurisation locaux",
         responsible: "Dernier sortant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Check-list fermeture", "Procédure sécurisation"],
         duration: "15 minutes"
       },
       {
         description: "Activer l'alarme et s'assurer de la fermeture sécurisée de tous les accès",
         responsible: "Dernier sortant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure alarme", "Contrôle fermetures"],
         duration: "5 minutes"
       }
@@ -1683,42 +1840,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Planifier les absences prévisibles et organiser le remplacement en amont",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning absences", "Contrats remplaçants"],
         duration: "2 heures par absence"
       },
       {
         description: "Briefer le pharmacien remplaçant sur l'organisation et les spécificités de l'officine",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Dossier de passation", "Procédures spécifiques"],
         duration: "1 heure"
       },
       {
         description: "Déléguer les responsabilités avec signature des documents d'habilitation",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Délégation de pouvoir", "Habilitations"],
         duration: "30 minutes"
       },
       {
         description: "Assurer la continuité des soins avec maintien de tous les services",
         responsible: "Pharmacien remplaçant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédures courantes", "Contacts d'urgence"],
         duration: "Continu"
       },
       {
-        description: "Maintenir la supervision des préposés et la qualité des actes pharmaceutiques",
+        description: "Maintenir la supervision des membres du personnel et la qualité des actes pharmaceutiques",
         responsible: "Pharmacien remplaçant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédures supervision", "Contrôles qualité"],
         duration: "Continu"
       },
       {
         description: "Gérer les urgences avec procédures d'escalade et contacts d'urgence",
         responsible: "Pharmacien remplaçant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure urgence", "Annuaire contacts"],
         duration: "Variable"
       },
       {
         description: "Effectuer la passation de retour avec compte-rendu d'activité",
         responsible: "Pharmacien remplaçant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Compte-rendu activité", "Incidents éventuels"],
         duration: "30 minutes"
       }
@@ -1771,42 +1935,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Établir un plan de nettoyage et désinfection avec fréquences adaptées par zone",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan de nettoyage", "Protocoles par zone"],
         duration: "4 heures"
       },
       {
         description: "Sélectionner les produits de nettoyage et désinfection adaptés et homologués",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiches techniques produits", "Homologations"],
         duration: "2 heures"
       },
       {
         description: "Former le personnel aux techniques de nettoyage et aux précautions d'usage",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Formation hygiène", "Fiches de sécurité"],
         duration: "2 heures par agent"
       },
       {
         description: "Effectuer le nettoyage quotidien selon les protocoles définis",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Protocoles nettoyage", "Check-list quotidienne"],
         duration: "1 heure par jour"
       },
       {
         description: "Réaliser les nettoyages approfondis périodiques (hebdomadaire, mensuel)",
         responsible: "Personnel/Prestataire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning nettoyage", "Protocoles approfondis"],
         duration: "Variable selon zone"
       },
       {
         description: "Contrôler l'efficacité du nettoyage et documenter les non-conformités",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille de contrôle", "Fiche non-conformité"],
         duration: "30 minutes par contrôle"
       },
       {
         description: "Gérer les déchets selon leur classification avec filières d'élimination appropriées",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Tri des déchets", "Contrats élimination"],
         duration: "15 minutes par jour"
       }
@@ -1854,41 +2025,47 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
 
   'hygiene-personnel': {
     objective: "Assurer le respect des règles d'hygiène corporelle et vestimentaire du personnel pour prévenir les contaminations, protéger la santé des patients et maintenir l'image professionnelle de l'officine, conformément aux bonnes pratiques d'hygiène.",
-    scope: "Cette procédure s'applique à tout le personnel de l'officine : pharmaciens, préparateurs, vendeurs, stagiaires, avec règles spécifiques selon les postes et les activités exercées, incluant la tenue vestimentaire et l'hygiène corporelle.",
+    scope: "Cette procédure s'applique à tout le personnel de l'officine : pharmaciens, auxiliaires en pharmacie, vendeurs, stagiaires, avec règles spécifiques selon les postes et les activités exercées, incluant la tenue vestimentaire et l'hygiène corporelle.",
     steps: [
       {
         description: "Définir les règles d'hygiène corporelle et vestimentaire par poste de travail",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Règlement intérieur", "Code vestimentaire"],
         duration: "2 heures"
       },
       {
         description: "Former le personnel aux bonnes pratiques d'hygiène et aux risques sanitaires",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Formation hygiène", "Supports pédagogiques"],
         duration: "1 heure par agent"
       },
       {
         description: "Mettre à disposition les équipements d'hygiène : lavabos, savons, solutions hydroalcooliques",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Équipements hygiène", "Approvisionnement"],
         duration: "1 heure"
       },
       {
         description: "Contrôler quotidiennement le respect des règles d'hygiène par le personnel",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille de contrôle", "Observations"],
         duration: "10 minutes par jour"
       },
       {
         description: "Gérer les situations de non-conformité avec rappel des règles et formation",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de rappel", "Plan de formation"],
         duration: "30 minutes par cas"
       },
       {
         description: "Organiser la surveillance médicale du personnel selon la réglementation",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Suivi médical", "Vaccinations"],
         duration: "Variable"
       }
@@ -1941,42 +2118,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Organiser la veille sanitaire avec consultation quotidienne des sources officielles",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Sites ANSM/EMA", "Communications grossistes"],
         duration: "15 minutes par jour"
       },
       {
         description: "Analyser chaque alerte et évaluer l'impact sur les stocks et les patients",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'analyse", "Évaluation impact"],
         duration: "30 minutes par alerte"
       },
       {
         description: "Identifier les produits concernés dans les stocks et bloquer leur dispensation",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Inventaire produits", "Blocage informatique"],
         duration: "15 minutes par produit"
       },
       {
         description: "Contacter les patients ayant reçu les produits concernés si nécessaire",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Historique dispensation", "Script d'appel"],
         duration: "5 minutes par patient"
       },
       {
         description: "Organiser le retour ou la destruction des produits selon les consignes",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure retour", "Bon de destruction"],
         duration: "30 minutes par lot"
       },
       {
         description: "Informer les prescripteurs concernés des alternatives thérapeutiques",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Liste prescripteurs", "Alternatives thérapeutiques"],
         duration: "10 minutes par prescripteur"
       },
       {
         description: "Documenter toutes les actions entreprises et archiver les preuves",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Registre des alertes", "Preuves d'actions"],
         duration: "15 minutes par alerte"
       }
@@ -2029,42 +2213,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Constituer et maintenir une trousse de premiers secours complète et accessible",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Contenu trousse", "Contrôle péremptions"],
         duration: "2 heures"
       },
       {
         description: "Former le personnel aux gestes de premiers secours et à l'utilisation du matériel",
         responsible: "Formateur agréé",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Formation PSC1", "Certificats formation"],
         duration: "8 heures par agent"
       },
       {
         description: "Évaluer rapidement la situation et sécuriser les lieux d'intervention",
         responsible: "Premier intervenant",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Protocole évaluation", "Sécurisation zone"],
         duration: "2-3 minutes"
       },
       {
         description: "Prodiguer les premiers soins selon les protocoles et dans la limite des compétences",
         responsible: "Personnel formé",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Protocoles premiers soins", "Limites intervention"],
         duration: "Variable selon urgence"
       },
       {
         description: "Alerter les services d'urgence (SAMU, pompiers) selon la gravité",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Numéros d'urgence", "Fiche d'appel"],
         duration: "2-3 minutes"
       },
       {
         description: "Accompagner la victime jusqu'à l'arrivée des secours et transmettre les informations",
         responsible: "Personnel formé",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de transmission", "Observations"],
         duration: "Variable"
       },
       {
         description: "Documenter l'intervention et analyser l'événement pour amélioration",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche d'intervention", "Analyse événement"],
         duration: "30 minutes"
       }
@@ -2117,36 +2308,42 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Se procurer un ordonnancier conforme coté et paraphé par les autorités compétentes",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Ordonnancier officiel", "Certificat de cotation"],
         duration: "1 heure"
       },
       {
         description: "Enregistrer chronologiquement toutes les dispensations sans blanc ni rature",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Ordonnancier", "Ordonnances originales"],
         duration: "2 minutes par dispensation"
       },
       {
         description: "Mentionner toutes les informations obligatoires : patient, prescripteur, médicaments",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Modèle d'enregistrement", "Informations obligatoires"],
         duration: "Inclus dans enregistrement"
       },
       {
         description: "Corriger les erreurs selon la procédure réglementaire avec paraphe et date",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure correction", "Paraphe corrections"],
         duration: "2 minutes par correction"
       },
       {
         description: "Clôturer mensuellement l'ordonnancier avec signature et cachet",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Procédure clôture", "Signature mensuelle"],
         duration: "15 minutes par mois"
       },
       {
         description: "Archiver les ordonnanciers selon les durées réglementaires de conservation",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Système d'archivage", "Durées conservation"],
         duration: "1 heure par an"
       }
@@ -2199,42 +2396,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Accueillir la réclamation avec écoute active et empathie envers le client",
         responsible: "Personnel d'accueil",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Technique d'écoute", "Fiche d'accueil"],
         duration: "10-15 minutes"
       },
       {
         description: "Enregistrer la réclamation avec toutes les informations pertinentes",
         responsible: "Personnel d'accueil",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Fiche de réclamation", "Système d'enregistrement"],
         duration: "10 minutes"
       },
       {
         description: "Analyser la réclamation et identifier les causes racines",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille d'analyse", "Méthode 5 pourquoi"],
         duration: "30 minutes"
       },
       {
         description: "Définir et mettre en œuvre les actions correctives appropriées",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan d'action", "Suivi actions"],
         duration: "Variable selon réclamation"
       },
       {
         description: "Communiquer la réponse au client dans les délais convenus",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Modèle de réponse", "Suivi communication"],
         duration: "15 minutes"
       },
       {
         description: "Suivre la satisfaction du client après traitement de sa réclamation",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Enquête satisfaction", "Suivi client"],
         duration: "10 minutes"
       },
       {
         description: "Analyser les réclamations pour identifier les améliorations à apporter",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Analyse des tendances", "Plan d'amélioration"],
         duration: "2 heures par trimestre"
       }
@@ -2287,42 +2491,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Établir le programme annuel d'audit avec planification des audits par processus",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Programme d'audit", "Planning annuel"],
         duration: "4 heures par an"
       },
       {
         description: "Former les auditeurs internes aux techniques d'audit et aux référentiels",
         responsible: "Formateur qualifié",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Formation auditeur", "Référentiels audit"],
         duration: "16 heures par auditeur"
       },
       {
         description: "Préparer chaque audit avec définition du périmètre et des critères",
         responsible: "Auditeur",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan d'audit", "Check-list audit"],
         duration: "2 heures par audit"
       },
       {
         description: "Réaliser l'audit avec observation, entretiens et vérification documentaire",
         responsible: "Équipe d'audit",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille d'audit", "Fiche d'observation"],
         duration: "4-8 heures par audit"
       },
       {
         description: "Rédiger le rapport d'audit avec constats, non-conformités et recommandations",
         responsible: "Auditeur",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Rapport d'audit", "Fiche non-conformité"],
         duration: "4 heures par rapport"
       },
       {
         description: "Présenter les résultats et définir les actions correctives avec les responsables",
         responsible: "Auditeur",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Présentation résultats", "Plan d'action"],
         duration: "2 heures par présentation"
       },
       {
         description: "Suivre la mise en œuvre des actions correctives et vérifier leur efficacité",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Suivi actions", "Vérification efficacité"],
         duration: "Variable selon actions"
       }
@@ -2375,36 +2586,42 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Identifier tous les risques potentiels par processus et activité",
         responsible: "Équipe pluridisciplinaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Cartographie des risques", "Brainstorming risques"],
         duration: "8 heures"
       },
       {
         description: "Évaluer chaque risque selon sa probabilité d'occurrence et son impact",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Matrice de criticité", "Échelles d'évaluation"],
         duration: "4 heures"
       },
       {
         description: "Prioriser les risques selon leur criticité et définir les stratégies de traitement",
         responsible: "Direction",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Priorisation risques", "Stratégies traitement"],
         duration: "4 heures"
       },
       {
         description: "Mettre en place les mesures de prévention et de protection appropriées",
         responsible: "Responsables processus",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan de traitement", "Mesures préventives"],
         duration: "Variable selon risques"
       },
       {
         description: "Surveiller l'évolution des risques et l'efficacité des mesures",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Indicateurs de risque", "Tableau de bord"],
         duration: "2 heures par mois"
       },
       {
         description: "Réviser périodiquement l'analyse des risques et actualiser les mesures",
         responsible: "Équipe pluridisciplinaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Revue des risques", "Mise à jour cartographie"],
         duration: "8 heures par an"
       }
@@ -2457,42 +2674,49 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
       {
         description: "Identifier les sources d'information réglementaire fiables et officielles",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Sources réglementaires", "Sites officiels"],
         duration: "4 heures"
       },
       {
         description: "Organiser la surveillance quotidienne des publications officielles",
         responsible: "Personnel désigné",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning de veille", "Sources à consulter"],
         duration: "30 minutes par jour"
       },
       {
         description: "Analyser l'impact des nouvelles réglementations sur l'activité de l'officine",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Grille d'analyse", "Évaluation impact"],
         duration: "1 heure par texte"
       },
       {
         description: "Diffuser l'information réglementaire pertinente à l'équipe concernée",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Note d'information", "Réunion équipe"],
         duration: "30 minutes par diffusion"
       },
       {
         description: "Adapter les procédures et pratiques aux nouvelles exigences",
         responsible: "Responsables processus",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Mise à jour procédures", "Plan d'adaptation"],
         duration: "Variable selon changements"
       },
       {
         description: "Former le personnel aux nouvelles exigences réglementaires",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Formation réglementaire", "Supports pédagogiques"],
         duration: "2 heures par formation"
       },
       {
         description: "Constituer et maintenir une base documentaire réglementaire à jour",
         responsible: "Responsable qualité",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Base documentaire", "Système de classement"],
         duration: "2 heures par mois"
       }
@@ -2540,47 +2764,54 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
 
   'formation-personnel': {
     objective: "Développer et maintenir les compétences du personnel de l'officine par un programme de formation continue adapté aux besoins, aux évolutions réglementaires et aux bonnes pratiques professionnelles, conformément aux obligations de formation pharmaceutique.",
-    scope: "Cette procédure concerne tout le personnel : pharmaciens, préparateurs, vendeurs, stagiaires, avec formations obligatoires, spécialisées et développement des compétences selon les postes et responsabilités.",
+    scope: "Cette procédure concerne tout le personnel : pharmaciens, auxiliaires en pharmacie, vendeurs, stagiaires, avec formations obligatoires, spécialisées et développement des compétences selon les postes et responsabilités.",
     steps: [
       {
         description: "Analyser les besoins de formation par poste et identifier les écarts de compétences",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Matrice de compétences", "Analyse des besoins"],
         duration: "4 heures par an"
       },
       {
         description: "Élaborer le plan de formation annuel avec objectifs et budget",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Plan de formation", "Budget formation"],
         duration: "8 heures par an"
       },
       {
         description: "Sélectionner les organismes de formation et négocier les conditions",
         responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Catalogue formations", "Contrats formation"],
         duration: "4 heures par an"
       },
       {
         description: "Organiser les formations avec planification et gestion des absences",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Planning formations", "Gestion absences"],
         duration: "2 heures par formation"
       },
       {
         description: "Évaluer l'efficacité des formations et l'acquisition des compétences",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Évaluation formation", "Test de compétences"],
         duration: "1 heure par formation"
       },
       {
         description: "Assurer le suivi post-formation et l'application des acquis",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Suivi post-formation", "Mise en pratique"],
         duration: "Variable selon formation"
       },
       {
         description: "Tenir à jour les dossiers individuels de formation et les certifications",
         responsible: "Pharmacien",
+        concernedPersons: ["Tout le personnel"],
         documents: ["Dossiers formation", "Certificats"],
         duration: "1 heure par trimestre"
       }

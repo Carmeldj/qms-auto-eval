@@ -20,10 +20,10 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
             const status = await subscriptionApi.checkSubscriptionStatus();
             // console.log(status);
 
-            if (status?.subscriptionStatus === 'trial') {
-                setHasSubscription(false);
-            } else {
+            if (status?.subscriptionStatus === 'active') {
                 setHasSubscription(true);
+            } else {
+                setHasSubscription(false);
             }
         } catch (err) {
             console.error('Failed to check subscription status', err);

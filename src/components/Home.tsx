@@ -135,6 +135,74 @@ const Home: React.FC = () => {
         ))}
       </div>
 
+      {/* Demos videos */}
+      <div className="mb-10 sm:mb-16">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 text-center">
+          Vidéos démonstratives
+        </h2>
+        <p className="text-center text-gray-600 text-sm sm:text-base mb-6 max-w-2xl mx-auto px-2">
+          Découvrez en quelques minutes comment utiliser l'outil : Evaluation, Procédures, Traçabilité, Pharmacovigilance, Ordonnancier, Périmés.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
+          {[
+            {
+              id: 'evaluation',
+              src: 'https://www.youtube.com/embed/M7lc1UVf-VE',
+              title: "Faire une évaluation",
+              description: "Tour rapide des principales fonctionnalités et du flux d'évaluation."
+            },
+            {
+              id: 'procedures',
+              src: 'https://www.youtube.com/embed/PzSeTJytt6k',
+              title: "Créer des procédures",
+              description: "Découvrez comment créer des procédures officinales standardisées."
+            },
+            {
+              id: 'tracability',
+              src: 'https://www.youtube.com/embed/MSMsAMbSLnY',
+              title: "Gérer la traçabilité",
+              description: "Découvrez comment assurer la traçabilité de vos produits."
+            },
+            {
+              id: 'pharmacovigilance',
+              src: 'https://www.youtube.com/embed/1WAAYsE_3gE',
+              title: "Gérer la pharmacovigilance",
+              description: "Découvrez comment être à jour sur les sujets de pharmacovigilance."
+            },
+            {
+              id: 'ordonnancier',
+              src: 'https://www.youtube.com/embed/_xN2uQ21TiA',
+              title: "Gérer l'ordonnancier",
+              description: "Découvrez comment créer des gérer des ordonnances."
+            },
+            {
+              id: 'waste',
+              src: 'https://www.youtube.com/embed/Xif6gUk8ZiA',
+              title: "Gérer des périmés",
+              description: "Découvrez comment comment gérer efficacement vos produits périmés."
+            }
+          ].map(video => (
+            <div key={video.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="w-full h-48 sm:h-56 lg:h-40 bg-black">
+                <iframe
+                  title={video.title}
+                  src={video.src}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="p-3 sm:p-4">
+                <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">{video.title}</h3>
+                <p className="text-gray-600 text-xs sm:text-sm">{video.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* PMQ Categories */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">

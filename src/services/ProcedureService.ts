@@ -1,5 +1,7 @@
 import { Procedure } from '../types/procedure';
 import jsPDF from 'jspdf';
+import { generateDocumentCode, getCategoryByCode, getProcessForCategory } from '../data/documentClassification';
+import { procedureTemplates } from '../data/procedureTemplates';
 
 export class ProcedureService {
   private static instance: ProcedureService;
@@ -91,7 +93,7 @@ export class ProcedureService {
         pdf.setTextColor(100, 100, 100);
         
         // Page number on the left
-        const pageNum = pdf.internal.getCurrentPageInfo().pageNumber;
+        const pageNum = (pdf as any).internal.getCurrentPageInfo().pageNumber;
         pdf.text(`Page ${pageNum}`, leftMargin, footerY);
         
         // PHARMA QMS reference on the right
@@ -123,11 +125,89 @@ export class ProcedureService {
       // Initialize position
       yPosition = topMargin;
 
+      // Generate classification code FIRST (before header)
+      let classificationCode = '';
+      let pharmacyInitials = '';
+      let categoryInfo = null;
+      let processInfo = null;
+
+      const template = procedureTemplates.find(t => t.id === procedure.templateId);
+
+      if (template?.classificationCode && procedure.info.pharmacyName) {
+        // Use stored initials if available, otherwise extract from pharmacy name
+        if ((procedure.info as any)._pharmacyInitials) {
+          pharmacyInitials = (procedure.info as any)._pharmacyInitials;
+        } else {
+          const words = procedure.info.pharmacyName.trim().split(/\s+/);
+          pharmacyInitials = words.map((w: any) => w[0]).join('').substring(0, 3).toUpperCase();
+        }
+
+        // Get process code
+        categoryInfo = getCategoryByCode(template.classificationCode);
+        processInfo = categoryInfo ? getProcessForCategory(template.classificationCode) : undefined;
+
+        if (processInfo) {
+          classificationCode = generateDocumentCode(pharmacyInitials, processInfo.code, template.classificationCode);
+        }
+      }
+
       // En-tete du document avec design ameliore
-      addText('PROCEDURE OFFICINALE', 18, true, 'teal', 'center', 1.0);
+      addText(`PROCEDURE DE : ${procedure.info.title.toUpperCase()}`, 18, true, 'teal', 'center', 1.0);
       yPosition += 2;
       addText(procedure.info.pharmacyName.toUpperCase(), 14, true, 'black', 'center', 1.0);
       yPosition += 5;
+
+      // Classification Badge and Description
+      if (classificationCode && categoryInfo && processInfo) {
+        // Label "Code d'identification du document"
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(9);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Code d\'identification du document', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 6;
+
+        // Badge with classification code
+        pdf.setFillColor(224, 242, 241);
+        pdf.setDrawColor(0, 150, 136);
+        pdf.setLineWidth(0.5);
+        const badgeWidth = 70;
+        const badgeHeight = 12;
+        const badgeX = (pageWidth - badgeWidth) / 2;
+        pdf.roundedRect(badgeX, yPosition, badgeWidth, badgeHeight, 2, 2, 'FD');
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 150, 136);
+        pdf.text(classificationCode, pageWidth / 2, yPosition + 8, { align: 'center' });
+        yPosition += badgeHeight + 5;
+
+        // Légende explicative du code
+        pdf.setFont('helvetica', 'italic');
+        pdf.setFontSize(7);
+        pdf.setTextColor(100, 100, 100);
+
+        // Décomposer le code (ex: ABC-PR-001)
+        const codeParts = classificationCode.split('-');
+        if (codeParts.length === 3) {
+          const legendText = `(${codeParts[0]}: Pharmacie | ${codeParts[1]}: Processus ${processInfo.code} | ${codeParts[2]}: Reference)`;
+          pdf.text(legendText, pageWidth / 2, yPosition, { align: 'center' });
+          yPosition += 5;
+        }
+
+        // Description of classification
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8);
+        pdf.setTextColor(80, 80, 80);
+        const descLine1 = `Processus ${processInfo.code}: ${this.removeAccents(processInfo.name)}`;
+        pdf.text(descLine1, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 4;
+
+        const descLine2 = `${this.removeAccents(categoryInfo.name)}`;
+        pdf.text(descLine2, pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 7;
+
+        pdf.setTextColor(0, 0, 0);
+      }
 
       // Ligne decorative
       pdf.setDrawColor(0, 150, 136);
@@ -137,16 +217,21 @@ export class ProcedureService {
 
       // Informations du document
       addSection('INFORMATIONS DU DOCUMENT');
-      
+
+      const pharmacyDisplayName = procedure.info.pharmacyName
+        ? (classificationCode ? `${procedure.info.pharmacyName} [${classificationCode}]` : procedure.info.pharmacyName)
+        : procedure.info.pharmacyName;
+
       // Tableau d'informations avec mise en forme amelioree
       const infoData = [
         ['Titre:', procedure.info.title],
+        ['Pharmacie:', pharmacyDisplayName],
         ['Version:', procedure.info.version],
         ['Date de creation:', new Date(procedure.info.creationDate).toLocaleDateString('fr-FR')],
         ['Duree de validite:', procedure.info.validityDuration],
         ['Auteur:', procedure.info.author]
       ];
-      
+
       if (procedure.info.reviewer) {
         infoData.push(['Responsable de revision:', procedure.info.reviewer]);
       }
@@ -179,13 +264,18 @@ export class ProcedureService {
       // Etapes de la procedure
       addSection('DESCRIPTION DETAILLEE');
       
-      procedure.steps.forEach((step, index) => {
+      procedure.steps.forEach((step: any, index: any) => {
         addText(`ETAPE ${step.order}`, 11, true, 'teal', 'left', 1.0);
         yPosition -= 1;
         addText(step.description, 10, false, 'black', 'left', 1.2);
 
         if (step.responsible) {
           addText(`> Responsable: ${step.responsible}`, 10, false, 'gray', 'left', 1.1);
+          yPosition -= 1;
+        }
+
+        if (step.concernedPersons && step.concernedPersons.length > 0) {
+          addText(`> Personnes concernees: ${step.concernedPersons.join(', ')}`, 10, false, 'gray', 'left', 1.1);
           yPosition -= 1;
         }
 
@@ -205,8 +295,8 @@ export class ProcedureService {
       // Indicateurs de performance
       if (procedure.indicators.length > 0) {
         addSection('INDICATEURS DE PERFORMANCE');
-        
-        procedure.indicators.forEach((indicator, index) => {
+
+        procedure.indicators.forEach((indicator: any, index: any) => {
           addText(`${index + 1}. ${indicator.name}`, 10, true, 'black', 'left', 1.15);
           yPosition -= 1;
           if (indicator.description) {
@@ -226,7 +316,7 @@ export class ProcedureService {
       if (procedure.annexes.length > 0) {
         addSection('ANNEXES');
         
-        procedure.annexes.forEach((annex, index) => {
+        procedure.annexes.forEach((annex: any, index: any) => {
           const typeLabel = annex.type === 'document' ? 'Document' :
                           annex.type === 'form' ? 'Formulaire' : 'Reference reglementaire';
 
@@ -252,7 +342,132 @@ export class ProcedureService {
       yPosition -= 1;
       addText(`Systeme: PHARMA QMS - Module Procedures v1.0`, 10, false, 'gray', 'left', 1.1);
 
+      // Instructions de travail - Format paysage
+      addFooter();
+      pdf.addPage('a4', 'landscape');
+
+      const landscapeWidth = pdf.internal.pageSize.getWidth();
+      const landscapeHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      yPosition = margin;
+
+      // Titre
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('INSTRUCTIONS DE TRAVAIL', margin, yPosition);
+      yPosition += 10;
+
+      // Tableau des colonnes: QUOI / COMMENT / QUAND / QUI / MOYENS / KPI / RESPONSABLE
+      const colWidths = [40, 60, 30, 35, 40, 35, 35]; // Total: ~275
+      const headerHeight = 10;
+      const rowHeight = 20;
+
+      // En-têtes (SANS couleur, juste bordures noires)
+      pdf.setDrawColor(0, 0, 0);
+      pdf.setLineWidth(0.5);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(8);
+      pdf.setTextColor(0, 0, 0);
+
+      let xPos = margin;
+      const headers = ['QUOI', 'COMMENT', 'QUAND', 'QUI', 'MOYENS', 'KPI', 'RESPONSABLE'];
+
+      headers.forEach((header, i) => {
+        pdf.rect(xPos, yPosition, colWidths[i], headerHeight);
+        pdf.text(header, xPos + colWidths[i] / 2, yPosition + 7, { align: 'center' });
+        xPos += colWidths[i];
+      });
+
+      yPosition += headerHeight;
+
+      // Lignes de données (SANS remplissage de couleur)
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7);
+      pdf.setTextColor(0, 0, 0);
+
+      // Mapper les indicateurs aux étapes
+      const stepIndicators = new Map<number, string>();
+      procedure.indicators.forEach((indicator: any, idx: any) => {
+        const stepIndex = idx % procedure.steps.length;
+        if (!stepIndicators.has(stepIndex)) {
+          stepIndicators.set(stepIndex, indicator.name || indicator.target);
+        }
+      });
+
+      procedure.steps.forEach((step: any, index: any) => {
+        // Vérifier si on dépasse la page
+        if (yPosition > landscapeHeight - margin - rowHeight) {
+          return;
+        }
+
+        xPos = margin;
+
+        // QUOI - Description de l'étape
+        pdf.rect(xPos, yPosition, colWidths[0], rowHeight);
+        const quoiLines = pdf.splitTextToSize(this.removeAccents(step.description), colWidths[0] - 3);
+        pdf.text(quoiLines.slice(0, 4), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[0];
+
+        // COMMENT - Documents utilisés
+        pdf.rect(xPos, yPosition, colWidths[1], rowHeight);
+        const commentText = step.documents.length > 0
+          ? step.documents.join(', ')
+          : 'Selon procedure standard';
+        const commentLines = pdf.splitTextToSize(this.removeAccents(commentText), colWidths[1] - 3);
+        pdf.text(commentLines.slice(0, 4), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[1];
+
+        // QUAND - Durée
+        pdf.rect(xPos, yPosition, colWidths[2], rowHeight);
+        const quandText = step.duration || 'Variable';
+        pdf.text(this.removeAccents(quandText), xPos + 1.5, yPosition + 10);
+        xPos += colWidths[2];
+
+        // QUI - Personnes concernées
+        pdf.rect(xPos, yPosition, colWidths[3], rowHeight);
+        const quiText = step.concernedPersons && step.concernedPersons.length > 0
+          ? step.concernedPersons.join(', ')
+          : 'Tout le personnel';
+        const quiLines = pdf.splitTextToSize(this.removeAccents(quiText), colWidths[3] - 3);
+        pdf.text(quiLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[3];
+
+        // MOYENS - Documents/Outils
+        pdf.rect(xPos, yPosition, colWidths[4], rowHeight);
+        const moyensText = step.documents.length > 0
+          ? step.documents.slice(0, 2).join(', ')
+          : 'Registres qualite';
+        const moyensLines = pdf.splitTextToSize(this.removeAccents(moyensText), colWidths[4] - 3);
+        pdf.text(moyensLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[4];
+
+        // KPI - Indicateur
+        pdf.rect(xPos, yPosition, colWidths[5], rowHeight);
+        const kpiText = stepIndicators.get(index) || 'Conformite';
+        const kpiLines = pdf.splitTextToSize(this.removeAccents(kpiText), colWidths[5] - 3);
+        pdf.text(kpiLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[5];
+
+        // RESPONSABLE
+        pdf.rect(xPos, yPosition, colWidths[6], rowHeight);
+        const respLines = pdf.splitTextToSize(this.removeAccents(step.responsible), colWidths[6] - 3);
+        pdf.text(respLines.slice(0, 3), xPos + 1.5, yPosition + 4);
+        xPos += colWidths[6];
+
+        yPosition += rowHeight;
+      });
+
+      yPosition += 5;
+
       // Signature et validation
+      // Vérifier s'il y a assez d'espace pour les signatures
+      if (yPosition > pageHeight - bottomMargin - 70) {
+        addFooter();
+        pdf.addPage();
+        yPosition = topMargin;
+      }
+
       addSection('SIGNATURES ET VALIDATION');
       
       // Cadres pour signatures avec design ameliore
@@ -298,7 +513,7 @@ export class ProcedureService {
       yPosition += signatureBoxHeight + 10;
       
       // Add footer to all pages
-      const totalPages = pdf.internal.getNumberOfPages();
+      const totalPages = (pdf as any).internal.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         const footerY = pageHeight - 15;

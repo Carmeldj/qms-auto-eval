@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Stethoscope } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
@@ -12,12 +11,12 @@ const Header: React.FC = () => {
     // { id: 'home', label: 'Accueil' },
     { id: 'assessment', label: 'Évaluation' },
     { id: 'inspection', label: 'Inspection' },
-    { id: 'documents', label: 'Documents' },
+    // { id: 'documents', label: 'Documents' },
     { id: 'procedures', label: 'Procédures' },
     { id: 'traceability', label: 'Traçabilité' },
     { id: 'pharmacovigilance', label: 'Pharmacovigilance' },
     { id: 'ordonnancier', label: 'Ordonnancier' },
-    { id: 'waste-management', label: 'Déchets' }
+    { id: 'waste-management', label: 'Périmés' }
   ];
 
   const handleNav = (id: string) => {
@@ -33,14 +32,19 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-md border-b py-2" style={{ borderBottomColor: '#e0f2f1' }}>
       <div className="max-w-7xl mx-auto">
         <div className="w-full flex justify-between items-center py-3">
-          <div className="flex items-center space-x-2 pl-4 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="p-1.5 sm:p-2 rounded-lg" style={{ backgroundColor: '#009688' }}>
+          <div className="w-48 flex items-center space-x-2 pl-4 cursor-pointer" onClick={() => navigate('/')}>
+            {/* <div className="p-1.5 sm:p-2 rounded-lg" style={{ backgroundColor: '#009688' }}>
               <Stethoscope className="size-5 text-white" />
             </div>
             <div>
               <h1 className="text-lg sm:text- font-bold text-gray-900">PHARMA QMS</h1>
               <p className="text-xs sm:text-sm text-gray-600 hidden xs:block">Système de Management de la Qualité</p>
-            </div>
+            </div> */}
+            <img
+              src="/logo.png"
+              alt="PHARMA QMS"
+              className=""
+            />
           </div>
 
 
