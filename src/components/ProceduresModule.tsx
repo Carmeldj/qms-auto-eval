@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { FileText, Download, Clock, CheckCircle } from 'lucide-react';
-import { procedureTemplates, getAllProcedureCategories, getProceduresByCategory } from '../../data/procedureTemplates';
+import { FileText, Download, Clock, CheckCircle, Network, ClipboardCheck, Map } from 'lucide-react';
+import { procedureTemplates, getAllProcedureCategories, getProceduresByCategory } from '../data/procedureTemplates';
 import ProcedureForm from './ProcedureForm';
+import { processMappingService } from '../services/ProcessMappingService';
+import ProcessMapping from './ProcessMapping';
 
-const ProceduresModule: React.FC = () => {
-  const [view, setView] = useState<'list' | 'form'>('list');
+interface ProceduresModuleProps {
+  onNavigateToReview?: () => void;
+}
+
+const ProceduresModule: React.FC<ProceduresModuleProps> = ({ onNavigateToReview }) => {
+  const [view, setView] = useState<'list' | 'form' | 'mapping'>('list');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -32,6 +38,22 @@ const ProceduresModule: React.FC = () => {
         template={template}
         onCancel={handleBackToList}
       />
+    );
+  }
+
+  if (view === 'mapping') {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-6">
+          <button
+            onClick={handleBackToList}
+            className="text-sm text-gray-600 hover:text-gray-900 flex items-center space-x-2"
+          >
+            <span>← Retour à la liste</span>
+          </button>
+        </div>
+        <ProcessMapping />
+      </div>
     );
   }
 
@@ -82,22 +104,76 @@ const ProceduresModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Create Blank Procedure Button */}
-      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-white text-center sm:text-left">
-            <h2 className="text-lg sm:text-xl font-bold mb-2">Créer une procédure personnalisée</h2>
-            <p className="text-sm sm:text-base text-teal-50">
-              Démarrez avec un modèle vierge et créez votre propre procédure sur mesure
-            </p>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 sm:mb-8">
+        {/* Create Blank Procedure */}
+        <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-white text-center sm:text-left">
+              <h2 className="text-base sm:text-lg font-bold mb-2">Créer une procédure personnalisée</h2>
+              <p className="text-xs sm:text-sm text-teal-50">
+                Démarrez avec un modèle vierge
+              </p>
+            </div>
+            <button
+              onClick={() => handleCreateProcedure('blank-template')}
+              className="flex items-center space-x-2 bg-white text-teal-600 px-4 py-2 rounded-lg font-semibold hover:bg-teal-50 transition-all duration-200 shadow-md whitespace-nowrap text-sm"
+            >
+              <FileText className="h-5 w-5" />
+              <span>Nouveau modèle</span>
+            </button>
           </div>
-          <button
-            onClick={() => handleCreateProcedure('blank-template')}
-            className="flex items-center space-x-2 bg-white text-teal-600 px-6 py-3 rounded-lg font-semibold hover:bg-teal-50 transition-all duration-200 shadow-md whitespace-nowrap"
-          >
-            <FileText className="h-5 w-5" />
-            <span>Nouveau modèle vierge</span>
-          </button>
+        </div>
+
+        {/* Generate Process Mapping */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-white text-center sm:text-left">
+              <h2 className="text-base sm:text-lg font-bold mb-2">Cartographie des processus</h2>
+              <p className="text-xs sm:text-sm text-blue-50">
+                Visualiser ou générer le document
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setView('mapping')}
+                className="flex items-center space-x-2 bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 shadow-md whitespace-nowrap text-sm"
+              >
+                <Map className="h-5 w-5" />
+                <span>Visualiser</span>
+              </button>
+              <button
+                onClick={() => processMappingService.generateProcessMapping()}
+                className="flex items-center space-x-2 bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 shadow-md whitespace-nowrap text-sm"
+              >
+                <Download className="h-5 w-5" />
+                <span>PDF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Process Review */}
+        <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-white text-center sm:text-left">
+              <h2 className="text-base sm:text-lg font-bold mb-2">Revue des Processus</h2>
+              <p className="text-xs sm:text-sm text-teal-50">
+                Évaluation annuelle de performance et efficacité
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                if (onNavigateToReview) {
+                  onNavigateToReview();
+                }
+              }}
+              className="flex items-center space-x-2 bg-white text-teal-600 px-4 py-2 rounded-lg font-semibold hover:bg-teal-50 transition-all duration-200 shadow-md whitespace-nowrap text-sm cursor-pointer"
+            >
+              <ClipboardCheck className="h-5 w-5" />
+              <span>Créer une revue</span>
+            </button>
+          </div>
         </div>
       </div>
 

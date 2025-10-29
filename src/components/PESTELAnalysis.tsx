@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Download, Globe, DollarSign, Users, Cpu, Leaf, Scale } from 'lucide-react';
-import { pestelQuestions, pestelCategories } from '../../data/pestelQuestions';
+import { pestelQuestions, pestelCategories } from '../data/pestelQuestions';
 import jsPDF from 'jspdf';
-import { useNavigate } from 'react-router-dom';
 
+interface PESTELAnalysisProps {
+  onBack: () => void;
+}
 
-const PESTELAnalysis: React.FC = () => {
-  const navigate = useNavigate();
-
+const PESTELAnalysis: React.FC<PESTELAnalysisProps> = ({ onBack }) => {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [pharmacyName, setPharmacyName] = useState<string>('');
   const [pharmacistName, setPharmacistName] = useState<string>('');
@@ -40,9 +40,9 @@ const PESTELAnalysis: React.FC = () => {
     }
   };
 
-  // const isComplete = () => {
-  //   return pharmacyName.trim() && pharmacistName.trim() && pestelQuestions.every(q => responses[q.id]?.trim());
-  // };
+  const isComplete = () => {
+    return pharmacyName.trim() && pharmacistName.trim() && pestelQuestions.every(q => responses[q.id]?.trim());
+  };
 
   const generatePDF = () => {
     console.log('Starting PDF generation...');
@@ -50,7 +50,7 @@ const PESTELAnalysis: React.FC = () => {
       console.log('Creating jsPDF instance...');
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
-      // const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 20;
       let yPos = 20;
 
@@ -148,24 +148,24 @@ const PESTELAnalysis: React.FC = () => {
   const Icon = getCategoryIcon(currentCategory);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       <button
-        onClick={() => navigate('/')}
+        onClick={onBack}
         className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
       >
         <ArrowLeft className="h-5 w-5 mr-2" />
         Retour
       </button>
 
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-lg" style={{ backgroundColor: `${categoryInfo.color}20` }}>
-              <Icon className="h-6 w-6" style={{ color: categoryInfo.color }} />
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="p-2 sm:p-3 rounded-lg" style={{ backgroundColor: `${categoryInfo.color}20` }}>
+              <Icon className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: categoryInfo.color }} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Analyse PESTEL</h1>
-              <p className="text-gray-600">Analyse macro-environnementale de votre officine</p>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Analyse PESTEL</h1>
+              <p className="text-sm sm:text-base text-gray-600">Analyse macro-environnementale de votre officine</p>
             </div>
           </div>
         </div>
@@ -207,10 +207,11 @@ const PESTELAnalysis: React.FC = () => {
               <button
                 key={category.id}
                 onClick={() => setCurrentCategory(category.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${currentCategory === category.id
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
+                  currentCategory === category.id
                     ? 'text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                }`}
                 style={currentCategory === category.id ? { backgroundColor: category.color } : {}}
               >
                 <CategoryIcon className="h-4 w-4" />

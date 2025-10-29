@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { FileText, Download, Clock, Plus, Building, Users, Wrench, MessageCircle, AlertTriangle, Stethoscope, GraduationCap, ClipboardList } from 'lucide-react';
-import { documentTemplates, getAllDocumentCategories, getDocumentTemplatesByCategory } from '../../data/documentTemplates';
+import { documentTemplates, getAllDocumentCategories, getDocumentTemplatesByCategory } from '../data/documentTemplates';
 import DocumentForm from './DocumentForm';
+import CAPAForm from './CAPAForm';
 
 const DocumentsModule: React.FC = () => {
   const [view, setView] = useState<'list' | 'form'>('list');
@@ -40,6 +41,13 @@ const DocumentsModule: React.FC = () => {
   if (view === 'form') {
     const template = documentTemplates.find(t => t.id === selectedTemplate);
     if (!template) return null;
+
+    // Cas spécial pour le Plan CAPA
+    if (selectedTemplate === 'capa-plan') {
+      return (
+        <CAPAForm onCancel={handleBackToList} />
+      );
+    }
 
     return (
       <DocumentForm

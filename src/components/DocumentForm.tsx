@@ -1,14 +1,8 @@
-import React, { useState } from "react";
-import { X, Download, AlertCircle, CheckCircle, FileText } from "lucide-react";
-import {
-  DocumentTemplate,
-  DocumentAccessLevel,
-  DocumentStatus,
-} from "../../types/documents";
-import { documentService } from "../../services/DocumentService";
-import ClassificationBadge from "../ClassificationBadge";
-import { uploadAndSaveDocument } from "../../utils/documentUploadHelper";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useState } from 'react';
+import { Save, X, Download, AlertCircle, CheckCircle, FileText, Edit2 } from 'lucide-react';
+import { DocumentTemplate } from '../types/documents';
+import { documentService } from '../services/DocumentService';
+import ClassificationBadge from './ClassificationBadge';
 
 interface DocumentFormProps {
   template: DocumentTemplate;
@@ -17,124 +11,84 @@ interface DocumentFormProps {
 
 const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
   const [formData, setFormData] = useState<Record<string, string>>({});
-  const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const { user } = useAuth();
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
+  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
+  const [customTitle, setCustomTitle] = useState<string>(template.title);
 
   const handleInputChange = (fieldId: string, value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [fieldId]: value,
+      [fieldId]: value
     }));
 
     // Auto-generate initials when pharmacy name is entered
-    if (fieldId === "pharmacyName" && value.trim()) {
+    if (fieldId === 'pharmacyName' && value.trim()) {
       const words = value.trim().split(/\s+/);
-      const autoInitials = words
-        .map((w) => w[0])
-        .join("")
-        .substring(0, 3)
-        .toUpperCase();
+      const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
       setPharmacyInitials(autoInitials);
-
-      // const autoInitials = value.replace(/\s+/g, '').substring(0, 3).toUpperCase();
-      // setPharmacyInitials(autoInitials);
     }
   };
 
   const handleInitialsChange = (value: string) => {
     // Allow only uppercase letters, max 3 characters
-    const sanitized = value
-      .toUpperCase()
-      .replace(/[^A-Z]/g, "")
-      .substring(0, 3);
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
     setPharmacyInitials(sanitized);
   };
 
   const isFormValid = () => {
-    const requiredFields = template.fields.filter((field) => field.required);
-    return requiredFields.every((field) => formData[field.id]?.trim());
+    const requiredFields = template.fields.filter(field => field.required);
+    return requiredFields.every(field => formData[field.id]?.trim());
   };
 
   const handleGeneratePDF = async () => {
     if (!isFormValid()) return;
-    setIsGenerating(true);
 
-    const documentData = {
+    const document = {
       id: Date.now().toString(),
       templateId: template.id,
       data: {
         ...formData,
-        _pharmacyInitials: pharmacyInitials, // Store initials for PDF generation
+        _pharmacyInitials: pharmacyInitials, // Store initials separately
+        _customTitle: customTitle // Store custom title
       },
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().toISOString()
     };
 
     try {
-      // Generate PDF blob first
-      const result = await documentService.generatePDF(template, documentData);
-      const { blob, fileName } = result;
-
-      // Upload and save to API
-      await uploadAndSaveDocument(blob, fileName, {
-        title: template.title,
-        type: template.category,
-        category: template.category,
-        description: template.description,
-        author:
-          user?.name ||
-          user?.email ||
-          formData.pharmacyName ||
-          "Unknown Author",
-        version: "1.0",
-        accessLevel: DocumentAccessLevel.RESTRICTED,
-        status: DocumentStatus.DRAFT,
-        tags: [template.category, template.id],
-      });
-
-      // Also trigger download for user
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(link.href);
+      await documentService.generatePDF(template, document);
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Erreur lors de la génération du PDF");
-    } finally {
-      setIsGenerating(false);
+      console.error('Error generating PDF:', error);
+      alert('Erreur lors de la génération du PDF');
     }
   };
 
   const renderField = (field: any) => {
-    const value = formData[field.id] || "";
+    const value = formData[field.id] || '';
 
     switch (field.type) {
-      case "textarea":
+      case 'textarea':
         return (
           <textarea
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             placeholder={field.placeholder}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-            style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
+            style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
             rows={field.rows || 4}
           />
         );
 
-      case "select":
+      case 'select':
         return (
           <select
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-            style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
+            style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
           >
             <option value="">Sélectionner...</option>
             {field.options?.map((option: string) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
+              <option key={option} value={option}>{option}</option>
             ))}
           </select>
         );
@@ -147,27 +101,18 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             placeholder={field.placeholder}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-            style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
+            style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
           />
         );
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="mb-6 w-full ">
-        <button
-          onClick={onCancel}
-          className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
-        >
-          <X className="h-4 w-4" />
-          <span>Retour</span>
-        </button>
-      </div>
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row items-start justify-between">
-          <div>
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {template.title}
             </h1>
@@ -179,36 +124,42 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
               <div className="mt-3">
                 <ClassificationBadge
                   classificationCode={template.classificationCode}
-                  pharmacyInitials={pharmacyInitials}
-                  showFullCode={true}
-                  size="medium"
+                  pharmacyInitials={formData.pharmacyName ? formData.pharmacyName.split(' ').map(w => w[0]).join('').substring(0, 3) : ''}
+                  size="small"
                 />
               </div>
             )}
           </div>
-          <div className="w-full lg:w-max flex items-center justify-between ">
+          <div className="flex space-x-3">
+            <button
+              onClick={onCancel}
+              className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+            >
+              <X className="h-4 w-4" />
+              <span>Retour</span>
+            </button>
             <button
               onClick={handleGeneratePDF}
-              disabled={!isFormValid() || isGenerating}
-              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
-                isFormValid() && !isGenerating
-                  ? "text-white"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              disabled={!isFormValid()}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
+                isFormValid()
+                  ? 'text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
-              style={isFormValid() ? { backgroundColor: "#009688" } : {}}
+              style={isFormValid() ? {backgroundColor: '#009688'} : {}}
               onMouseEnter={(e) => {
                 if (isFormValid()) {
-                  e.currentTarget.style.backgroundColor = "#00796b";
+                  e.currentTarget.style.backgroundColor = '#00796b';
                 }
               }}
               onMouseLeave={(e) => {
                 if (isFormValid()) {
-                  e.currentTarget.style.backgroundColor = "#009688";
+                  e.currentTarget.style.backgroundColor = '#009688';
                 }
               }}
             >
               <Download className="h-4 w-4" />
-              <span>{isGenerating ? "Génération..." : "Générer PDF"}</span>
+              <span>Générer PDF</span>
             </button>
           </div>
         </div>
@@ -216,17 +167,16 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
 
       {/* Classification Info Section */}
       {template.classificationCode && (
-        <div className="mb-8 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl shadow-md p-6 border-2 border-teal-200">
+        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl shadow-md p-6 border-2 border-teal-200">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
             <FileText className="h-5 w-5 text-teal-600" />
             <span>Classification Documentaire</span>
           </h2>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Initiales de la pharmacie{" "}
-                <span className="text-red-500">*</span>
+                Initiales de la pharmacie <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -234,8 +184,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
                 onChange={(e) => handleInitialsChange(e.target.value)}
                 placeholder="Ex: PCG"
                 maxLength={3}
-                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent font-bold text-sm uppercase tracking-wider"
-                style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
+                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent font-bold text-lg uppercase tracking-wider"
+                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
               />
               <p className="text-xs text-gray-500 mt-1">
                 3 lettres maximum - Généré automatiquement à partir du nom
@@ -262,7 +212,37 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       {/* Form */}
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="space-y-6">
-          {template.fields.map((field) => (
+          {/* Title Edit Section */}
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-bold text-gray-900">
+                Titre principal du document
+              </label>
+              <button
+                onClick={() => setIsEditingTitle(!isEditingTitle)}
+                className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+              >
+                <Edit2 className="h-4 w-4" />
+                <span>{isEditingTitle ? 'Annuler' : 'Modifier le titre'}</span>
+              </button>
+            </div>
+            {isEditingTitle ? (
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                className="w-full border-2 border-blue-300 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:border-transparent"
+                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                placeholder="Entrez le titre personnalisé"
+              />
+            ) : (
+              <div className="text-base font-semibold text-gray-900 bg-white rounded-lg px-3 py-2 border border-gray-300">
+                {customTitle}
+              </div>
+            )}
+          </div>
+
+          {template.fields.map(field => (
             <div key={field.id}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {field.label}
@@ -280,9 +260,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
           {isFormValid() ? (
             <>
               <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="text-green-800 font-medium">
-                Document prêt à être généré en PDF
-              </span>
+              <span className="text-green-800 font-medium">Document prêt à être généré en PDF</span>
             </>
           ) : (
             <>
@@ -299,30 +277,26 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       <div className="text-center mt-6">
         <button
           onClick={handleGeneratePDF}
-          disabled={!isFormValid() || isGenerating}
+          disabled={!isFormValid()}
           className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${
-            isFormValid() && !isGenerating
-              ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            isFormValid()
+              ? 'text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
-          style={isFormValid() ? { backgroundColor: "#009688" } : {}}
+          style={isFormValid() ? {backgroundColor: '#009688'} : {}}
           onMouseEnter={(e) => {
             if (isFormValid()) {
-              e.currentTarget.style.backgroundColor = "#00796b";
+              e.currentTarget.style.backgroundColor = '#00796b';
             }
           }}
           onMouseLeave={(e) => {
             if (isFormValid()) {
-              e.currentTarget.style.backgroundColor = "#009688";
+              e.currentTarget.style.backgroundColor = '#009688';
             }
           }}
         >
           <Download className="h-5 w-5" />
-          <span>
-            {isGenerating
-              ? "Génération en cours..."
-              : "Générer le Document PDF"}
-          </span>
+          <span>Générer le Document PDF</span>
         </button>
       </div>
     </div>
