@@ -56,7 +56,7 @@ function App() {
               d'officine
             </p>
             <p className="text-xs sm:text-sm">
-              Basé sur les 29 principes qualité des 7 PMQ ISO 9001 adaptés au
+              Basé sur les 29 directives qualité des 7 PMQ ISO 9001 adaptés au
               secteur pharmaceutique
             </p>
           </div>

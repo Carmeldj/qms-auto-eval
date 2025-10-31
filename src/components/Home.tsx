@@ -7,7 +7,7 @@ const Home: React.FC = () => {
   const features = [
     {
       icon: ClipboardList,
-      title: "29 Principes Qualité",
+      title: "29 Directives Qualité",
       description: "Évaluation complète selon les 7 PMQ ISO 9001"
     },
     {
@@ -49,7 +49,7 @@ const Home: React.FC = () => {
           Évaluez votre <span style={{ color: '#009688' }}>PHARMA QMS</span>
         </h1>
         <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-2 sm:px-4">
-          Outil d'autoévaluation professionnel pour les pharmacies d'officine basé sur les 29 principes
+          Outil d'autoévaluation professionnel pour les pharmacies d'officine basé sur les 29 directives
           qualité structurés selon les 7 PMQ ISO 9001.
         </p>
 

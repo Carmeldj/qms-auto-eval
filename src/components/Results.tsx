@@ -123,10 +123,10 @@ const Results: React.FC = () => {
     const goodCount = principlesCount.filter(s => s >= 3 && s < 4).length;
     const improvementCount = principlesCount.filter(s => s < 3).length;
 
-    addText(`Répartition des 29 principes: ${excellentCount} excellents, ${goodCount} satisfaisants, ${improvementCount} à améliorer`, 12);
+    addText(`Répartition des 29 directives: ${excellentCount} excellents, ${goodCount} satisfaisants, ${improvementCount} à améliorer`, 12);
 
-    // Détail des 29 Principes Qualité
-    addSection('DÉTAIL DES 29 PRINCIPES QUALITÉ');
+    // Détail des 29 Directives Qualité
+    addSection('DÉTAIL DES 29 DIRECTIVES QUALITÉ');
 
     pmqCategories.forEach(pmq => {
       const pmqScore = assessment.scores.pmqs[pmq.id] || 0;
