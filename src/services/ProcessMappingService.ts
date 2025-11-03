@@ -312,7 +312,6 @@ class ProcessMappingService {
     if (kpis.length > 0) {
       pdf.setFontSize(8);
 
-      //@ts-ignores-
       kpis.slice(0, 5).forEach((kpi) => {
         pdf.setFillColor(255, 252, 240);
         pdf.setDrawColor(255, 193, 7);
