@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CheckCircle,
   UserPlus,
+  Edit2,
 } from "lucide-react";
 import {
   ProcedureTemplate,
@@ -48,6 +49,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
     objective: defaults?.objective || "",
     scope: defaults?.scope || "",
   });
+
+  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
+  const [customTitle, setCustomTitle] = useState<string>(template.title);
 
   const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
 
@@ -219,7 +223,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
+    
     try {
       // Generate PDF and get blob
       const result = await procedureService.generatePDF(procedure);
@@ -282,7 +286,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex flex-col md:flex-row  items-center justify-between">
           <div>
-            <h1 className="w-max text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="w- text-2xl font-bold text-gray-900 mb-2">
               Rédiger - {template.title}
             </h1>
             <p className="text-gray-600">{template.description}</p>
@@ -291,11 +295,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid()}
-              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
-                isFormValid()
-                  ? "text-white"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${isFormValid()
+                ? "text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               style={isFormValid() ? { backgroundColor: "#009688" } : {}}
               onMouseEnter={(e) => {
                 if (isFormValid()) {
@@ -324,11 +327,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
               <button
                 key={section.id}
                 onClick={() => setCurrentSection(section.id as any)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${
-                  currentSection === section.id
-                    ? "text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${currentSection === section.id
+                  ? "text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
                 style={
                   currentSection === section.id
                     ? { backgroundColor: "#009688" }
@@ -350,6 +352,40 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
             <h3 className="text-lg font-bold text-gray-900 mb-4">
               Informations Générales
             </h3>
+
+            {/* Title Edit Section */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-bold text-gray-900">
+                  Titre principal du document
+                </label>
+                <button
+                  onClick={() => setIsEditingTitle(!isEditingTitle)}
+                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  <span>{isEditingTitle ? 'Annuler' : 'Modifier le titre'}</span>
+                </button>
+              </div>
+              {isEditingTitle ? (
+                <input
+                  type="text"
+                  value={customTitle}
+                  onChange={(e) => {
+                    setCustomTitle(e.target.value);
+                    setInfo(prev => ({ ...prev, title: e.target.value }));
+                  }}
+                  className="w-full border-2 border-blue-300 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
+                  placeholder="Entrez le titre personnalisé"
+                />
+              ) : (
+                <div className="text-base font-semibold text-gray-900 bg-white rounded-lg px-3 py-2 border border-gray-300">
+                  {customTitle}
+                </div>
+              )}
+            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -647,7 +683,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         <div className="space-y-2">
                           <div className="flex flex-wrap gap-2 min-h-[40px] border border-gray-300 rounded-lg p-2">
                             {step.concernedPersons &&
-                            step.concernedPersons.length > 0 ? (
+                              step.concernedPersons.length > 0 ? (
                               step.concernedPersons.map((person, idx) => (
                                 <span
                                   key={idx}
@@ -726,12 +762,12 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                               className="flex items-center gap-1 px-3 py-2 text-white rounded-lg text-sm transition-all duration-200"
                               style={{ backgroundColor: "#009688" }}
                               onMouseEnter={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#00796b")
+                              (e.currentTarget.style.backgroundColor =
+                                "#00796b")
                               }
                               onMouseLeave={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#009688")
+                              (e.currentTarget.style.backgroundColor =
+                                "#009688")
                               }
                             >
                               <UserPlus className="h-4 w-4" />
@@ -1119,11 +1155,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
         <button
           onClick={handleGeneratePDF}
           disabled={!isFormValid()}
-          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${
-            isFormValid()
-              ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${isFormValid()
+            ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           style={isFormValid() ? { backgroundColor: "#009688" } : {}}
           onMouseEnter={(e) => {
             if (isFormValid()) {

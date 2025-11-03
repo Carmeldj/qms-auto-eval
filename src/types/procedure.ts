@@ -28,6 +28,7 @@ export interface ProcedureStep {
   concernedPersons: string[];
   documents: string[];
   duration?: string;
+  howTo?: string;
 }
 
 export interface ProcedureIndicator {

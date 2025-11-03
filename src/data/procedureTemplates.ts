@@ -218,6 +218,68 @@ export const procedureTemplates: ProcedureTemplate[] = [
     isRequired: true,
     estimatedTime: '20-30 min'
   },
+  {
+    id: 'tracabilite-archivage',
+    title: 'Traçabilité (archivage, enregistrement)',
+    category: 'Documentation',
+    description: 'Procédure de traçabilité, archivage et enregistrement des documents',
+    isRequired: true,
+    estimatedTime: '25-35 min'
+  },
+  {
+    id: 'maitrise-documentaire',
+    title: 'Maîtrise documentaire',
+    category: 'Documentation',
+    description: 'Procédure de gestion et contrôle des documents qualité',
+    isRequired: true,
+    estimatedTime: '30-40 min'
+  },
+
+  // Gestion des ruptures de conservation
+  {
+    id: 'rupture-conservation',
+    title: 'Gestion des ruptures de conservation',
+    category: 'Sécurité',
+    description: 'Procédure de gestion des cas de rupture des conditions de conservation des produits thermosensibles',
+    isRequired: true,
+    estimatedTime: '25-35 min'
+  },
+
+  // Réception spécifique
+  {
+    id: 'reception-avoirs',
+    title: 'Réception des avoirs (produits promis)',
+    category: 'Gestion des stocks',
+    description: 'Procédure de réception des médicaments et produits de santé « promis » (avoirs)',
+    isRequired: true,
+    estimatedTime: '20-30 min'
+  },
+
+  // Informatique
+  {
+    id: 'acces-informatique',
+    title: 'Autorisation d\'accès au système informatisé',
+    category: 'Informatique',
+    description: 'Procédure définissant les conditions d\'autorisation des accès au système informatisé',
+    isRequired: true,
+    estimatedTime: '25-35 min'
+  },
+  {
+    id: 'defaillance-informatique',
+    title: 'Défaillance du système informatique',
+    category: 'Informatique',
+    description: 'Procédure de mesure de remplacement à mettre en œuvre en cas de défaillance du système informatique',
+    isRequired: true,
+    estimatedTime: '30-40 min'
+  },
+  {
+    id: 'sauvegarde-informatique',
+    title: 'Sauvegarde informatique',
+    category: 'Informatique',
+    description: 'Procédure de sauvegarde des données informatiques',
+    isRequired: true,
+    estimatedTime: '20-30 min'
+  },
 
   // Procédures optionnelles
   {
@@ -238,18 +300,18 @@ export const procedureTemplates: ProcedureTemplate[] = [
   },
   {
     id: 'audit-interne',
-    title: 'Audit interne',
+    title: 'Auto-inspection et audit interne',
     category: 'Qualité',
     description: 'Procédure d\'auto-inspection et audit interne',
-    isRequired: false,
+    isRequired: true,
     estimatedTime: '35-45 min'
   },
   {
     id: 'gestion-risques',
-    title: 'Gestion des risques',
+    title: 'Gestion de risque qualité',
     category: 'Qualité',
-    description: 'Procédure d\'identification et gestion des risques',
-    isRequired: false,
+    description: 'Procédure d\'identification et gestion des risques qualité',
+    isRequired: true,
     estimatedTime: '40-50 min'
   },
   {
