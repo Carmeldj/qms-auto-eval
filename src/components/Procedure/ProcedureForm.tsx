@@ -282,7 +282,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
         <div className="flex flex-col md:flex-row  items-center justify-between">
           <div>
-            <h1 className="w-max text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="w- text-2xl font-bold text-gray-900 mb-2">
               Rédiger - {template.title}
             </h1>
             <p className="text-gray-600">{template.description}</p>

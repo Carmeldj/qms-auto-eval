@@ -3,7 +3,7 @@
 
 export default function SubscriptionPage() {
     return (
-        <div className="h-max flex flex-col items-center justify-center p-8 bg-white rounded-lg">
+        <div className="h-screen flex flex-col items-center justify-center p-8 bg-white rounded-lg">
             <div className="max-w-2xl w-full text-center">
             <header className="mb-6">
                 <h1 className="text-2xl font-semibold">{`Vous n'avez pas d'abonnement actif`}</h1>
