@@ -11,7 +11,7 @@ const Header: React.FC = () => {
     // { id: 'home', label: 'Accueil' },
     { id: 'assessment', label: 'Évaluation' },
     { id: 'inspection', label: 'Inspection' },
-    // { id: 'documents', label: 'Documents' },
+    { id: 'documents', label: 'Documents' },
     { id: 'procedures', label: 'Procédures' },
     { id: 'traceability', label: 'Traçabilité' },
     { id: 'pharmacovigilance', label: 'Pharmacovigilance' },
