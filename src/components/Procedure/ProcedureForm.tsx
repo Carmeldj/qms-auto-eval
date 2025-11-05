@@ -1,80 +1,51 @@
-import React, { useState } from "react";
-import {
-  X,
-  Plus,
-  Trash2,
-  FileText,
-  Download,
-  AlertCircle,
-  CheckCircle,
-  UserPlus,
-  Edit2,
-} from "lucide-react";
-import {
-  ProcedureTemplate,
-  ProcedureInfo,
-  ProcedureStep,
-  ProcedureIndicator,
-  ProcedureAnnex,
-} from "../../types/procedure";
-import { procedureService } from "../../services/ProcedureService";
-import { procedureDefaults } from "../../data/procedureDefaults";
-import ClassificationBadge from "../ClassificationBadge";
-import { uploadAndSaveDocument } from "../../utils/documentUploadHelper";
-import { DocumentAccessLevel, DocumentStatus } from "../../types/documents";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useState } from 'react';
+import { Save, X, Plus, Trash2, FileText, Download, AlertCircle, CheckCircle, UserPlus, Edit2, Upload, Image as ImageIcon } from 'lucide-react';
+import { ProcedureTemplate, ProcedureInfo, ProcedureStep, ProcedureIndicator, ProcedureAnnex } from '../../types/procedure';
+import { procedureService } from '../../services/ProcedureService';
+import { procedureDefaults } from '../../data/procedureDefaults';
+import ClassificationBadge from '../ClassificationBadge';
+import { stampGenerator } from '../../services/StampGenerator';
+import { signatureGenerator } from '../../services/SignatureGenerator';
 
 interface ProcedureFormProps {
   template: ProcedureTemplate;
   onCancel: () => void;
 }
 
-const ProcedureForm: React.FC<ProcedureFormProps> = ({
-  template,
-  onCancel,
-}) => {
-  const { user } = useAuth();
-
+const ProcedureForm: React.FC<ProcedureFormProps> = ({ template, onCancel }) => {
   // Get default values for this template
   const defaults = procedureDefaults[template.id];
 
   const [info, setInfo] = useState<ProcedureInfo>({
     title: template.title,
-    pharmacyName: "",
-    author: "",
-    reviewer: "",
-    creationDate: new Date().toISOString().split("T")[0],
-    validityDuration: "2 ans",
-    version: "1.0",
-    objective: defaults?.objective || "",
-    scope: defaults?.scope || "",
+    pharmacyName: '',
+    author: '',
+    reviewer: '',
+    creationDate: new Date().toISOString().split('T')[0],
+    validityDuration: '2 ans',
+    version: '1.0',
+    objective: defaults?.objective || '',
+    scope: defaults?.scope || ''
   });
 
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   const [customTitle, setCustomTitle] = useState<string>(template.title);
 
-  const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
+  const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
 
   const handlePharmacyNameChange = (value: string) => {
-    setInfo((prev) => ({ ...prev, pharmacyName: value }));
+    setInfo(prev => ({ ...prev, pharmacyName: value }));
 
     // Auto-generate initials
     if (value.trim()) {
       const words = value.trim().split(/\s+/);
-      const autoInitials = words
-        .map((w) => w[0])
-        .join("")
-        .substring(0, 3)
-        .toUpperCase();
+      const autoInitials = words.map(w => w[0]).join('').substring(0, 3).toUpperCase();
       setPharmacyInitials(autoInitials);
     }
   };
 
   const handleInitialsChange = (value: string) => {
-    const sanitized = value
-      .toUpperCase()
-      .replace(/[^A-Z]/g, "")
-      .substring(0, 3);
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
     setPharmacyInitials(sanitized);
   };
 
@@ -86,17 +57,19 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       responsible: step.responsible,
       concernedPersons: step.concernedPersons || [],
       documents: step.documents,
-      duration: step.duration || "",
+      duration: step.duration || '',
+      howTo: step.howTo || ''
     })) || [
       {
-        id: "1",
+        id: '1',
         order: 1,
-        description: "",
-        responsible: "",
+        description: '',
+        responsible: '',
         concernedPersons: [],
         documents: [],
-        duration: "",
-      },
+        duration: '',
+        howTo: ''
+      }
     ]
   );
 
@@ -106,105 +79,147 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       name: indicator.name,
       description: indicator.description,
       target: indicator.target,
-      frequency: indicator.frequency,
+      frequency: indicator.frequency
     })) || []
   );
-
+  
   const [annexes, setAnnexes] = useState<ProcedureAnnex[]>(
     defaults?.annexes.map((annex, index) => ({
       id: (index + 1).toString(),
       title: annex.title,
       type: annex.type,
       description: annex.description,
-      reference: annex.reference,
+      reference: annex.reference
     })) || []
   );
+  
+  const [currentSection, setCurrentSection] = useState<'info' | 'steps' | 'indicators' | 'annexes' | 'signatures'>('info');
 
-  const [currentSection, setCurrentSection] = useState<
-    "info" | "steps" | "indicators" | "annexes"
-  >("info");
+  const handleImageUpload = (file: File, role: 'author' | 'reviewer' | 'approver', type: 'signature' | 'stamp') => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setInfo(prev => ({
+        ...prev,
+        [`${role}Signature`]: {
+          ...prev[`${role}Signature` as keyof ProcedureInfo] as any,
+          name: role === 'author' ? prev.author : role === 'reviewer' ? prev.reviewer : 'Pharmacien titulaire',
+          date: prev.creationDate,
+          [`${type}Image`]: base64String
+        }
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const generateInitialsSignature = (name: string): string => {
+    if (!name.trim()) return '';
+    const nameParts = name.trim().split(/\s+/);
+    if (nameParts.length >= 2) {
+      // Nom suivi de la première lettre du prénom
+      const lastName = nameParts[nameParts.length - 1];
+      const firstNameInitial = nameParts[0][0].toUpperCase();
+      return `${lastName} ${firstNameInitial}`;
+    }
+    return name;
+  };
+
+  const generateDefaultStamp = (role: 'author' | 'reviewer' | 'approver') => {
+    if (!info.pharmacyName.trim()) {
+      alert('Veuillez d\'abord renseigner le nom de la pharmacie');
+      return;
+    }
+
+    const stampImage = stampGenerator.generateStamp(info.pharmacyName, 200);
+    setInfo(prev => ({
+      ...prev,
+      [`${role}Signature`]: {
+        ...prev[`${role}Signature` as keyof ProcedureInfo] as any,
+        name: role === 'author' ? prev.author : role === 'reviewer' ? prev.reviewer : 'Pharmacien titulaire',
+        date: prev.creationDate,
+        stampImage: stampImage
+      }
+    }));
+  };
+
+  const generateDefaultSignature = (role: 'author' | 'reviewer' | 'approver') => {
+    const name = role === 'author' ? info.author : role === 'reviewer' ? info.reviewer : 'Pharmacien titulaire';
+
+    if (!name.trim()) {
+      alert('Veuillez d\'abord renseigner le nom de la personne');
+      return;
+    }
+
+    const signatureImage = signatureGenerator.generateSignature(name, 300, 100);
+    setInfo(prev => ({
+      ...prev,
+      [`${role}Signature`]: {
+        ...prev[`${role}Signature` as keyof ProcedureInfo] as any,
+        name: name,
+        date: prev.creationDate,
+        signatureImage: signatureImage
+      }
+    }));
+  };
 
   const addStep = () => {
     const newStep: ProcedureStep = {
       id: Date.now().toString(),
       order: steps.length + 1,
-      description: "",
-      responsible: "",
+      description: '',
+      responsible: '',
       concernedPersons: [],
       documents: [],
-      duration: "",
+      duration: '',
+      howTo: ''
     };
     setSteps([...steps, newStep]);
   };
 
   const removeStep = (stepId: string) => {
-    setSteps(
-      steps
-        .filter((s) => s.id !== stepId)
-        .map((s, index) => ({ ...s, order: index + 1 }))
-    );
+    setSteps(steps.filter(s => s.id !== stepId).map((s, index) => ({ ...s, order: index + 1 })));
   };
 
-  const updateStep = (
-    stepId: string,
-    field: keyof ProcedureStep,
-    value: any
-  ) => {
-    setSteps(
-      steps.map((s) => (s.id === stepId ? { ...s, [field]: value } : s))
-    );
+  const updateStep = (stepId: string, field: keyof ProcedureStep, value: any) => {
+    setSteps(steps.map(s => s.id === stepId ? { ...s, [field]: value } : s));
   };
 
   const addIndicator = () => {
     const newIndicator: ProcedureIndicator = {
       id: Date.now().toString(),
-      name: "",
-      description: "",
-      target: "",
-      frequency: "Mensuel",
+      name: '',
+      description: '',
+      target: '',
+      frequency: 'Mensuel'
     };
     setIndicators([...indicators, newIndicator]);
   };
 
   const removeIndicator = (indicatorId: string) => {
-    setIndicators(indicators.filter((i) => i.id !== indicatorId));
+    setIndicators(indicators.filter(i => i.id !== indicatorId));
   };
 
-  const updateIndicator = (
-    indicatorId: string,
-    field: keyof ProcedureIndicator,
-    value: string
-  ) => {
-    setIndicators(
-      indicators.map((i) =>
-        i.id === indicatorId ? { ...i, [field]: value } : i
-      )
-    );
+  const updateIndicator = (indicatorId: string, field: keyof ProcedureIndicator, value: string) => {
+    setIndicators(indicators.map(i => i.id === indicatorId ? { ...i, [field]: value } : i));
   };
 
   const addAnnex = () => {
     const newAnnex: ProcedureAnnex = {
       id: Date.now().toString(),
-      title: "",
-      type: "document",
-      description: "",
-      reference: "",
+      title: '',
+      type: 'document',
+      description: '',
+      reference: ''
     };
     setAnnexes([...annexes, newAnnex]);
   };
 
   const removeAnnex = (annexId: string) => {
-    setAnnexes(annexes.filter((a) => a.id !== annexId));
+    setAnnexes(annexes.filter(a => a.id !== annexId));
   };
 
-  const updateAnnex = (
-    annexId: string,
-    field: keyof ProcedureAnnex,
-    value: any
-  ) => {
-    setAnnexes(
-      annexes.map((a) => (a.id === annexId ? { ...a, [field]: value } : a))
-    );
+  const updateAnnex = (annexId: string, field: keyof ProcedureAnnex, value: any) => {
+    setAnnexes(annexes.map(a => a.id === annexId ? { ...a, [field]: value } : a));
   };
 
   const handleGeneratePDF = async () => {
@@ -215,99 +230,75 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       templateId: template.id,
       info: {
         ...info,
-        _pharmacyInitials: pharmacyInitials, // Store initials
+        _pharmacyInitials: pharmacyInitials // Store initials
       } as any,
-      steps: steps.filter((s) => s.description.trim() !== ""),
+      steps: steps.filter(s => s.description.trim() !== ''),
       indicators,
       annexes,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
     try {
-      // Generate PDF and get blob
-      const result = await procedureService.generatePDF(procedure);
-      const { blob, fileName } = result;
-
-      // Upload and save to API
-      await uploadAndSaveDocument(blob, fileName, {
-        title: `Procédure - ${info.title}`,
-        type: "procedure",
-        category: template.category,
-        description: `Procédure ${template.title} pour ${info.pharmacyName}`,
-        author: user?.name || user?.email || info.author,
-        version: info.version,
-        accessLevel: DocumentAccessLevel.RESTRICTED,
-        status: DocumentStatus.DRAFT,
-        tags: [template.category, "procédure", info.pharmacyName],
-      });
-
-      // Also trigger download for user
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(link.href);
+      await procedureService.generatePDF(procedure);
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Erreur lors de la génération du PDF");
+      console.error('Error generating PDF:', error);
+      alert('Erreur lors de la génération du PDF');
     }
   };
 
   const isFormValid = () => {
-    return (
-      info.pharmacyName.trim() !== "" &&
-      info.author.trim() !== "" &&
-      info.objective.trim() !== "" &&
-      info.scope.trim() !== "" &&
-      steps.some((s) => s.description.trim() !== "")
-    );
+    return info.pharmacyName.trim() !== '' &&
+           info.author.trim() !== '' &&
+           info.objective.trim() !== '' &&
+           info.scope.trim() !== '' &&
+           steps.some(s => s.description.trim() !== '');
   };
 
   const sections = [
-    { id: "info", label: "Informations", icon: FileText },
-    { id: "steps", label: "Étapes", icon: FileText },
-    { id: "indicators", label: "Indicateurs", icon: FileText },
-    { id: "annexes", label: "Annexes", icon: FileText },
+    { id: 'info', label: 'Informations', icon: FileText },
+    { id: 'steps', label: 'Étapes', icon: FileText },
+    { id: 'indicators', label: 'Indicateurs', icon: FileText },
+    { id: 'annexes', label: 'Annexes', icon: FileText },
+    { id: 'signatures', label: 'Signatures', icon: Edit2 }
   ];
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-      <div className="mb-6 w-full ">
-        <button
-          onClick={onCancel}
-          className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
-        >
-          <X className="h-4 w-4" />
-          <span>Retour</span>
-        </button>
-      </div>
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row  items-center justify-between">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="w- text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Rédiger - {template.title}
             </h1>
             <p className="text-gray-600">{template.description}</p>
           </div>
-          <div className="mt-4 md:mt-0 w-full lg:w-max flex items-center justify-between">
+          <div className="flex space-x-3">
+            <button
+              onClick={onCancel}
+              className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+            >
+              <X className="h-4 w-4" />
+              <span>Retour</span>
+            </button>
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid()}
-              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${isFormValid()
-                ? "text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              style={isFormValid() ? { backgroundColor: "#009688" } : {}}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
+                isFormValid()
+                  ? 'text-white'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              style={isFormValid() ? {backgroundColor: '#009688'} : {}}
               onMouseEnter={(e) => {
                 if (isFormValid()) {
-                  e.currentTarget.style.backgroundColor = "#00796b";
+                  e.currentTarget.style.backgroundColor = '#00796b';
                 }
               }}
               onMouseLeave={(e) => {
                 if (isFormValid()) {
-                  e.currentTarget.style.backgroundColor = "#009688";
+                  e.currentTarget.style.backgroundColor = '#009688';
                 }
               }}
             >
@@ -321,21 +312,18 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       {/* Section Navigation */}
       <div className="bg-white rounded-xl shadow-md p-4 mb-8">
         <div className="flex space-x-2 overflow-x-auto">
-          {sections.map((section) => {
+          {sections.map(section => {
             const IconComponent = section.icon;
             return (
               <button
                 key={section.id}
                 onClick={() => setCurrentSection(section.id as any)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${currentSection === section.id
-                  ? "text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                style={
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap ${
                   currentSection === section.id
-                    ? { backgroundColor: "#009688" }
-                    : {}
-                }
+                    ? 'text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                style={currentSection === section.id ? {backgroundColor: '#009688'} : {}}
               >
                 <IconComponent className="h-4 w-4" />
                 <span>{section.label}</span>
@@ -347,11 +335,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
 
       {/* Form Content */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        {currentSection === "info" && (
+        {currentSection === 'info' && (
           <div className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
-              Informations Générales
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Informations Générales</h3>
 
             {/* Title Edit Section */}
             <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
@@ -376,7 +362,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                     setInfo(prev => ({ ...prev, title: e.target.value }));
                   }}
                   className="w-full border-2 border-blue-300 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                   placeholder="Entrez le titre personnalisé"
                 />
               ) : (
@@ -385,7 +371,6 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                 </div>
               )}
             </div>
-
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -398,9 +383,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                   value={info.pharmacyName}
                   onChange={(e) => handlePharmacyNameChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={
-                    { "--tw-ring-color": "#009688" } as React.CSSProperties
-                  }
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 />
               </div>
 
@@ -415,8 +398,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-2">
-                        Initiales de la pharmacie{" "}
-                        <span className="text-red-500">*</span>
+                        Initiales de la pharmacie <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -425,11 +407,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         placeholder="Ex: PCG"
                         maxLength={3}
                         className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent font-bold uppercase tracking-wider"
-                        style={
-                          {
-                            "--tw-ring-color": "#009688",
-                          } as React.CSSProperties
-                        }
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         3 lettres max - Auto-généré
@@ -461,11 +439,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                   type="text"
                   required
                   value={info.author}
-                  onChange={(e) => setInfo({ ...info, author: e.target.value })}
+                  onChange={(e) => setInfo({...info, author: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={
-                    { "--tw-ring-color": "#009688" } as React.CSSProperties
-                  }
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 />
               </div>
             </div>
@@ -478,13 +454,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                 <input
                   type="text"
                   value={info.reviewer}
-                  onChange={(e) =>
-                    setInfo({ ...info, reviewer: e.target.value })
-                  }
+                  onChange={(e) => setInfo({...info, reviewer: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={
-                    { "--tw-ring-color": "#009688" } as React.CSSProperties
-                  }
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 />
               </div>
               <div>
@@ -494,13 +466,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                 <input
                   type="date"
                   value={info.creationDate}
-                  onChange={(e) =>
-                    setInfo({ ...info, creationDate: e.target.value })
-                  }
+                  onChange={(e) => setInfo({...info, creationDate: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={
-                    { "--tw-ring-color": "#009688" } as React.CSSProperties
-                  }
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 />
               </div>
             </div>
@@ -512,13 +480,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                 </label>
                 <select
                   value={info.validityDuration}
-                  onChange={(e) =>
-                    setInfo({ ...info, validityDuration: e.target.value })
-                  }
+                  onChange={(e) => setInfo({...info, validityDuration: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={
-                    { "--tw-ring-color": "#009688" } as React.CSSProperties
-                  }
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 >
                   <option value="1 an">1 an</option>
                   <option value="2 ans">2 ans</option>
@@ -533,13 +497,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                 <input
                   type="text"
                   value={info.version}
-                  onChange={(e) =>
-                    setInfo({ ...info, version: e.target.value })
-                  }
+                  onChange={(e) => setInfo({...info, version: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={
-                    { "--tw-ring-color": "#009688" } as React.CSSProperties
-                  }
+                  style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 />
               </div>
             </div>
@@ -551,12 +511,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
               <textarea
                 required
                 value={info.objective}
-                onChange={(e) =>
-                  setInfo({ ...info, objective: e.target.value })
-                }
+                onChange={(e) => setInfo({...info, objective: e.target.value})}
                 placeholder="Décrivez l'objectif principal de cette procédure..."
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
+                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 rows={3}
               />
             </div>
@@ -568,32 +526,26 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
               <textarea
                 required
                 value={info.scope}
-                onChange={(e) => setInfo({ ...info, scope: e.target.value })}
+                onChange={(e) => setInfo({...info, scope: e.target.value})}
                 placeholder="Définissez le périmètre d'application de cette procédure..."
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                style={{ "--tw-ring-color": "#009688" } as React.CSSProperties}
+                style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                 rows={3}
               />
             </div>
           </div>
         )}
 
-        {currentSection === "steps" && (
+        {currentSection === 'steps' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">
-                Étapes de la Procédure
-              </h3>
+              <h3 className="text-lg font-bold text-gray-900">Étapes de la Procédure</h3>
               <button
                 onClick={addStep}
                 className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200"
-                style={{ backgroundColor: "#009688" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#00796b")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#009688")
-                }
+                style={{backgroundColor: '#009688'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
               >
                 <Plus className="h-4 w-4" />
                 <span>Ajouter une étape</span>
@@ -601,15 +553,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
             </div>
 
             <div className="space-y-4">
-              {steps.map((step) => (
-                <div
-                  key={step.id}
-                  className="border border-gray-200 rounded-lg p-4"
-                >
+              {steps.map((step, index) => (
+                <div key={step.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-medium text-gray-900">
-                      Étape {step.order}
-                    </h4>
+                    <h4 className="font-medium text-gray-900">Étape {step.order}</h4>
                     {steps.length > 1 && (
                       <button
                         onClick={() => removeStep(step.id)}
@@ -627,16 +574,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                       </label>
                       <textarea
                         value={step.description}
-                        onChange={(e) =>
-                          updateStep(step.id, "description", e.target.value)
-                        }
+                        onChange={(e) => updateStep(step.id, 'description', e.target.value)}
                         placeholder="Décrivez précisément cette étape..."
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                        style={
-                          {
-                            "--tw-ring-color": "#009688",
-                          } as React.CSSProperties
-                        }
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         rows={3}
                       />
                     </div>
@@ -648,32 +589,16 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <select
                           value={step.responsible}
-                          onChange={(e) =>
-                            updateStep(step.id, "responsible", e.target.value)
-                          }
+                          onChange={(e) => updateStep(step.id, 'responsible', e.target.value)}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         >
                           <option value="">Sélectionner...</option>
-                          <option value="Pharmacien titulaire">
-                            Pharmacien titulaire
-                          </option>
-                          <option value="Pharmacien adjoint">
-                            Pharmacien adjoint
-                          </option>
-                          <option value="Auxiliaire en pharmacie">
-                            Auxiliaire en pharmacie
-                          </option>
-                          <option value="Tout le personnel">
-                            Tout le personnel
-                          </option>
-                          <option value="Personnel désigné">
-                            Personnel désigné
-                          </option>
+                          <option value="Pharmacien titulaire">Pharmacien titulaire</option>
+                          <option value="Pharmacien adjoint">Pharmacien adjoint</option>
+                          <option value="Auxiliaire en pharmacie">Auxiliaire en pharmacie</option>
+                          <option value="Tout le personnel">Tout le personnel</option>
+                          <option value="Personnel désigné">Personnel désigné</option>
                         </select>
                       </div>
                       <div>
@@ -682,27 +607,20 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <div className="space-y-2">
                           <div className="flex flex-wrap gap-2 min-h-[40px] border border-gray-300 rounded-lg p-2">
-                            {step.concernedPersons &&
-                              step.concernedPersons.length > 0 ? (
+                            {step.concernedPersons && step.concernedPersons.length > 0 ? (
                               step.concernedPersons.map((person, idx) => (
                                 <span
                                   key={idx}
                                   className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm text-white"
-                                  style={{ backgroundColor: "#009688" }}
+                                  style={{backgroundColor: '#009688'}}
                                 >
                                   {person}
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      const newPersons = [
-                                        ...step.concernedPersons,
-                                      ];
+                                      const newPersons = [...step.concernedPersons];
                                       newPersons.splice(idx, 1);
-                                      updateStep(
-                                        step.id,
-                                        "concernedPersons",
-                                        newPersons
-                                      );
+                                      updateStep(step.id, 'concernedPersons', newPersons);
                                     }}
                                     className="ml-1 hover:bg-white/20 rounded-full p-0.5"
                                   >
@@ -711,9 +629,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                                 </span>
                               ))
                             ) : (
-                              <span className="text-gray-400 text-sm">
-                                Aucune personne ajoutée
-                              </span>
+                              <span className="text-gray-400 text-sm">Aucune personne ajoutée</span>
                             )}
                           </div>
                           <div className="flex gap-2">
@@ -721,24 +637,16 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                               type="text"
                               placeholder="Nom de la personne ou fonction..."
                               className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent text-sm"
-                              style={
-                                {
-                                  "--tw-ring-color": "#009688",
-                                } as React.CSSProperties
-                              }
+                              style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                               onKeyDown={(e) => {
-                                if (e.key === "Enter") {
+                                if (e.key === 'Enter') {
                                   e.preventDefault();
                                   const input = e.currentTarget;
                                   const value = input.value.trim();
                                   if (value) {
-                                    const currentPersons =
-                                      step.concernedPersons || [];
-                                    updateStep(step.id, "concernedPersons", [
-                                      ...currentPersons,
-                                      value,
-                                    ]);
-                                    input.value = "";
+                                    const currentPersons = step.concernedPersons || [];
+                                    updateStep(step.id, 'concernedPersons', [...currentPersons, value]);
+                                    input.value = '';
                                   }
                                 }
                               }}
@@ -746,29 +654,18 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                             <button
                               type="button"
                               onClick={(e) => {
-                                const input = e.currentTarget
-                                  .previousElementSibling as HTMLInputElement;
+                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                                 const value = input.value.trim();
                                 if (value) {
-                                  const currentPersons =
-                                    step.concernedPersons || [];
-                                  updateStep(step.id, "concernedPersons", [
-                                    ...currentPersons,
-                                    value,
-                                  ]);
-                                  input.value = "";
+                                  const currentPersons = step.concernedPersons || [];
+                                  updateStep(step.id, 'concernedPersons', [...currentPersons, value]);
+                                  input.value = '';
                                 }
                               }}
                               className="flex items-center gap-1 px-3 py-2 text-white rounded-lg text-sm transition-all duration-200"
-                              style={{ backgroundColor: "#009688" }}
-                              onMouseEnter={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "#00796b")
-                              }
-                              onMouseLeave={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "#009688")
-                              }
+                              style={{backgroundColor: '#009688'}}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
                             >
                               <UserPlus className="h-4 w-4" />
                               <span>Ajouter</span>
@@ -785,48 +682,45 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                       <input
                         type="text"
                         value={step.duration}
-                        onChange={(e) =>
-                          updateStep(step.id, "duration", e.target.value)
-                        }
+                        onChange={(e) => updateStep(step.id, 'duration', e.target.value)}
                         placeholder="ex: 5-10 minutes"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={
-                          {
-                            "--tw-ring-color": "#009688",
-                          } as React.CSSProperties
-                        }
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Comment (Instructions de travail)
+                        <span className="text-xs text-gray-500 ml-2">
+                          Utiliser des verbes d'action (max 10-15 mots)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        value={step.howTo || ''}
+                        onChange={(e) => updateStep(step.id, 'howTo', e.target.value)}
+                        placeholder="ex: Vérifier, Contrôler, Enregistrer, Archiver..."
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                        maxLength={100}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {step.howTo ? `${step.howTo.split(' ').length} mot(s)` : '0 mot(s)'}
+                      </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Documents/Registres utilisés
                       </label>
-
                       <input
                         type="text"
-                        // value={step.documents.join(", ")}
-                        // onChange={(e) =>
-                        //   updateStep(
-                        //     step.id,
-                        //     "documents",
-                        //     e.target.value
-                        //       .split(",")
-                        //       .map((d) => d.trim())
-                        //       .filter((d) => d)
-                        //   )
-                        // }
-                        value={step.documents}
-                        onChange={(e) =>
-                          updateStep(step.id, "documents", e.target.value)
-                        }
+                        value={step.documents.join(', ')}
+                        onChange={(e) => updateStep(step.id, 'documents', e.target.value.split(',').map(d => d.trim()).filter(d => d))}
                         placeholder="ex: Ordonnancier, Registre des températures, Fiche de contrôle"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                        style={
-                          {
-                            "--tw-ring-color": "#009688",
-                          } as React.CSSProperties
-                        }
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                       />
                     </div>
                   </div>
@@ -836,22 +730,16 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
           </div>
         )}
 
-        {currentSection === "indicators" && (
+        {currentSection === 'indicators' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">
-                Indicateurs de Performance (Optionnel)
-              </h3>
+              <h3 className="text-lg font-bold text-gray-900">Indicateurs de Performance (Optionnel)</h3>
               <button
                 onClick={addIndicator}
                 className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200"
-                style={{ backgroundColor: "#009688" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#00796b")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#009688")
-                }
+                style={{backgroundColor: '#009688'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
               >
                 <Plus className="h-4 w-4" />
                 <span>Ajouter un indicateur</span>
@@ -860,11 +748,8 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
 
             {indicators.length > 0 ? (
               <div className="space-y-4">
-                {indicators.map((indicator) => (
-                  <div
-                    key={indicator.id}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
+                {indicators.map(indicator => (
+                  <div key={indicator.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="font-medium text-gray-900">Indicateur</h4>
                       <button
@@ -883,20 +768,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         <input
                           type="text"
                           value={indicator.name}
-                          onChange={(e) =>
-                            updateIndicator(
-                              indicator.id,
-                              "name",
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => updateIndicator(indicator.id, 'name', e.target.value)}
                           placeholder="ex: Taux d'erreurs de dispensation"
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         />
                       </div>
                       <div>
@@ -906,20 +781,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         <input
                           type="text"
                           value={indicator.target}
-                          onChange={(e) =>
-                            updateIndicator(
-                              indicator.id,
-                              "target",
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => updateIndicator(indicator.id, 'target', e.target.value)}
                           placeholder="ex: < 0.1%"
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         />
                       </div>
                     </div>
@@ -931,20 +796,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <textarea
                           value={indicator.description}
-                          onChange={(e) =>
-                            updateIndicator(
-                              indicator.id,
-                              "description",
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => updateIndicator(indicator.id, 'description', e.target.value)}
                           placeholder="Comment mesurer cet indicateur..."
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                           rows={2}
                         />
                       </div>
@@ -954,19 +809,9 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <select
                           value={indicator.frequency}
-                          onChange={(e) =>
-                            updateIndicator(
-                              indicator.id,
-                              "frequency",
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => updateIndicator(indicator.id, 'frequency', e.target.value)}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         >
                           <option value="Quotidien">Quotidien</option>
                           <option value="Hebdomadaire">Hebdomadaire</option>
@@ -983,31 +828,468 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
               <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">Aucun indicateur défini</p>
-                <p className="text-sm text-gray-500">
-                  Les indicateurs permettent de mesurer l'efficacité de la
-                  procédure (optionnel)
-                </p>
+                <p className="text-sm text-gray-500">Les indicateurs permettent de mesurer l'efficacité de la procédure (optionnel)</p>
               </div>
             )}
           </div>
         )}
 
-        {currentSection === "annexes" && (
+        {currentSection === 'signatures' && (
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Signatures et Cachets</h3>
+            <p className="text-sm text-gray-600 mb-6">Ajoutez les signatures et cachets sous forme d'images. Si aucune image n'est fournie, les initiales du signataire seront utilisées par défaut.</p>
+
+            {/* Signature du Rédacteur */}
+            <div className="border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <Edit2 className="h-5 w-5" style={{color: '#009688'}} />
+                <h4 className="font-bold text-gray-900">Rédacteur</h4>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom du rédacteur</label>
+                  <input
+                    type="text"
+                    value={info.author}
+                    disabled
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-600"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <input
+                      type="date"
+                      value={info.authorSignature?.date || info.creationDate}
+                      onChange={(e) => setInfo(prev => ({
+                        ...prev,
+                        authorSignature: {
+                          ...prev.authorSignature,
+                          name: prev.author,
+                          date: e.target.value,
+                          signatureImage: prev.authorSignature?.signatureImage,
+                          stampImage: prev.authorSignature?.stampImage
+                        } as any
+                      }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                      style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Signature (image)</label>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file, 'author', 'signature');
+                        }}
+                        className="hidden"
+                        id="author-signature"
+                      />
+                      <label
+                        htmlFor="author-signature"
+                        className="flex items-center justify-center space-x-2 border-2 border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-teal-500 transition-colors"
+                      >
+                        <Upload className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">Télécharger une signature</span>
+                      </label>
+                      {info.authorSignature?.signatureImage && (
+                        <div className="relative border border-gray-300 rounded-lg p-2">
+                          <img src={info.authorSignature.signatureImage} alt="Signature" className="max-h-20 mx-auto" />
+                          <button
+                            onClick={() => setInfo(prev => ({
+                              ...prev,
+                              authorSignature: {
+                                ...prev.authorSignature!,
+                                signatureImage: undefined
+                              }
+                            }))}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
+                      {!info.authorSignature?.signatureImage && info.author && (
+                        <div className="text-center p-3 bg-gray-50 rounded-lg">
+                          <p className="text-xs text-gray-500 mb-1">Aperçu par défaut :</p>
+                          <div className="inline-block">
+                            <p className="text-3xl" style={{fontFamily: '\'Dancing Script\', \'Brush Script MT\', cursive', fontWeight: 400, color: '#0066cc', letterSpacing: '1px', transform: 'rotate(-3deg)', display: 'inline-block'}}>
+                              {generateInitialsSignature(info.author)}
+                            </p>
+                            <div style={{width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, #0066cc 20%, #0066cc 80%, transparent)', borderRadius: '50%', marginTop: '2px'}} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Cachet (optionnel)</label>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'author', 'stamp');
+                          }}
+                          className="hidden"
+                          id="author-stamp"
+                        />
+                        <label
+                          htmlFor="author-stamp"
+                          className="flex-1 flex items-center justify-center space-x-2 border-2 border-dashed border-gray-300 rounded-lg px-3 py-2 cursor-pointer hover:border-teal-500 transition-colors"
+                        >
+                          <Upload className="h-4 w-4 text-gray-500" />
+                          <span className="text-xs text-gray-600">Télécharger</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => generateDefaultStamp('author')}
+                          className="flex-1 flex items-center justify-center space-x-2 border-2 border-teal-500 rounded-lg px-3 py-2 text-white hover:opacity-90 transition-colors"
+                          style={{backgroundColor: '#009688'}}
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                          <span className="text-xs">Générer cachet</span>
+                        </button>
+                      </div>
+                      {info.authorSignature?.stampImage && (
+                        <div className="relative border border-gray-300 rounded-lg p-2">
+                          <img src={info.authorSignature.stampImage} alt="Cachet" className="max-h-20 mx-auto" />
+                          <button
+                            onClick={() => setInfo(prev => ({
+                              ...prev,
+                              authorSignature: {
+                                ...prev.authorSignature!,
+                                stampImage: undefined
+                              }
+                            }))}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Signature du Vérificateur */}
+            {info.reviewer && (
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <CheckCircle className="h-5 w-5" style={{color: '#009688'}} />
+                  <h4 className="font-bold text-gray-900">Vérificateur</h4>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nom du vérificateur</label>
+                    <input
+                      type="text"
+                      value={info.reviewer}
+                      disabled
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-600"
+                    />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                      <input
+                        type="date"
+                        value={info.reviewerSignature?.date || info.creationDate}
+                        onChange={(e) => setInfo(prev => ({
+                          ...prev,
+                          reviewerSignature: {
+                            ...prev.reviewerSignature,
+                            name: prev.reviewer,
+                            date: e.target.value,
+                            signatureImage: prev.reviewerSignature?.signatureImage,
+                            stampImage: prev.reviewerSignature?.stampImage
+                          } as any
+                        }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                        style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Signature (image)</label>
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'reviewer', 'signature');
+                          }}
+                          className="hidden"
+                          id="reviewer-signature"
+                        />
+                        <label
+                          htmlFor="reviewer-signature"
+                          className="flex items-center justify-center space-x-2 border-2 border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-teal-500 transition-colors"
+                        >
+                          <Upload className="h-5 w-5 text-gray-500" />
+                          <span className="text-sm text-gray-600">Télécharger une signature</span>
+                        </label>
+                        {info.reviewerSignature?.signatureImage && (
+                          <div className="relative border border-gray-300 rounded-lg p-2">
+                            <img src={info.reviewerSignature.signatureImage} alt="Signature" className="max-h-20 mx-auto" />
+                            <button
+                              onClick={() => setInfo(prev => ({
+                                ...prev,
+                                reviewerSignature: {
+                                  ...prev.reviewerSignature!,
+                                  signatureImage: undefined
+                                }
+                              }))}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
+                        {!info.reviewerSignature?.signatureImage && info.reviewer && (
+                          <div className="text-center p-3 bg-gray-50 rounded-lg">
+                            <p className="text-xs text-gray-500 mb-1">Aperçu par défaut :</p>
+                            <div className="inline-block">
+                              <p className="text-3xl" style={{fontFamily: '\'Dancing Script\', \'Brush Script MT\', cursive', fontWeight: 400, color: '#0066cc', letterSpacing: '1px', transform: 'rotate(-3deg)', display: 'inline-block'}}>
+                                {generateInitialsSignature(info.reviewer)}
+                              </p>
+                              <div style={{width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, #0066cc 20%, #0066cc 80%, transparent)', borderRadius: '50%', marginTop: '2px'}} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Cachet (optionnel)</label>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file, 'reviewer', 'stamp');
+                            }}
+                            className="hidden"
+                            id="reviewer-stamp"
+                          />
+                          <label
+                            htmlFor="reviewer-stamp"
+                            className="flex-1 flex items-center justify-center space-x-2 border-2 border-dashed border-gray-300 rounded-lg px-3 py-2 cursor-pointer hover:border-teal-500 transition-colors"
+                          >
+                            <Upload className="h-4 w-4 text-gray-500" />
+                            <span className="text-xs text-gray-600">Télécharger</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => generateDefaultStamp('reviewer')}
+                            className="flex-1 flex items-center justify-center space-x-2 border-2 border-teal-500 rounded-lg px-3 py-2 text-white hover:opacity-90 transition-colors"
+                            style={{backgroundColor: '#009688'}}
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                            <span className="text-xs">Générer cachet</span>
+                          </button>
+                        </div>
+                        {info.reviewerSignature?.stampImage && (
+                          <div className="relative border border-gray-300 rounded-lg p-2">
+                            <img src={info.reviewerSignature.stampImage} alt="Cachet" className="max-h-20 mx-auto" />
+                            <button
+                              onClick={() => setInfo(prev => ({
+                                ...prev,
+                                reviewerSignature: {
+                                  ...prev.reviewerSignature!,
+                                  stampImage: undefined
+                                }
+                              }))}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Signature de l'Approbateur */}
+            <div className="border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <CheckCircle className="h-5 w-5" style={{color: '#009688'}} />
+                <h4 className="font-bold text-gray-900">Approbateur (Pharmacien Titulaire)</h4>
+              </div>
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nom de l'approbateur</label>
+                    <input
+                      type="text"
+                      value={info.approverSignature?.name || 'Pharmacien titulaire'}
+                      onChange={(e) => setInfo(prev => ({
+                        ...prev,
+                        approverSignature: {
+                          ...prev.approverSignature,
+                          name: e.target.value,
+                          date: prev.approverSignature?.date || prev.creationDate,
+                          signatureImage: prev.approverSignature?.signatureImage,
+                          stampImage: prev.approverSignature?.stampImage
+                        } as any
+                      }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                      style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                      placeholder="Ex: Dr. Jean Dupont"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <input
+                      type="date"
+                      value={info.approverSignature?.date || info.creationDate}
+                      onChange={(e) => setInfo(prev => ({
+                        ...prev,
+                        approverSignature: {
+                          ...prev.approverSignature,
+                          name: prev.approverSignature?.name || 'Pharmacien titulaire',
+                          date: e.target.value,
+                          signatureImage: prev.approverSignature?.signatureImage,
+                          stampImage: prev.approverSignature?.stampImage
+                        } as any
+                      }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                      style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                    />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Signature (image)</label>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file, 'approver', 'signature');
+                        }}
+                        className="hidden"
+                        id="approver-signature"
+                      />
+                      <label
+                        htmlFor="approver-signature"
+                        className="flex items-center justify-center space-x-2 border-2 border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-teal-500 transition-colors"
+                      >
+                        <Upload className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">Télécharger une signature</span>
+                      </label>
+                      {info.approverSignature?.signatureImage && (
+                        <div className="relative border border-gray-300 rounded-lg p-2">
+                          <img src={info.approverSignature.signatureImage} alt="Signature" className="max-h-20 mx-auto" />
+                          <button
+                            onClick={() => setInfo(prev => ({
+                              ...prev,
+                              approverSignature: {
+                                ...prev.approverSignature!,
+                                signatureImage: undefined
+                              }
+                            }))}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
+                      {!info.approverSignature?.signatureImage && (info.approverSignature?.name || 'Pharmacien titulaire') && (
+                        <div className="text-center p-3 bg-gray-50 rounded-lg">
+                          <p className="text-xs text-gray-500 mb-1">Aperçu par défaut :</p>
+                          <div className="inline-block">
+                            <p className="text-3xl" style={{fontFamily: '\'Dancing Script\', \'Brush Script MT\', cursive', fontWeight: 400, color: '#0066cc', letterSpacing: '1px', transform: 'rotate(-3deg)', display: 'inline-block'}}>
+                              {generateInitialsSignature(info.approverSignature?.name || 'Pharmacien titulaire')}
+                            </p>
+                            <div style={{width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, #0066cc 20%, #0066cc 80%, transparent)', borderRadius: '50%', marginTop: '2px'}} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Cachet (recommandé)</label>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'approver', 'stamp');
+                          }}
+                          className="hidden"
+                          id="approver-stamp"
+                        />
+                        <label
+                          htmlFor="approver-stamp"
+                          className="flex-1 flex items-center justify-center space-x-2 border-2 border-dashed border-gray-300 rounded-lg px-3 py-2 cursor-pointer hover:border-teal-500 transition-colors"
+                        >
+                          <Upload className="h-4 w-4 text-gray-500" />
+                          <span className="text-xs text-gray-600">Télécharger</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => generateDefaultStamp('approver')}
+                          className="flex-1 flex items-center justify-center space-x-2 border-2 border-teal-500 rounded-lg px-3 py-2 text-white hover:opacity-90 transition-colors"
+                          style={{backgroundColor: '#009688'}}
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                          <span className="text-xs">Générer cachet</span>
+                        </button>
+                      </div>
+                      {info.approverSignature?.stampImage && (
+                        <div className="relative border border-gray-300 rounded-lg p-2">
+                          <img src={info.approverSignature.stampImage} alt="Cachet" className="max-h-20 mx-auto" />
+                          <button
+                            onClick={() => setInfo(prev => ({
+                              ...prev,
+                              approverSignature: {
+                                ...prev.approverSignature!,
+                                stampImage: undefined
+                              }
+                            }))}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentSection === 'annexes' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">
-                Annexes et Références (Optionnel)
-              </h3>
+              <h3 className="text-lg font-bold text-gray-900">Annexes et Références (Optionnel)</h3>
               <button
                 onClick={addAnnex}
                 className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200"
-                style={{ backgroundColor: "#009688" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#00796b")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#009688")
-                }
+                style={{backgroundColor: '#009688'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
               >
                 <Plus className="h-4 w-4" />
                 <span>Ajouter une annexe</span>
@@ -1016,11 +1298,8 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
 
             {annexes.length > 0 ? (
               <div className="space-y-4">
-                {annexes.map((annex) => (
-                  <div
-                    key={annex.id}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
+                {annexes.map(annex => (
+                  <div key={annex.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="font-medium text-gray-900">Annexe</h4>
                       <button
@@ -1039,16 +1318,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         <input
                           type="text"
                           value={annex.title}
-                          onChange={(e) =>
-                            updateAnnex(annex.id, "title", e.target.value)
-                          }
+                          onChange={(e) => updateAnnex(annex.id, 'title', e.target.value)}
                           placeholder="ex: Formulaire de contrôle"
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         />
                       </div>
                       <div>
@@ -1057,21 +1330,13 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <select
                           value={annex.type}
-                          onChange={(e) =>
-                            updateAnnex(annex.id, "type", e.target.value)
-                          }
+                          onChange={(e) => updateAnnex(annex.id, 'type', e.target.value)}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         >
                           <option value="document">Document</option>
                           <option value="form">Formulaire</option>
-                          <option value="regulation">
-                            Référence réglementaire
-                          </option>
+                          <option value="regulation">Référence réglementaire</option>
                         </select>
                       </div>
                     </div>
@@ -1083,16 +1348,10 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <textarea
                           value={annex.description}
-                          onChange={(e) =>
-                            updateAnnex(annex.id, "description", e.target.value)
-                          }
+                          onChange={(e) => updateAnnex(annex.id, 'description', e.target.value)}
                           placeholder="Décrivez le contenu de cette annexe..."
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent resize-none"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                           rows={2}
                         />
                       </div>
@@ -1102,17 +1361,11 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                         </label>
                         <input
                           type="text"
-                          value={annex.reference || ""}
-                          onChange={(e) =>
-                            updateAnnex(annex.id, "reference", e.target.value)
-                          }
+                          value={annex.reference || ''}
+                          onChange={(e) => updateAnnex(annex.id, 'reference', e.target.value)}
                           placeholder="ex: Article 123 du Code de la Santé"
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
-                          style={
-                            {
-                              "--tw-ring-color": "#009688",
-                            } as React.CSSProperties
-                          }
+                          style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
                         />
                       </div>
                     </div>
@@ -1123,10 +1376,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
               <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">Aucune annexe ajoutée</p>
-                <p className="text-sm text-gray-500">
-                  Les annexes incluent formulaires, documents et références
-                  réglementaires (optionnel)
-                </p>
+                <p className="text-sm text-gray-500">Les annexes incluent formulaires, documents et références réglementaires (optionnel)</p>
               </div>
             )}
           </div>
@@ -1139,16 +1389,13 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
           {isFormValid() ? (
             <>
               <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="text-green-800 font-medium">
-                Procédure prête à être générée en PDF
-              </span>
+              <span className="text-green-800 font-medium">Procédure prête à être générée en PDF</span>
             </>
           ) : (
             <>
               <AlertCircle className="h-5 w-5 text-yellow-600" />
               <span className="text-yellow-800 font-medium">
-                Veuillez compléter les champs obligatoires (nom pharmacie,
-                auteur, objectif, champ d'application, au moins une étape)
+                Veuillez compléter les champs obligatoires (nom pharmacie, auteur, objectif, champ d'application, au moins une étape)
               </span>
             </>
           )}
@@ -1160,19 +1407,20 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
         <button
           onClick={handleGeneratePDF}
           disabled={!isFormValid()}
-          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${isFormValid()
-            ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          style={isFormValid() ? { backgroundColor: "#009688" } : {}}
+          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${
+            isFormValid()
+              ? 'text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+          style={isFormValid() ? {backgroundColor: '#009688'} : {}}
           onMouseEnter={(e) => {
             if (isFormValid()) {
-              e.currentTarget.style.backgroundColor = "#00796b";
+              e.currentTarget.style.backgroundColor = '#00796b';
             }
           }}
           onMouseLeave={(e) => {
             if (isFormValid()) {
-              e.currentTarget.style.backgroundColor = "#009688";
+              e.currentTarget.style.backgroundColor = '#009688';
             }
           }}
         >

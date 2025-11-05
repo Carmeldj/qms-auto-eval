@@ -2,6 +2,7 @@ export interface ProcedureDefaults {
   objective: string;
   scope: string;
   steps: Array<{
+    howTo: string;
     description: string;
     responsible: string;
     concernedPersons: string[];

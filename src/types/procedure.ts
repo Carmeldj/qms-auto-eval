@@ -8,6 +8,13 @@ export interface ProcedureTemplate {
   classificationCode?: string;
 }
 
+export interface SignatureData {
+  name: string;
+  date: string;
+  signatureImage?: string;
+  stampImage?: string;
+}
+
 export interface ProcedureInfo {
   title: string;
   pharmacyName: string;
@@ -18,6 +25,9 @@ export interface ProcedureInfo {
   version: string;
   objective: string;
   scope: string;
+  authorSignature?: SignatureData;
+  reviewerSignature?: SignatureData;
+  approverSignature?: SignatureData;
 }
 
 export interface ProcedureStep {

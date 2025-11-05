@@ -1,11 +1,8 @@
-import { Procedure } from "../types/procedure";
-import jsPDF from "jspdf";
-import {
-  generateDocumentCode,
-  getCategoryByCode,
-  getProcessForCategory,
-} from "../data/documentClassification";
-import { procedureTemplates } from "../data/procedureTemplates";
+import { Procedure } from '../types/procedure';
+import jsPDF from 'jspdf';
+import { generateDocumentCode, getCategoryByCode, getProcessForCategory } from '../data/documentClassification';
+import { procedureTemplates } from '../data/procedureTemplates';
+import { signatureGenerator } from './SignatureGenerator';
 
 export class ProcedureService {
   private static instance: ProcedureService;
@@ -21,28 +18,28 @@ export class ProcedureService {
 
   private removeAccents(text: string): string {
     return text
-      .replace(/[àáâãäå]/g, "a")
-      .replace(/[èéêë]/g, "e")
-      .replace(/[ìíîï]/g, "i")
-      .replace(/[òóôõö]/g, "o")
-      .replace(/[ùúûü]/g, "u")
-      .replace(/[ýÿ]/g, "y")
-      .replace(/[ç]/g, "c")
-      .replace(/[ñ]/g, "n")
-      .replace(/[ÀÁÂÃÄÅ]/g, "A")
-      .replace(/[ÈÉÊË]/g, "E")
-      .replace(/[ÌÍÎÏ]/g, "I")
-      .replace(/[ÒÓÔÕÖ]/g, "O")
-      .replace(/[ÙÚÛÜ]/g, "U")
-      .replace(/[ÝŸ]/g, "Y")
-      .replace(/[Ç]/g, "C")
-      .replace(/[Ñ]/g, "N")
+      .replace(/[àáâãäå]/g, 'a')
+      .replace(/[èéêë]/g, 'e')
+      .replace(/[ìíîï]/g, 'i')
+      .replace(/[òóôõö]/g, 'o')
+      .replace(/[ùúûü]/g, 'u')
+      .replace(/[ýÿ]/g, 'y')
+      .replace(/[ç]/g, 'c')
+      .replace(/[ñ]/g, 'n')
+      .replace(/[ÀÁÂÃÄÅ]/g, 'A')
+      .replace(/[ÈÉÊË]/g, 'E')
+      .replace(/[ÌÍÎÏ]/g, 'I')
+      .replace(/[ÒÓÔÕÖ]/g, 'O')
+      .replace(/[ÙÚÛÜ]/g, 'U')
+      .replace(/[ÝŸ]/g, 'Y')
+      .replace(/[Ç]/g, 'C')
+      .replace(/[Ñ]/g, 'N')
       .replace(/'/g, "'")
       .replace(/[""]/g, '"')
-      .replace(/[–—]/g, "-");
+      .replace(/[–—]/g, '-');
   }
 
-  public async generatePDF(procedure: Procedure): Promise<any> {    
+  public async generatePDF(procedure: Procedure): Promise<void> {
     try {
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -433,6 +430,55 @@ export class ProcedureService {
       const signatureBoxHeight = 22;
       const signatureBoxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
 
+      // Helper function to add signature or initials
+      const addSignatureOrInitials = (x: number, y: number, name: string, signatureImage?: string, maxWidth: number = 30, maxHeight: number = 12) => {
+        if (signatureImage) {
+          // Add signature image provided by user
+          try {
+            pdf.addImage(signatureImage, 'PNG', x, y, maxWidth, maxHeight, undefined, 'FAST');
+          } catch (error) {
+            console.error('Failed to add signature image:', error);
+            // Generate default signature as fallback
+            const generatedSignature = signatureGenerator.generateSignature(name, maxWidth * 10, maxHeight * 10);
+            try {
+              pdf.addImage(generatedSignature, 'PNG', x, y, maxWidth, maxHeight, undefined, 'FAST');
+            } catch (err) {
+              console.error('Failed to generate signature:', err);
+            }
+          }
+        } else {
+          // Generate default manuscript-style signature
+          try {
+            const generatedSignature = signatureGenerator.generateSignature(name, maxWidth * 10, maxHeight * 10);
+            pdf.addImage(generatedSignature, 'PNG', x, y, maxWidth, maxHeight, undefined, 'FAST');
+          } catch (error) {
+            console.error('Failed to generate signature:', error);
+            // Ultimate fallback: simple text
+            const nameParts = name.trim().split(/\s+/);
+            let signatureText = '';
+            if (nameParts.length >= 2) {
+              const lastName = nameParts[nameParts.length - 1];
+              const firstNameInitial = nameParts[0][0].toUpperCase();
+              signatureText = `${lastName} ${firstNameInitial}`;
+            } else {
+              signatureText = name;
+            }
+            pdf.setFont('times', 'italic');
+            pdf.setFontSize(11);
+            pdf.setTextColor(26, 26, 26);
+            pdf.text(signatureText, x + maxWidth / 2, y + maxHeight / 2 + 3, { align: 'center' });
+          }
+        }
+      };
+
+      const addStamp = (x: number, y: number, stampImage: string, maxWidth: number = 20, maxHeight: number = 20) => {
+        try {
+          pdf.addImage(stampImage, 'PNG', x, y, maxWidth, maxHeight, undefined, 'FAST');
+        } catch (error) {
+          console.error('Failed to add stamp image:', error);
+        }
+      };
+
       // Signature auteur
       pdf.setDrawColor(180, 180, 180);
       pdf.setLineWidth(0.3);
@@ -444,8 +490,28 @@ export class ProcedureService {
       pdf.text('Rédigé par:', leftMargin + 3, yPosition + 5);
       pdf.setFont('helvetica', 'normal');
       pdf.text(procedure.info.author, leftMargin + 3, yPosition + 10);
-      pdf.text('Date: _______________', leftMargin + 3, yPosition + 15);
-      pdf.text('Signature:', leftMargin + 3, yPosition + 20);
+
+      const authorDate = procedure.info.authorSignature?.date || procedure.info.creationDate;
+      pdf.text(`Date: ${new Date(authorDate).toLocaleDateString('fr-FR')}`, leftMargin + 3, yPosition + 15);
+
+      // Add signature
+      const signatureX = leftMargin + 3;
+      const signatureY = yPosition + 16;
+      addSignatureOrInitials(
+        signatureX,
+        signatureY,
+        procedure.info.author,
+        procedure.info.authorSignature?.signatureImage,
+        25,
+        5
+      );
+
+      // Add stamp if provided
+      if (procedure.info.authorSignature?.stampImage) {
+        const stampX = leftMargin + signatureBoxWidth - 23;
+        const stampY = yPosition + 2;
+        addStamp(stampX, stampY, procedure.info.authorSignature.stampImage, 20, 20);
+      }
 
       // Reset position for second signature box
       const tempY = yPosition;
@@ -456,7 +522,28 @@ export class ProcedureService {
         pdf.text('Vérifié par:', leftMargin + signatureBoxWidth + 13, tempY + 5);
         pdf.setFont('helvetica', 'normal');
         pdf.text(procedure.info.reviewer, leftMargin + signatureBoxWidth + 13, tempY + 10);
-        pdf.text('Date: _______________', leftMargin + signatureBoxWidth + 13, tempY + 15);
+
+        const reviewerDate = procedure.info.reviewerSignature?.date || procedure.info.creationDate;
+        pdf.text(`Date: ${new Date(reviewerDate).toLocaleDateString('fr-FR')}`, leftMargin + signatureBoxWidth + 13, tempY + 15);
+
+        // Add signature
+        const reviewerSignatureX = leftMargin + signatureBoxWidth + 13;
+        const reviewerSignatureY = tempY + 16;
+        addSignatureOrInitials(
+          reviewerSignatureX,
+          reviewerSignatureY,
+          procedure.info.reviewer,
+          procedure.info.reviewerSignature?.signatureImage,
+          25,
+          5
+        );
+
+        // Add stamp if provided
+        if (procedure.info.reviewerSignature?.stampImage) {
+          const reviewerStampX = leftMargin + signatureBoxWidth + 10 + signatureBoxWidth - 23;
+          const reviewerStampY = tempY + 2;
+          addStamp(reviewerStampX, reviewerStampY, procedure.info.reviewerSignature.stampImage, 20, 20);
+        }
       }
 
       yPosition += signatureBoxHeight + 8;
@@ -464,10 +551,31 @@ export class ProcedureService {
       // Signature approbation (pleine largeur)
       pdf.rect(leftMargin, yPosition, pageWidth - leftMargin - rightMargin, signatureBoxHeight);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Approuvé par: Pharmacien titulaire', leftMargin + 3, yPosition + 5);
+      const approverName = procedure.info.approverSignature?.name || 'Pharmacien titulaire';
+      pdf.text(`Approuvé par: ${approverName}`, leftMargin + 3, yPosition + 5);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Date: _______________', leftMargin + 3, yPosition + 10);
-      pdf.text('Signature et cachet:', leftMargin + 3, yPosition + 15);
+
+      const approverDate = procedure.info.approverSignature?.date || procedure.info.creationDate;
+      pdf.text(`Date: ${new Date(approverDate).toLocaleDateString('fr-FR')}`, leftMargin + 3, yPosition + 10);
+
+      // Add signature
+      const approverSignatureX = leftMargin + 3;
+      const approverSignatureY = yPosition + 11;
+      addSignatureOrInitials(
+        approverSignatureX,
+        approverSignatureY,
+        approverName,
+        procedure.info.approverSignature?.signatureImage,
+        30,
+        6
+      );
+
+      // Add stamp if provided (cachet is recommended for approver)
+      if (procedure.info.approverSignature?.stampImage) {
+        const approverStampX = pageWidth - rightMargin - 25;
+        const approverStampY = yPosition + 2;
+        addStamp(approverStampX, approverStampY, procedure.info.approverSignature.stampImage, 22, 22);
+      }
       
       yPosition += signatureBoxHeight + 10;
 
@@ -699,17 +807,11 @@ export class ProcedureService {
         .toLowerCase();
 
       const fileName = `procedure-${safeProcedureTitle}-${safePharmacyName}-v${procedure.info.version}.pdf`;
-      // pdf.save(fileName);
-
-      const pdfBlob = pdf.output("blob");
-      return { blob: pdfBlob, fileName };
+      pdf.save(fileName);
+      
     } catch (error) {
-      console.error("Error generating procedure PDF:", error);
-      throw new Error(
-        `Erreur lors de la generation du PDF: ${
-          error instanceof Error ? error.message : "Erreur inconnue"
-        }`
-      );
+      console.error('Error generating procedure PDF:', error);
+      throw new Error(`Erreur lors de la generation du PDF: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     }
   }
 }
