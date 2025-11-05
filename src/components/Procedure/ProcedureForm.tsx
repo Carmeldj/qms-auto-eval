@@ -223,7 +223,7 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    
+
     try {
       // Generate PDF and get blob
       const result = await procedureService.generatePDF(procedure);
@@ -802,18 +802,23 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Documents/Registres utilisés
                       </label>
+
                       <input
                         type="text"
-                        value={step.documents.join(", ")}
+                        // value={step.documents.join(", ")}
+                        // onChange={(e) =>
+                        //   updateStep(
+                        //     step.id,
+                        //     "documents",
+                        //     e.target.value
+                        //       .split(",")
+                        //       .map((d) => d.trim())
+                        //       .filter((d) => d)
+                        //   )
+                        // }
+                        value={step.documents}
                         onChange={(e) =>
-                          updateStep(
-                            step.id,
-                            "documents",
-                            e.target.value
-                              .split(",")
-                              .map((d) => d.trim())
-                              .filter((d) => d)
-                          )
+                          updateStep(step.id, "documents", e.target.value)
                         }
                         placeholder="ex: Ordonnancier, Registre des températures, Fiche de contrôle"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
