@@ -26,6 +26,7 @@ export interface OrdonnancierEntry {
   prescriptionUploadedAt?: string;
   createdAt: string;
   updatedAt: string;
+  createdBy: string;
 }
 
 export interface OrdonnancierFilter {
@@ -33,6 +34,7 @@ export interface OrdonnancierFilter {
   dateFin?: string;
   trimestre?: number;
   annee?: number;
+  
 }
 
 export interface TrimestrialReport {
