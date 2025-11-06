@@ -98,3 +98,41 @@ export interface ExtendedDocumentData extends DocumentData {
   fileType?: string;
   downloadCount?: number;
 }
+
+export interface ProcessSheet {
+  id: string;
+  processName: string;
+  processCode: string;
+  pharmacyName: string;
+  version: string;
+  creationDate: string;
+  revisionDate?: string;
+  objective: string;
+  scope: string;
+  steps: ProcessStep[];
+  responsibilities: ProcessResponsibility[];
+  associatedDocuments: string[];
+  kpis: ProcessKPI[];
+}
+
+export interface ProcessStep {
+  id: string;
+  order: number;
+  description: string;
+  responsible: string;
+  duration?: string;
+  tools?: string;
+}
+
+export interface ProcessResponsibility {
+  role: string;
+  person: string;
+  tasks: string[];
+}
+
+export interface ProcessKPI {
+  name: string;
+  description: string;
+  target: string;
+  frequency: string;
+}

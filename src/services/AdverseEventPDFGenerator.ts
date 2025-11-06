@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { AdverseEventReport } from '../types/adverseEvents';
+import { signatureGenerator } from './SignatureGenerator';
 
 export class AdverseEventPDFGenerator {
   private pdf: jsPDF;
@@ -374,9 +375,26 @@ export class AdverseEventPDFGenerator {
     notY += 5;
 
     this.pdf.text(`Date de notification: ${report.notifier.notificationDate || '__ / __ / ____'}`, this.margin + 2, notY);
-    notY += 8;
+    notY += 5;
 
-    this.pdf.text('Signature et cachet: ____________________', this.margin + 2, notY);
+    this.pdf.setFont('helvetica', 'bold');
+    this.pdf.text('Signature et cachet:', this.margin + 2, notY);
+    notY += 3;
+
+    // Add signature if notifier name is available
+    if (report.notifier.fullName && report.notifier.fullName.trim()) {
+      try {
+        const generatedSignature = signatureGenerator.generateSignature(report.notifier.fullName, 250, 80);
+        this.pdf.addImage(generatedSignature, 'PNG', this.margin + 2, notY, 25, 8, undefined, 'FAST');
+      } catch (error) {
+        console.error('Failed to generate signature:', error);
+        this.pdf.setFont('helvetica', 'normal');
+        this.pdf.text('____________________', this.margin + 2, notY + 4);
+      }
+    } else {
+      this.pdf.setFont('helvetica', 'normal');
+      this.pdf.text('____________________', this.margin + 2, notY + 4);
+    }
 
     const footerY = this.pageHeight - 5;
     this.pdf.setFontSize(6);

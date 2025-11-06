@@ -20,6 +20,10 @@ export interface OrdonnancierEntry {
     nom: string;
     signature: string;
   };
+  prescriptionFileUrl?: string;
+  prescriptionFileType?: 'pdf' | 'jpg' | 'jpeg' | 'png';
+  prescriptionPasswordHash?: string;
+  prescriptionUploadedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

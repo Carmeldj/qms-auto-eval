@@ -651,6 +651,200 @@ export class InspectionReportService {
         addText("• Respect des nouvelles procedures", 10);
       }
 
+      // Tableau récapitulatif des points
+      addSection("TABLEAU RECAPITULATIF DES POINTS");
+
+      // Calcul des scores par catégorie
+      const categoryScores: {
+        category: string;
+        score: number;
+        total: number;
+        percentage: number;
+      }[] = [];
+
+      categories.forEach((category) => {
+        const categoryItems = getItemsByCategory(category);
+        const categoryAnswers = report.answers.filter((a) =>
+          categoryItems.some((item) => item.id === a.itemId)
+        );
+
+        const compliantCount = categoryAnswers.filter(
+          (a) => a.status === "compliant"
+        ).length;
+        const totalAnswered = categoryAnswers.length;
+        const totalPossible = categoryItems.length;
+
+        // Score = conformes + non-évalués (considérés conformes)
+        const score = compliantCount + (totalPossible - totalAnswered);
+        const percentage =
+          totalPossible > 0 ? Math.round((score / totalPossible) * 100) : 0;
+
+        categoryScores.push({
+          category,
+          score,
+          total: totalPossible,
+          percentage,
+        });
+      });
+
+      // Vérifier si nouvelle page nécessaire
+      if (yPosition > pdf.internal.pageSize.getHeight() - 100) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+
+      // En-tête du tableau
+      const colWidths = [90, 25, 25, 30];
+      const cellHeight = 8;
+
+      // Dessiner l'en-tête sans remplissage
+      pdf.setDrawColor(0, 0, 0);
+      pdf.rect(
+        margin,
+        yPosition,
+        colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3],
+        cellHeight,
+        "S"
+      );
+
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(0, 0, 0);
+
+      pdf.text("CATEGORIE", margin + 2, yPosition + 6);
+      pdf.text("SCORE", margin + colWidths[0] + 5, yPosition + 6);
+      pdf.text(
+        "TOTAL",
+        margin + colWidths[0] + colWidths[1] + 5,
+        yPosition + 6
+      );
+      pdf.text(
+        "TAUX %",
+        margin + colWidths[0] + colWidths[1] + colWidths[2] + 5,
+        yPosition + 6
+      );
+
+      yPosition += cellHeight;
+
+      // Lignes du tableau
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(0, 0, 0);
+
+      categoryScores.forEach((cat, index) => {
+        // Vérifier si nouvelle page nécessaire
+        if (yPosition > pdf.internal.pageSize.getHeight() - margin - 20) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+
+        // Bordures uniquement
+        pdf.setDrawColor(0, 0, 0);
+        pdf.rect(margin, yPosition, colWidths[0], cellHeight, "S");
+        pdf.rect(
+          margin + colWidths[0],
+          yPosition,
+          colWidths[1],
+          cellHeight,
+          "S"
+        );
+        pdf.rect(
+          margin + colWidths[0] + colWidths[1],
+          yPosition,
+          colWidths[2],
+          cellHeight,
+          "S"
+        );
+        pdf.rect(
+          margin + colWidths[0] + colWidths[1] + colWidths[2],
+          yPosition,
+          colWidths[3],
+          cellHeight,
+          "S"
+        );
+
+        // Contenu
+        pdf.setFontSize(9);
+        const categoryText = pdf.splitTextToSize(
+          cat.category,
+          colWidths[0] - 4
+        );
+        pdf.text(categoryText[0], margin + 2, yPosition + 6);
+
+        pdf.text(
+          cat.score.toString(),
+          margin + colWidths[0] + 8,
+          yPosition + 6
+        );
+        pdf.text(
+          cat.total.toString(),
+          margin + colWidths[0] + colWidths[1] + 8,
+          yPosition + 6
+        );
+
+        // Texte du pourcentage sans couleur
+        pdf.setFont("helvetica", "bold");
+        pdf.text(
+          `${cat.percentage}%`,
+          margin + colWidths[0] + colWidths[1] + colWidths[2] + 8,
+          yPosition + 6
+        );
+        pdf.setFont("helvetica", "normal");
+
+        yPosition += cellHeight;
+      });
+
+      // Ligne de total
+      yPosition += 2;
+      pdf.setDrawColor(0, 0, 0);
+      pdf.rect(
+        margin,
+        yPosition,
+        colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3],
+        cellHeight,
+        "S"
+      );
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(10);
+
+      const totalScore = categoryScores.reduce(
+        (sum, cat) => sum + cat.score,
+        0
+      );
+      const totalPossible = categoryScores.reduce(
+        (sum, cat) => sum + cat.total,
+        0
+      );
+      const overallPercentage =
+        totalPossible > 0 ? Math.round((totalScore / totalPossible) * 100) : 0;
+
+      pdf.text("SCORE GLOBAL", margin + 2, yPosition + 6);
+      pdf.text(totalScore.toString(), margin + colWidths[0] + 8, yPosition + 6);
+      pdf.text(
+        totalPossible.toString(),
+        margin + colWidths[0] + colWidths[1] + 8,
+        yPosition + 6
+      );
+      pdf.text(
+        `${overallPercentage}%`,
+        margin + colWidths[0] + colWidths[1] + colWidths[2] + 8,
+        yPosition + 6
+      );
+
+      yPosition += cellHeight + 10;
+
+      // Légende
+      pdf.setFont("helvetica", "italic");
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(
+        "Note : Les elements non evalues sont consideres comme conformes dans le calcul du score.",
+        margin,
+        yPosition
+      );
+      yPosition += 8;
+
       // Recommandation professionnelle
       addSection("RECOMMANDATION PROFESSIONNELLE");
       addText(
@@ -668,6 +862,7 @@ export class InspectionReportService {
       const fileName = `auto-inspection-${safeName}-${
         new Date(report.date).toISOString().split("T")[0]
       }.pdf`;
+      pdf.save(fileName);
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
 

@@ -17,6 +17,7 @@ import WasteManagementModule from "./components/WasteManagmentModule";
 import SubscriptionPage from "./components/SubscriptionPage";
 import SubscriptionLayout from "./layouts/SubscriptionLayout";
 import ProcessReviewModule from "./components/ProcessReviewModule";
+import DocumentsModule from "./components/Document/DocumentsModule";
 
 function App() {
 
@@ -40,7 +41,7 @@ function App() {
             <Route path="/ordonnancier" element={<OrdonnancierModule />} />
             <Route path="/procedures" element={<ProceduresModule />} />
             <Route path="/traceability" element={<TraceabilityModule />} />
-            {/* <Route path="/documents" element={<DocumentsModule />} /> */}
+            <Route path="/documents" element={<DocumentsModule />} />
             <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
             <Route path="/waste-management" element={<WasteManagementModule />} />
             <Route path="/subscribe" element={<SubscriptionPage />} />

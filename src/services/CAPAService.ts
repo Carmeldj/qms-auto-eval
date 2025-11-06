@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { signatureGenerator } from './SignatureGenerator';
 
 export interface CAPAAction {
   id: string;
@@ -192,7 +193,15 @@ class CAPAService {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.text('Date: ________________', margin + 2, yPosition + 11);
-    pdf.text('Signature:', margin + 2, yPosition + 17);
+
+    // Add signature for Responsable Qualité
+    try {
+      const qualitySignature = signatureGenerator.generateSignature('Responsable Qualité', 250, 80);
+      pdf.addImage(qualitySignature, 'PNG', margin + 2, yPosition + 12, 25, 6, undefined, 'FAST');
+    } catch (error) {
+      console.error('Failed to generate signature:', error);
+      pdf.text('Signature:', margin + 2, yPosition + 17);
+    }
 
     // Signature Pharmacien Titulaire
     const signatureRightX = margin + signatureBoxWidth + 10;
@@ -204,7 +213,15 @@ class CAPAService {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.text('Date: ________________', signatureRightX + 2, yPosition + 11);
-    pdf.text('Signature:', signatureRightX + 2, yPosition + 17);
+
+    // Add signature for Pharmacien Titulaire
+    try {
+      const pharmacienSignature = signatureGenerator.generateSignature('Pharmacien Titulaire', 250, 80);
+      pdf.addImage(pharmacienSignature, 'PNG', signatureRightX + 2, yPosition + 12, 25, 6, undefined, 'FAST');
+    } catch (error) {
+      console.error('Failed to generate signature:', error);
+      pdf.text('Signature:', signatureRightX + 2, yPosition + 17);
+    }
 
     // Pied de page
     const footerY = pageHeight - margin + 5;
