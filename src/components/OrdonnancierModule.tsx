@@ -7,6 +7,7 @@ import ClassificationBadge from './ClassificationBadge';
 import PrescriptionViewer from './PrescriptionViewer';
 import { signatureGenerator } from '../services/SignatureGenerator';
 import { stampGenerator } from '../services/StampGenerator';
+import { useAuth } from '../contexts/AuthContext';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -21,6 +22,7 @@ const OrdonnancierModule: React.FC = () => {
   const [pharmacyName, setPharmacyName] = useState<string>('');
   const [pharmacyInitials, setPharmacyInitials] = useState<string>('');
   const [pharmacyEmail, setPharmacyEmail] = useState<string>('');
+  const user = useAuth().user;
 
   const handlePharmacyNameChange = (value: string) => {
     setPharmacyName(value);
@@ -151,7 +153,10 @@ const OrdonnancierModule: React.FC = () => {
 
       return trimestre === selectedTrimester && year === selectedYear;
     });
-    setFilteredEntries(filtered);
+    const filtered2 = filtered.filter(f => {
+      return f.createdBy === (user?.email || "");
+    })
+    setFilteredEntries(filtered2);
   };
 
   const handleDownloadPDF = () => {
@@ -341,7 +346,8 @@ const OrdonnancierModule: React.FC = () => {
         pharmacien_nom: formData.pharmacien!.nom,
         pharmacien_signature: formData.pharmacien!.signature,
         trimestre: trimestre,
-        annee: annee
+        annee: annee,
+        createdBy: user?.email || ""
       };
 
       const response = await fetch(`${SUPABASE_URL}/rest/v1/ordonnancier_entries`, {

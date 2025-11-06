@@ -3,6 +3,7 @@ import { FileText, Download, Clock, Plus, Calendar } from 'lucide-react';
 import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const TraceabilityModule: React.FC = () => {
   const [view, setView] = useState<'list' | 'form' | 'compilation'>('list');
@@ -11,6 +12,8 @@ const TraceabilityModule: React.FC = () => {
   const [compilationYear, setCompilationYear] = useState<number>(new Date().getFullYear());
   const [compilationMonth, setCompilationMonth] = useState<number>(new Date().getMonth() + 1);
   const [pharmacyName, setPharmacyName] = useState<string>('');
+
+  const user = useAuth().user;
 
   const categories = getAllCategories();
   const filteredTemplates = selectedCategory === 'all'
@@ -45,7 +48,8 @@ const TraceabilityModule: React.FC = () => {
         template,
         compilationYear,
         compilationMonth,
-        pharmacyName
+        pharmacyName,
+        user?.email
       );
     } catch (error) {
       console.error('Error generating compilation:', error);
