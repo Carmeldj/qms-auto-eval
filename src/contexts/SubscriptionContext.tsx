@@ -13,7 +13,7 @@ interface SubscriptionProviderProps {
 }
 
 export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ children }) => {
-    const [hasSubscription, setHasSubscription] = useState<boolean>(true);
+    const [hasSubscription, setHasSubscription] = useState<boolean>(false);
 
     const checkSubscription = async () => {
         try {
