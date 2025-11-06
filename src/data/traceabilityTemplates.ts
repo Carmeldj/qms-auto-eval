@@ -85,7 +85,7 @@ export const traceabilityTemplates: TraceabilityTemplate[] = [
   },
   {
     id: 'pharmaceutical-waste-register',
-    title: 'Registre d\'élimination des déchets pharmaceutiques',
+    title: 'Registre d\'élimination des périmés pharmaceutiques',
     description: 'Date, nature, prestataire agréé, bordereaux DASRI',
     category: 'Registres Réglementaires',
     classification: '08.04',
@@ -93,7 +93,7 @@ export const traceabilityTemplates: TraceabilityTemplate[] = [
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'date', label: 'Date d\'élimination', type: 'date', required: true },
-      { id: 'wasteNature', label: 'Nature des déchets', type: 'select', required: true, options: ['DASRI', 'Médicaments périmés', 'Stupéfiants', 'Cytotoxiques', 'Déchets chimiques', 'Autre'] },
+      { id: 'wasteNature', label: 'Nature des périmés', type: 'select', required: true, options: ['DASRI', 'Médicaments périmés', 'Stupéfiants', 'Cytotoxiques', 'Produits chimiques', 'Autre'] },
       { id: 'quantity', label: 'Quantité', type: 'text', required: true, placeholder: 'Poids ou volume' },
       { id: 'provider', label: 'Prestataire agréé', type: 'text', required: true, placeholder: 'Nom du prestataire' },
       { id: 'bordereauNumber', label: 'N° de bordereau DASRI', type: 'text', required: true, placeholder: 'Numéro du bordereau' },
@@ -206,6 +206,61 @@ export const traceabilityTemplates: TraceabilityTemplate[] = [
       { id: 'observations', label: 'Observations', type: 'textarea', required: true, placeholder: 'Résultats et observations' },
       { id: 'operator', label: 'Intervenant', type: 'text', required: true, placeholder: 'Nom du technicien ou responsable' },
       { id: 'nextMaintenance', label: 'Prochaine maintenance', type: 'date', required: false }
+    ]
+  },
+  {
+    id: 'equipment-lifecycle',
+    title: 'Registre de vie des équipements',
+    description: 'Historique complet de chaque équipement : acquisition, maintenance, réparations, fin de vie',
+    category: 'Management Qualité (SMQ)',
+    classification: '07.03',
+    processCode: '08',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'date', label: 'Date d\'événement', type: 'date', required: true },
+      { id: 'equipmentType', label: 'Type d\'équipement', type: 'select', required: true, options: ['Balance', 'Réfrigérateur', 'Tensiomètre', 'Extincteur', 'Climatisation', 'Autre'] },
+      { id: 'equipmentID', label: 'Identifiant équipement', type: 'text', required: true, placeholder: 'N° série ou code interne' },
+      { id: 'eventType', label: 'Type d\'événement', type: 'select', required: true, options: ['Acquisition', 'Mise en service', 'Maintenance', 'Panne', 'Réparation', 'Vérification', 'Mise hors service', 'Fin de vie'] },
+      { id: 'description', label: 'Description', type: 'textarea', required: true, placeholder: 'Détails de l\'événement' },
+      { id: 'cost', label: 'Coût (si applicable)', type: 'text', required: false, placeholder: 'Montant en FCFA' },
+      { id: 'operator', label: 'Responsable', type: 'text', required: true, placeholder: 'Nom du responsable' }
+    ]
+  },
+  {
+    id: 'hygiene-tracking',
+    title: 'Registre de suivi de l\'hygiène du personnel',
+    description: 'Traçabilité du lavage des blouses et du respect des règles d\'hygiène',
+    category: 'Management Qualité (SMQ)',
+    classification: '06.04',
+    processCode: '07',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'date', label: 'Date', type: 'date', required: true },
+      { id: 'personnelName', label: 'Nom du personnel', type: 'text', required: true, placeholder: 'Nom et prénom' },
+      { id: 'hygieneType', label: 'Type de contrôle', type: 'select', required: true, options: ['Lavage de blouse', 'Contrôle tenue', 'Hygiène des mains', 'Formation hygiène'] },
+      { id: 'laundryDate', label: 'Date de lavage (si blouse)', type: 'date', required: false },
+      { id: 'conformity', label: 'Conformité', type: 'select', required: true, options: ['Conforme', 'Non conforme'] },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques ou actions correctives' },
+      { id: 'controller', label: 'Contrôleur', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Responsable qualité'] }
+    ]
+  },
+  {
+    id: 'premises-cleaning',
+    title: 'Registre de l\'entretien des locaux et toilettes',
+    description: 'Traçabilité quotidienne/hebdomadaire du nettoyage des locaux et toilettes',
+    category: 'Management Qualité (SMQ)',
+    classification: '07.01',
+    processCode: '08',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'date', label: 'Date de nettoyage', type: 'date', required: true },
+      { id: 'zone', label: 'Zone nettoyée', type: 'select', required: true, options: ['Salle de dispensation', 'Zone de stockage', 'Toilettes personnel', 'Toilettes clients', 'Bureau', 'Accueil', 'Réserve', 'Autre'] },
+      { id: 'cleaningType', label: 'Type de nettoyage', type: 'select', required: true, options: ['Nettoyage quotidien', 'Nettoyage hebdomadaire', 'Nettoyage mensuel', 'Désinfection'] },
+      { id: 'products', label: 'Produits utilisés', type: 'text', required: true, placeholder: 'Détergents et désinfectants' },
+      { id: 'conformity', label: 'Qualité', type: 'select', required: true, options: ['Satisfaisant', 'À améliorer'] },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières' },
+      { id: 'cleaner', label: 'Agent d\'entretien', type: 'text', required: true, placeholder: 'Nom de la personne' },
+      { id: 'controller', label: 'Contrôleur', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Responsable qualité'] }
     ]
   },
   {

@@ -24,6 +24,10 @@ export interface DocumentField {
   options?: string[];
   placeholder?: string;
   rows?: number;
+  min?: number;
+  max?: number;
+  defaultValue?: string | number;
+  help?: string;
 }
 
 export interface DocumentData {

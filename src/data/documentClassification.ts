@@ -20,9 +20,9 @@ export const processes: ProcessCategory[] = [
   { id: 'approvisionnement', code: '03', name: 'Processus d\'approvisionnement', description: 'Commandes et gestion fournisseurs' },
   { id: 'dispensation', code: '04', name: 'Processus de Dispensation', description: 'Délivrance et conseil pharmaceutique' },
   { id: 'retours', code: '05', name: 'Processus des retours/réclamations/retraits de lots', description: 'Gestion des retours et rappels' },
-  { id: 'dechets', code: '06', name: 'Processus de destruction des déchets pharmaceutiques', description: 'Élimination conforme des déchets' },
+  { id: 'dechets', code: '06', name: 'Processus de destruction des périmés pharmaceutiques', description: 'Élimination conforme des périmés' },
   { id: 'rh', code: '07', name: 'Processus de Gestion des ressources humaines', description: 'Personnel et compétences' },
-  { id: 'infrastructures', code: '08', name: 'Processus de gestion des infrastructures et de l\'environnement de travail', description: 'Locaux et équipements' },
+  { id: 'infrastructures', code: '08', name: 'Processus de gestion des infrastructures et environnement de travail', description: 'Locaux et équipements' },
   { id: 'finances', code: '09', name: 'Processus de gestion des ressources financières et de la comptabilité', description: 'Gestion financière' },
   { id: 'sous-traitance', code: '10', name: 'Processus de Sous-traitance', description: 'Prestataires externes' }
 ];

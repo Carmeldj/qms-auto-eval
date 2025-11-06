@@ -6,17 +6,17 @@ import { useApp } from '../contexts/AppContext';
 // import { useSubscription } from '../contexts/SubscriptionContext';
 
 const PROTECTED_PREFIXES = [
-    // '/assessment',
-    // '/inspection',
-    // '/results',
-    // '/inspection-results',
-    // '/procedures',
-    // '/traceability',
-    // '/pharmacovigilance',
-    // '/ordonnancier',
-    // '/swot',
-    // '/pestel',
-    // '/waste-management',
+    '/assessment',
+    '/inspection',
+    '/results',
+    '/inspection-results',
+    '/procedures',
+    '/traceability',
+    '/pharmacovigilance',
+    '/ordonnancier',
+    '/swot',
+    '/pestel',
+    '/waste-management',
     '/subscribe',
 ];
 

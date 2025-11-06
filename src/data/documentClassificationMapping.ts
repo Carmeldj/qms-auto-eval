@@ -23,8 +23,11 @@ export const documentClassificationMapping: Record<string, string> = {
   // Analyse pharmaceutique
   'prescription-analysis': '09.02', // Dispensation sur prescription
 
-  // Gestion des déchets
-  'pharmaceutical-waste': '08.04'   // Produits périmés / détruits
+  // Gestion des périmés
+  'pharmaceutical-waste': '08.04',   // Produits périmés / détruits
+
+  // Plan CAPA
+  'capa-plan': '02.03'               // Actions correctives et préventives (CAPA)
 };
 
 // Mapping des templates de procédures vers les codes de classification
@@ -68,8 +71,21 @@ export const procedureClassificationMapping: Record<string, string> = {
 
   // Documentation et traçabilité
   'ordonnancier': '05.01',                  // Registre de dispensation
+  'tracabilite-archivage': '05.05',         // Traçabilité et archivage
+  'maitrise-documentaire': '01.01',         // Procédures générales
 
-  // Procédures optionnelles
+  // Gestion des ruptures de conservation
+  'rupture-conservation': '05.04',          // Relevés de température
+
+  // Réception spécifique
+  'reception-avoirs': '08.02',              // Réception des commandes
+
+  // Informatique
+  'acces-informatique': '03.01',            // Système informatisé
+  'defaillance-informatique': '03.01',      // Système informatisé
+  'sauvegarde-informatique': '03.01',       // Système informatisé
+
+  // Procédures requises
   'gestion-reclamations': '10.02',          // Réclamations patients et traçabilité
   'formation-personnel': '06.03',           // Formation du personnel
   'audit-interne': '02.01',                 // Audit interne / auto-inspections
