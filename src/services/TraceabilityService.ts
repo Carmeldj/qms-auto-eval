@@ -133,7 +133,8 @@ export class TraceabilityService {
       const tableWidth = pageWidth - 2 * margin;
       const colWidth = tableWidth / fieldsToDisplay.length;
       const headerRowHeight = 10;
-      const dataRowHeight = 7;
+      const minDataRowHeight = 7;
+      const lineHeight = 3.5; // Hauteur d'une ligne de texte
 
       // En-têtes du tableau (TITRES DES COLONNES) - SANS FOND
       pdf.setDrawColor(0, 0, 0);
@@ -144,39 +145,51 @@ export class TraceabilityService {
 
       let xPos = margin;
 
+      // Calculer la hauteur maximale nécessaire pour les en-têtes
+      let maxHeaderLines = 1;
       fieldsToDisplay.forEach((field) => {
-        pdf.rect(xPos, yPos, colWidth, headerRowHeight);
+        const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
+        maxHeaderLines = Math.max(maxHeaderLines, labelLines.length);
+      });
+      const adjustedHeaderHeight = Math.max(headerRowHeight, maxHeaderLines * 4 + 2);
+
+      fieldsToDisplay.forEach((field) => {
+        pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
 
         // Diviser le texte pour qu'il tienne dans la cellule
         const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
 
-        // Afficher jusqu'à 2 lignes de texte
-        if (labelLines.length === 1) {
-          pdf.text(labelLines[0], xPos + colWidth / 2, yPos + 6, {
+        // Centrer verticalement le texte
+        const textStartY = yPos + (adjustedHeaderHeight - (labelLines.length * 4)) / 2 + 3;
+
+        labelLines.forEach((line: string, index: number) => {
+          pdf.text(line, xPos + colWidth / 2, textStartY + (index * 4), {
             align: "center",
             maxWidth: colWidth - 3,
           });
-        } else {
-          pdf.text(labelLines[0], xPos + colWidth / 2, yPos + 3.5, {
-            align: "center",
-            maxWidth: colWidth - 3,
-          });
-          if (labelLines[1]) {
-            pdf.text(labelLines[1], xPos + colWidth / 2, yPos + 7.5, {
-              align: "center",
-              maxWidth: colWidth - 3,
-            });
-          }
-        }
+        });
+
         xPos += colWidth;
       });
 
-      yPos += headerRowHeight;
+      yPos += adjustedHeaderHeight;
 
-      // Ligne de données - SANS FOND
+      // Ligne de données - SANS FOND - avec hauteur dynamique
       pdf.setTextColor(0, 0, 0);
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(6);
+
+      // Calculer la hauteur nécessaire pour les données
+      let maxDataLines = 1;
+      fieldsToDisplay.forEach((field) => {
+        const value = record.data[field.id] || "";
+        const valueStr = String(value);
+        const valueLines = pdf.splitTextToSize(valueStr, colWidth - 3);
+        maxDataLines = Math.max(maxDataLines, valueLines.length);
+      });
+
+      // Hauteur dynamique basée sur le nombre de lignes
+      const dataRowHeight = Math.max(minDataRowHeight, maxDataLines * lineHeight + 2);
 
       xPos = margin;
 
@@ -184,8 +197,16 @@ export class TraceabilityService {
         pdf.rect(xPos, yPos, colWidth, dataRowHeight);
 
         const value = record.data[field.id] || "";
-        const valueStr = String(value).substring(0, 50);
-        pdf.text(valueStr, xPos + 1.5, yPos + 4.5, { maxWidth: colWidth - 3 });
+        const valueStr = String(value);
+        const valueLines = pdf.splitTextToSize(valueStr, colWidth - 3);
+
+        // Afficher toutes les lignes de texte
+        valueLines.forEach((line: string, index: number) => {
+          pdf.text(line, xPos + 1.5, yPos + 3 + (index * lineHeight), {
+            maxWidth: colWidth - 3
+          });
+        });
+
         xPos += colWidth;
       });
 
@@ -521,7 +542,16 @@ export class TraceabilityService {
       const tableWidth = pageWidth - 2 * margin;
       const colWidth = tableWidth / (fieldsToDisplay.length + 1); // +1 pour la colonne date
       const headerRowHeight = 10;
-      const dataRowHeight = 7;
+      const minDataRowHeight = 7;
+      const lineHeight = 3.5;
+
+      // Calculer la hauteur maximale nécessaire pour les en-têtes
+      let maxHeaderLines = 1;
+      fieldsToDisplay.forEach((field) => {
+        const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
+        maxHeaderLines = Math.max(maxHeaderLines, labelLines.length);
+      });
+      const adjustedHeaderHeight = Math.max(headerRowHeight, maxHeaderLines * 4 + 2);
 
       // En-têtes du tableau - SANS FOND DE COULEUR
       pdf.setDrawColor(0, 0, 0);
@@ -533,39 +563,31 @@ export class TraceabilityService {
       let xPos = margin;
 
       // Colonne Date
-      pdf.rect(xPos, yPos, colWidth, headerRowHeight);
-      pdf.text("DATE", xPos + colWidth / 2, yPos + 6, { align: "center" });
+      pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
+      pdf.text("DATE", xPos + colWidth / 2, yPos + adjustedHeaderHeight / 2 + 2, { align: "center" });
       xPos += colWidth;
 
       // Autres colonnes avec titres complets
       fieldsToDisplay.forEach((field) => {
-        pdf.rect(xPos, yPos, colWidth, headerRowHeight);
+        pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
 
         // Diviser le texte pour qu'il tienne dans la cellule
         const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
 
-        // Afficher jusqu'à 2 lignes de texte
-        if (labelLines.length === 1) {
-          pdf.text(labelLines[0], xPos + colWidth / 2, yPos + 6, {
+        // Centrer verticalement le texte
+        const textStartY = yPos + (adjustedHeaderHeight - (labelLines.length * 4)) / 2 + 3;
+
+        labelLines.forEach((line: string, index: number) => {
+          pdf.text(line, xPos + colWidth / 2, textStartY + (index * 4), {
             align: "center",
             maxWidth: colWidth - 3,
           });
-        } else {
-          pdf.text(labelLines[0], xPos + colWidth / 2, yPos + 3.5, {
-            align: "center",
-            maxWidth: colWidth - 3,
-          });
-          if (labelLines[1]) {
-            pdf.text(labelLines[1], xPos + colWidth / 2, yPos + 7.5, {
-              align: "center",
-              maxWidth: colWidth - 3,
-            });
-          }
-        }
+        });
+
         xPos += colWidth;
       });
 
-      yPos += headerRowHeight;
+      yPos += adjustedHeaderHeight;
 
       // Lignes de données - SANS FOND DE COULEUR
       pdf.setTextColor(0, 0, 0);
@@ -573,7 +595,18 @@ export class TraceabilityService {
       pdf.setFontSize(6);
 
       records.forEach((record, recordIndex) => {
-        if (yPos > pageHeight - 30) {
+        // Calculer la hauteur nécessaire pour cette ligne
+        let maxDataLines = 1;
+        fieldsToDisplay.forEach((field) => {
+          const value = record.record_data[field.id] || "";
+          const valueStr = String(value);
+          const valueLines = pdf.splitTextToSize(valueStr, colWidth - 3);
+          maxDataLines = Math.max(maxDataLines, valueLines.length);
+        });
+
+        const currentRowHeight = Math.max(minDataRowHeight, maxDataLines * lineHeight + 2);
+
+        if (yPos + currentRowHeight > pageHeight - 30) {
           pdf.addPage("a4", "landscape");
           yPos = margin;
 
@@ -585,35 +618,27 @@ export class TraceabilityService {
           pdf.setFont("helvetica", "bold");
 
           xPos = margin;
-          pdf.rect(xPos, yPos, colWidth, headerRowHeight);
-          pdf.text("DATE", xPos + colWidth / 2, yPos + 6, { align: "center" });
+          pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
+          pdf.text("DATE", xPos + colWidth / 2, yPos + adjustedHeaderHeight / 2 + 2, { align: "center" });
           xPos += colWidth;
 
           fieldsToDisplay.forEach((field) => {
-            pdf.rect(xPos, yPos, colWidth, headerRowHeight);
+            pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
             const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
 
-            if (labelLines.length === 1) {
-              pdf.text(labelLines[0], xPos + colWidth / 2, yPos + 6, {
+            const textStartY = yPos + (adjustedHeaderHeight - (labelLines.length * 4)) / 2 + 3;
+
+            labelLines.forEach((line: string, index: number) => {
+              pdf.text(line, xPos + colWidth / 2, textStartY + (index * 4), {
                 align: "center",
                 maxWidth: colWidth - 3,
               });
-            } else {
-              pdf.text(labelLines[0], xPos + colWidth / 2, yPos + 3.5, {
-                align: "center",
-                maxWidth: colWidth - 3,
-              });
-              if (labelLines[1]) {
-                pdf.text(labelLines[1], xPos + colWidth / 2, yPos + 7.5, {
-                  align: "center",
-                  maxWidth: colWidth - 3,
-                });
-              }
-            }
+            });
+
             xPos += colWidth;
           });
 
-          yPos += headerRowHeight;
+          yPos += adjustedHeaderHeight;
         }
 
         xPos = margin;
@@ -626,26 +651,32 @@ export class TraceabilityService {
         pdf.setLineWidth(0.3);
 
         // Date
-        pdf.rect(xPos, yPos, colWidth, dataRowHeight);
+        pdf.rect(xPos, yPos, colWidth, currentRowHeight);
         const dateStr = new Date(record.created_at!).toLocaleDateString(
           "fr-FR"
         );
-        pdf.text(dateStr, xPos + 1.5, yPos + 4.5);
+        pdf.text(dateStr, xPos + 1.5, yPos + 3);
         xPos += colWidth;
 
-        // Données
+        // Données avec hauteur dynamique
         fieldsToDisplay.forEach((field) => {
-          pdf.rect(xPos, yPos, colWidth, dataRowHeight);
+          pdf.rect(xPos, yPos, colWidth, currentRowHeight);
 
           const value = record.record_data[field.id] || "";
-          const valueStr = String(value).substring(0, 50);
-          pdf.text(valueStr, xPos + 1.5, yPos + 4.5, {
-            maxWidth: colWidth - 3,
+          const valueStr = String(value);
+          const valueLines = pdf.splitTextToSize(valueStr, colWidth - 3);
+
+          // Afficher toutes les lignes de texte
+          valueLines.forEach((line: string, index: number) => {
+            pdf.text(line, xPos + 1.5, yPos + 3 + (index * lineHeight), {
+              maxWidth: colWidth - 3,
+            });
           });
+
           xPos += colWidth;
         });
 
-        yPos += dataRowHeight;
+        yPos += currentRowHeight;
       });
 
       // Pied de page
