@@ -410,6 +410,62 @@ export const traceabilityTemplates: TraceabilityTemplate[] = [
       { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques éventuelles' },
       { id: 'receiver', label: 'Réceptionné par', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Auxiliaire en pharmacie'] }
     ]
+  },
+  {
+    id: 'employee-registration',
+    title: 'Registre d\'enregistrement des nouveaux employés',
+    description: 'Enregistrement complet des informations des nouveaux employés lors de leur embauche',
+    category: 'Administration',
+    classification: '06.01',
+    processCode: '07',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'registrationDate', label: 'Date d\'enregistrement', type: 'date', required: true },
+      { id: 'employeeName', label: 'Nom complet', type: 'text', required: true, placeholder: 'Nom et prénom(s)' },
+      { id: 'dateOfBirth', label: 'Date de naissance', type: 'date', required: true },
+      { id: 'identityNumber', label: 'Numéro de pièce d\'identité', type: 'text', required: true, placeholder: 'CNI, Passeport, etc.' },
+      { id: 'address', label: 'Adresse complète', type: 'textarea', required: true, placeholder: 'Adresse de résidence' },
+      { id: 'phoneNumber', label: 'Numéro de téléphone', type: 'text', required: true, placeholder: 'Numéro de contact' },
+      { id: 'email', label: 'Email', type: 'text', required: false, placeholder: 'Adresse email' },
+      { id: 'position', label: 'Poste occupé', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Pharmacien assistant', 'Auxiliaire en pharmacie', 'Rayonniste', 'Agent d\'entretien', 'Comptable', 'Caissier', 'Autre'] },
+      { id: 'contractType', label: 'Type de contrat', type: 'select', required: true, options: ['CDI', 'CDD', 'Stage', 'Intérim', 'Essai'] },
+      { id: 'startDate', label: 'Date de prise de service', type: 'date', required: true },
+      { id: 'endDate', label: 'Date de fin (si CDD)', type: 'date', required: false },
+      { id: 'diplomas', label: 'Diplômes et qualifications', type: 'textarea', required: true, placeholder: 'Liste des diplômes obtenus' },
+      { id: 'registrationNumber', label: 'Numéro d\'inscription (si professionnel)', type: 'text', required: false, placeholder: 'N° ordre ou équivalent' },
+      { id: 'emergencyContact', label: 'Contact d\'urgence', type: 'text', required: true, placeholder: 'Nom et téléphone' },
+      { id: 'socialSecurityNumber', label: 'Numéro de sécurité sociale', type: 'text', required: false, placeholder: 'N° sécurité sociale' },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières' },
+      { id: 'registeredBy', label: 'Enregistré par', type: 'select', required: true, options: ['Pharmacien titulaire', 'Responsable RH', 'Gestionnaire'] }
+    ]
+  },
+  {
+    id: 'cash-register-checkpoints',
+    title: 'Registre des points de caisse',
+    description: 'Enregistrement des contrôles de caisse en fin de matinée, fin de soirée et fin de garde de nuit',
+    category: 'Administration',
+    classification: '10.01',
+    processCode: '01',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'date', label: 'Date', type: 'date', required: true },
+      { id: 'checkpointTime', label: 'Période de contrôle', type: 'select', required: true, options: ['Fin de matinée', 'Fin de soirée', 'Fin de garde de nuit'] },
+      { id: 'time', label: 'Heure du contrôle', type: 'text', required: true, placeholder: 'HH:MM' },
+      { id: 'cashierName', label: 'Nom du caissier', type: 'text', required: true, placeholder: 'Nom du caissier de service' },
+      { id: 'openingBalance', label: 'Fond de caisse initial (FCFA)', type: 'text', required: true, placeholder: 'Montant de départ' },
+      { id: 'cashSales', label: 'Ventes en espèces (FCFA)', type: 'text', required: true, placeholder: 'Total espèces' },
+      { id: 'cardSales', label: 'Ventes par carte (FCFA)', type: 'text', required: true, placeholder: 'Total cartes bancaires' },
+      { id: 'mobileSales', label: 'Ventes mobile money (FCFA)', type: 'text', required: true, placeholder: 'Total mobile money' },
+      { id: 'creditSales', label: 'Ventes à crédit (FCFA)', type: 'text', required: true, placeholder: 'Total crédits' },
+      { id: 'totalSales', label: 'Total des ventes (FCFA)', type: 'text', required: true, placeholder: 'Montant total' },
+      { id: 'cashWithdrawals', label: 'Retraits de caisse (FCFA)', type: 'text', required: false, placeholder: 'Montant retiré' },
+      { id: 'physicalCash', label: 'Espèces en caisse (FCFA)', type: 'text', required: true, placeholder: 'Montant physique compté' },
+      { id: 'expectedCash', label: 'Montant attendu (FCFA)', type: 'text', required: true, placeholder: 'Montant théorique' },
+      { id: 'difference', label: 'Écart (FCFA)', type: 'text', required: true, placeholder: 'Différence (+/-)' },
+      { id: 'differenceExplanation', label: 'Justification de l\'écart', type: 'textarea', required: false, placeholder: 'Explication si écart constaté' },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières' },
+      { id: 'controller', label: 'Contrôleur', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Responsable comptable', 'Gérant'] }
+    ]
   }
 ];
 
