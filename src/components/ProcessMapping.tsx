@@ -47,7 +47,7 @@ const ProcessMapping: React.FC = () => {
               <h3 className="text-center font-bold text-gray-900 mb-4">
                 Processus de « management »
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
                   <p className="text-xs font-medium text-gray-900 text-center">
                     01 - Direction
@@ -58,16 +58,10 @@ const ProcessMapping: React.FC = () => {
                     02 - Gestion de la qualité
                   </p>
                 </div>
-                <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
-                  <p className="text-xs font-medium text-gray-900 text-center">
-                    09 - Gestion financière et comptabilité
-                  </p>
-                </div>
               </div>
 
               {/* Flèches descendantes */}
               <div className="flex justify-around mt-2">
-                <ArrowDown className="h-6 w-6 text-blue-500" />
                 <ArrowDown className="h-6 w-6 text-blue-500" />
                 <ArrowDown className="h-6 w-6 text-blue-500" />
               </div>
@@ -103,15 +97,10 @@ const ProcessMapping: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
                   <p className="text-xs font-medium text-gray-900 text-center">
                     06 - Destruction des périmés
-                  </p>
-                </div>
-                <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
-                  <p className="text-xs font-medium text-gray-900 text-center">
-                    10 - Sous-traitance
                   </p>
                 </div>
               </div>
@@ -130,13 +119,14 @@ const ProcessMapping: React.FC = () => {
               <ArrowUp className="h-6 w-6 text-blue-500" />
               <ArrowUp className="h-6 w-6 text-blue-500" />
               <ArrowUp className="h-6 w-6 text-blue-500" />
+              <ArrowUp className="h-6 w-6 text-blue-500" />
             </div>
 
             <div className="border-2 border-gray-800 rounded-xl p-3 sm:p-4 bg-white">
               <h3 className="text-center font-bold text-gray-900 mb-4">
                 Processus « support »
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
                   <p className="text-xs font-medium text-gray-900 text-center">
                     07 - Gestion des RH
@@ -149,7 +139,12 @@ const ProcessMapping: React.FC = () => {
                 </div>
                 <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
                   <p className="text-xs font-medium text-gray-900 text-center">
-                    Environnement de travail
+                    09 - Gestion financière et comptabilité
+                  </p>
+                </div>
+                <div className="border border-gray-600 rounded-lg p-3 bg-white min-h-[80px] flex flex-col justify-center">
+                  <p className="text-xs font-medium text-gray-900 text-center">
+                    10 - Sous-traitance
                   </p>
                 </div>
               </div>
