@@ -1,23 +1,24 @@
 import { Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import Header from "./components/Header";
 import Home from "./components/Home";
-import AssessmentForm from "./components/AssessmentForm";
-import InspectionForm from "./components/Inspection/InspectionForm";
-import Results from "./components/Results";
-import InspectionResults from "./components/Inspection/InspectionResults";
-import ProceduresModule from "./components/Procedure/ProceduresModule";
-import TraceabilityModule from "./components/Traceability/TraceabilityModule";
-// import DocumentsModule from "./components/Document/DocumentsModule";
-import AdverseEventsModule from "./components/Adverse/AdverseEventsModule";
-import OrdonnancierModule from "./components/OrdonnancierModule";
-import SWOTAnalysis from "./components/Analysis/SWOTAnalysis";
-import PESTELAnalysis from "./components/Analysis/PESTELAnalysis";
 import LoginModule from "./components/Auth/LoginModule";
-import WasteManagementModule from "./components/WasteManagmentModule";
-import SubscriptionPage from "./components/SubscriptionPage";
 import SubscriptionLayout from "./layouts/SubscriptionLayout";
-import ProcessReviewModule from "./components/ProcessReviewModule";
-import DocumentsModule from "./components/Document/DocumentsModule";
+
+const AssessmentForm = lazy(() => import("./components/AssessmentForm"));
+const InspectionForm = lazy(() => import("./components/Inspection/InspectionForm"));
+const Results = lazy(() => import("./components/Results"));
+const InspectionResults = lazy(() => import("./components/Inspection/InspectionResults"));
+const ProceduresModule = lazy(() => import("./components/Procedure/ProceduresModule"));
+const TraceabilityModule = lazy(() => import("./components/Traceability/TraceabilityModule"));
+const AdverseEventsModule = lazy(() => import("./components/Adverse/AdverseEventsModule"));
+const OrdonnancierModule = lazy(() => import("./components/OrdonnancierModule"));
+const SWOTAnalysis = lazy(() => import("./components/Analysis/SWOTAnalysis"));
+const PESTELAnalysis = lazy(() => import("./components/Analysis/PESTELAnalysis"));
+const WasteManagementModule = lazy(() => import("./components/WasteManagmentModule"));
+const SubscriptionPage = lazy(() => import("./components/SubscriptionPage"));
+const ProcessReviewModule = lazy(() => import("./components/ProcessReviewModule"));
+const DocumentsModule = lazy(() => import("./components/Document/DocumentsModule"));
 
 function App() {
 
@@ -26,30 +27,39 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginModule />} />
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Chargement...</p>
+            </div>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginModule />} />
 
-          {/* Protected routes under subscription layout */}
-          <Route element={<SubscriptionLayout />}>
-            <Route path="/assessment" element={<AssessmentForm />} />
-            <Route path="/inspection" element={<InspectionForm />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/inspection-results" element={<InspectionResults />} />
-            <Route path="/swot" element={<SWOTAnalysis />} />
-            <Route path="/pestel" element={<PESTELAnalysis />} />
-            <Route path="/ordonnancier" element={<OrdonnancierModule />} />
-            <Route path="/procedures" element={<ProceduresModule />} />
-            <Route path="/traceability" element={<TraceabilityModule />} />
-            <Route path="/documents" element={<DocumentsModule />} />
-            <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
-            <Route path="/waste-management" element={<WasteManagementModule />} />
-            <Route path="/subscribe" element={<SubscriptionPage />} />
+            {/* Protected routes under subscription layout */}
+            <Route element={<SubscriptionLayout />}>
+              <Route path="/assessment" element={<AssessmentForm />} />
+              <Route path="/inspection" element={<InspectionForm />} />
+              <Route path="/results" element={<Results />} />
+              <Route path="/inspection-results" element={<InspectionResults />} />
+              <Route path="/swot" element={<SWOTAnalysis />} />
+              <Route path="/pestel" element={<PESTELAnalysis />} />
+              <Route path="/ordonnancier" element={<OrdonnancierModule />} />
+              <Route path="/procedures" element={<ProceduresModule />} />
+              <Route path="/traceability" element={<TraceabilityModule />} />
+              <Route path="/documents" element={<DocumentsModule />} />
+              <Route path="/pharmacovigilance" element={<AdverseEventsModule />} />
+              <Route path="/waste-management" element={<WasteManagementModule />} />
+              <Route path="/subscribe" element={<SubscriptionPage />} />
 
-            <Route path="/process-review" element={<ProcessReviewModule />} />
+              <Route path="/process-review" element={<ProcessReviewModule />} />
 
-          </Route>
-        </Routes>
+            </Route>
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Footer */}

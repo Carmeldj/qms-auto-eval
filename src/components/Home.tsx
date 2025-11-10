@@ -1,9 +1,10 @@
-import React from 'react';
-import { ClipboardList, TrendingUp, Users, Shield, BarChart3, BookOpen, MessageCircle, Search, FileText, Database, FolderOpen, Target, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { ClipboardList, TrendingUp, Users, Shield, BarChart3, BookOpen, MessageCircle, Search, FileText, Database, FolderOpen, Target, Globe, Play } from 'lucide-react';
 import { pmqCategories } from '../data/principles';
 import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
+  const [loadedVideos, setLoadedVideos] = useState<Set<string>>(new Set());
   const features = [
     {
       icon: ClipboardList,
@@ -184,15 +185,29 @@ const Home: React.FC = () => {
             }
           ].map(video => (
             <div key={video.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="w-full h-48 sm:h-56 lg:h-40 bg-black">
-                <iframe
-                  title={video.title}
-                  src={video.src}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
+              <div className="w-full h-48 sm:h-56 lg:h-40 bg-black relative">
+                {loadedVideos.has(video.id) ? (
+                  <iframe
+                    title={video.title}
+                    src={video.src}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <button
+                    onClick={() => setLoadedVideos(prev => new Set(prev).add(video.id))}
+                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 transition-all duration-200"
+                  >
+                    <div className="text-center">
+                      <div className="bg-white bg-opacity-90 rounded-full p-4 mb-2 inline-block">
+                        <Play className="h-8 w-8 text-gray-900" fill="currentColor" />
+                      </div>
+                      <p className="text-white text-sm font-medium">Cliquer pour charger</p>
+                    </div>
+                  </button>
+                )}
               </div>
               <div className="p-3 sm:p-4">
                 <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">{video.title}</h3>
