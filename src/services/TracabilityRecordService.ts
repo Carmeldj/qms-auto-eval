@@ -126,6 +126,37 @@ export class TraceabilityRecordService {
     }
   }
 
+  async getRecordCountsByMonth(
+    year: number,
+    month: number,
+    userEmail: string
+  ): Promise<Record<string, number>> {
+    try {
+      const startDate = new Date(year, month - 1, 1).toISOString();
+      const endDate = new Date(year, month, 0, 23, 59, 59, 999).toISOString();
+
+      const { data, error } = await supabase
+        .from("traceability_records")
+        .select("template_id")
+        .eq("created_by", userEmail)
+        .gte("created_at", startDate)
+        .lte("created_at", endDate);
+
+      if (error) throw error;
+
+      // Count records by template_id
+      const counts: Record<string, number> = {};
+      data?.forEach((record) => {
+        counts[record.template_id] = (counts[record.template_id] || 0) + 1;
+      });
+
+      return counts;
+    } catch (error) {
+      console.error("Error fetching record counts by month:", error);
+      throw error;
+    }
+  }
+
   async getAllRecordsByMonth(
     year: number,
     month: number,

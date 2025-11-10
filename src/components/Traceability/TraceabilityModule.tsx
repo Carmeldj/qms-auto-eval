@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Download, Clock, Plus, Calendar } from 'lucide-react';
 import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
 import { useAuth } from '../../contexts/AuthContext';
+import { TraceabilityRecordService } from '../../services/TracabilityRecordService';
 
 const TraceabilityModule: React.FC = () => {
   const [view, setView] = useState<'list' | 'form' | 'compilation'>('list');
@@ -12,13 +13,64 @@ const TraceabilityModule: React.FC = () => {
   const [compilationYear, setCompilationYear] = useState<number>(new Date().getFullYear());
   const [compilationMonth, setCompilationMonth] = useState<number>(new Date().getMonth() + 1);
   const [pharmacyName, setPharmacyName] = useState<string>('');
+  const [recordCounts, setRecordCounts] = useState<Record<string, number>>({});
 
   const user = useAuth().user;
+  const recordService = TraceabilityRecordService.getInstance();
 
   const categories = getAllCategories();
   const filteredTemplates = selectedCategory === 'all'
     ? traceabilityTemplates
     : traceabilityTemplates.filter(t => t.category === selectedCategory);
+
+  // Fetch record counts when year or month changes
+  useEffect(() => {
+    const fetchRecordCounts = async () => {
+      if (user?.email && view === 'compilation') {
+        try {
+          const counts = await recordService.getRecordCountsByMonth(
+            compilationYear,
+            compilationMonth,
+            user.email
+          );
+          setRecordCounts(counts);
+        } catch (error) {
+          console.error('Error fetching record counts:', error);
+          setRecordCounts({});
+        }
+      }
+    };
+
+    fetchRecordCounts();
+  }, [compilationYear, compilationMonth, user, view]);
+
+  const getCountBadge = (count: number) => {
+    if (count === 0) {
+      return {
+        bg: 'bg-gray-200',
+        text: 'text-gray-600',
+        label: 'Aucun'
+      };
+    } else if (count <= 5) {
+      return {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-800',
+        label: count.toString()
+      };
+    } else if (count <= 10) {
+      return {
+        bg: 'bg-orange-100',
+        text: 'text-orange-800',
+        label: count.toString()
+      };
+    } else {
+      return {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        label: count.toString()
+      };
+    }
+  };
 
   const handleCreateRecord = (templateId: string) => {
     setSelectedTemplate(templateId);
@@ -87,27 +139,77 @@ const TraceabilityModule: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type de registre *
+                Type de registre * {selectedTemplate && '✓'}
               </label>
-              <select
-                value={selectedTemplate || ''}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">Sélectionner un registre...</option>
-                <optgroup label="Registres avec compilation mensuelle">
-                  <option value="equipment-lifecycle">Registre de vie des équipements</option>
-                  <option value="hygiene-tracking">Registre de suivi de l'hygiène du personnel</option>
-                  <option value="premises-cleaning">Registre de l'entretien des locaux et toilettes</option>
-                </optgroup>
-                <optgroup label="Tous les registres">
-                  {traceabilityTemplates.map(template => (
-                    <option key={template.id} value={template.id}>
-                      {template.title}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
+              <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded-lg p-2 bg-white">
+                {selectedTemplate === null && (
+                  <div className="text-gray-400 text-sm italic p-2">
+                    Sélectionner un registre...
+                  </div>
+                )}
+
+                <div className="text-xs font-semibold text-gray-500 uppercase px-2 pt-2">
+                  Registres avec compilation mensuelle
+                </div>
+                {[
+                  { id: 'equipment-lifecycle', title: 'Registre de vie des équipements' },
+                  { id: 'hygiene-tracking', title: "Registre de suivi de l'hygiène du personnel" },
+                  { id: 'premises-cleaning', title: "Registre de l'entretien des locaux et toilettes" }
+                ].map(template => {
+                  const count = recordCounts[template.id] || 0;
+                  const badge = getCountBadge(count);
+                  const isSelected = selectedTemplate === template.id;
+
+                  return (
+                    <button
+                      key={template.id}
+                      type="button"
+                      onClick={() => setSelectedTemplate(template.id)}
+                      className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors text-left ${
+                        isSelected
+                          ? 'bg-teal-100 border-2 border-teal-500'
+                          : 'hover:bg-gray-100 border-2 border-transparent'
+                      }`}
+                    >
+                      <span className={`text-sm ${isSelected ? 'font-semibold text-teal-900' : 'text-gray-700'}`}>
+                        {template.title}
+                      </span>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text}`}>
+                        {badge.label}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                <div className="text-xs font-semibold text-gray-500 uppercase px-2 pt-3 border-t">
+                  Tous les registres
+                </div>
+                {traceabilityTemplates.map(template => {
+                  const count = recordCounts[template.id] || 0;
+                  const badge = getCountBadge(count);
+                  const isSelected = selectedTemplate === template.id;
+
+                  return (
+                    <button
+                      key={template.id}
+                      type="button"
+                      onClick={() => setSelectedTemplate(template.id)}
+                      className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors text-left ${
+                        isSelected
+                          ? 'bg-teal-100 border-2 border-teal-500'
+                          : 'hover:bg-gray-100 border-2 border-transparent'
+                      }`}
+                    >
+                      <span className={`text-sm ${isSelected ? 'font-semibold text-teal-900' : 'text-gray-700'}`}>
+                        {template.title}
+                      </span>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text}`}>
+                        {badge.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
@@ -168,11 +270,35 @@ const TraceabilityModule: React.FC = () => {
             </button>
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>ℹ️ Information :</strong> La compilation mensuelle regroupe tous les enregistrements
-              du registre sélectionné pour le mois choisi dans un seul document PDF avec tableau récapitulatif.
-            </p>
+          <div className="mt-6 space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>ℹ️ Information :</strong> La compilation mensuelle regroupe tous les enregistrements
+                du registre sélectionné pour le mois choisi dans un seul document PDF avec tableau récapitulatif.
+              </p>
+            </div>
+
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Légende des badges :</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-1 rounded bg-gray-200 text-gray-600 font-semibold">Aucun</span>
+                  <span className="text-gray-600">0 enregistrement</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-semibold">1-5</span>
+                  <span className="text-gray-600">1 à 5 enregistrements</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-1 rounded bg-orange-100 text-orange-800 font-semibold">6-10</span>
+                  <span className="text-gray-600">6 à 10 enregistrements</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-1 rounded bg-green-100 text-green-800 font-semibold">11+</span>
+                  <span className="text-gray-600">Plus de 10 enregistrements</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
