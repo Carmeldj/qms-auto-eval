@@ -343,11 +343,11 @@ const TraceabilityForm: React.FC<TraceabilityFormProps> = ({ template, onCancel 
           <div className="border border-gray-200 rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-4">
               <CheckCircle className="h-5 w-5" style={{color: '#009688'}} />
-              <h4 className="font-bold text-gray-900">Vérifié par</h4>
+              <h4 className="font-bold text-gray-900">Vérifié par <span className="text-sm text-gray-500 font-normal">(optionnel)</span></h4>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                 <input
                   type="text"
                   value={signatures.verifier?.name || ''}
@@ -361,7 +361,7 @@ const TraceabilityForm: React.FC<TraceabilityFormProps> = ({ template, onCancel 
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
                 <input
                   type="date"
                   value={signatures.verifier?.date || ''}
@@ -427,11 +427,11 @@ const TraceabilityForm: React.FC<TraceabilityFormProps> = ({ template, onCancel 
           <div className="border border-gray-200 rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-4">
               <CheckCircle className="h-5 w-5" style={{color: '#009688'}} />
-              <h4 className="font-bold text-gray-900">Approuvé par</h4>
+              <h4 className="font-bold text-gray-900">Approuvé par <span className="text-sm text-gray-500 font-normal">(optionnel)</span></h4>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                 <input
                   type="text"
                   value={signatures.approver?.name || ''}
@@ -445,7 +445,7 @@ const TraceabilityForm: React.FC<TraceabilityFormProps> = ({ template, onCancel 
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
                 <input
                   type="date"
                   value={signatures.approver?.date || ''}
