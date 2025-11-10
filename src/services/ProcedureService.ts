@@ -519,7 +519,11 @@ export class ProcedureService {
       procedure.indicators.forEach((indicator, idx) => {
         const stepIndex = idx % procedure.steps.length;
         if (!stepIndicators.has(stepIndex)) {
-          stepIndicators.set(stepIndex, indicator.name || indicator.target);
+          // Combiner le nom et l'objectif cible pour afficher les deux
+          const kpiText = indicator.target
+            ? `${indicator.name}: ${indicator.target}`
+            : indicator.name;
+          stepIndicators.set(stepIndex, kpiText);
         }
       });
 
