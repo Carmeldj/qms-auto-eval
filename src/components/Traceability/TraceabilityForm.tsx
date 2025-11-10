@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Save, X, Download, AlertCircle, CheckCircle, Edit2, Upload } from 'lucide-react';
 import { TraceabilityTemplate, TraceabilitySignatures, SignatureData } from '../../types/traceability';
 import { traceabilityService } from '../../services/TraceabilityService';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TraceabilityFormProps {
   template: TraceabilityTemplate;
@@ -9,6 +10,7 @@ interface TraceabilityFormProps {
 }
 
 const TraceabilityForm: React.FC<TraceabilityFormProps> = ({ template, onCancel }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   const [customTitle, setCustomTitle] = useState<string>(template.title);
@@ -87,7 +89,7 @@ const TraceabilityForm: React.FC<TraceabilityFormProps> = ({ template, onCancel 
     };
 
     try {
-      await traceabilityService.generatePDF(template, record);
+      await traceabilityService.generatePDF(template, record, user?.email);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Erreur lors de la génération du PDF');

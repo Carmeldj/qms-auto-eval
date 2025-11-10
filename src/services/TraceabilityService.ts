@@ -5,7 +5,6 @@ import {
 } from "./TracabilityRecordService";
 import jsPDF from "jspdf";
 import { signatureGenerator } from "./SignatureGenerator";
-import { useAuth } from "../contexts/AuthContext";
 
 export class TraceabilityService {
   private static instance: TraceabilityService;
@@ -45,9 +44,9 @@ export class TraceabilityService {
 
   public async generatePDF(
     template: TraceabilityTemplate,
-    record: any
+    record: any,
+    userEmail?: string
   ): Promise<any> {
-    const user = useAuth().user;
     try {
       // Sauvegarder dans Supabase
       const savedRecord: TraceabilityRecord = {
@@ -58,7 +57,7 @@ export class TraceabilityService {
         process_code: template.processCode,
         pharmacy_name: record.data.pharmacyName || "Non renseigné",
         record_data: record.data,
-        created_by: user?.email || "unknown",
+        created_by: userEmail || "unknown",
       };
 
       await traceabilityRecordService.saveRecord(savedRecord);
