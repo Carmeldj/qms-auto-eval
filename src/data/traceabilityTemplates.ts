@@ -67,14 +67,14 @@ export const traceabilityTemplates: TraceabilityTemplate[] = [
   {
     id: 'withdrawal-register',
     title: 'Registre des retraits de lots',
-    description: 'Notification ANRP/DPML, lot concerné, action entreprise',
+    description: 'Notification Agence nationale/DPML, lot concerné, action entreprise',
     category: 'Registres Réglementaires',
     classification: '10.04',
     processCode: '05',
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'date', label: 'Date de notification', type: 'date', required: true },
-      { id: 'notificationSource', label: 'Source de notification', type: 'select', required: true, options: ['ANRP', 'DPML', 'Fournisseur', 'Fabricant', 'Autre'] },
+      { id: 'notificationSource', label: 'Source de notification', type: 'select', required: true, options: ['Agence nationale en charge du médicament', 'DPML', 'Fournisseur', 'Fabricant', 'Autre'] },
       { id: 'productName', label: 'Nom du produit', type: 'text', required: true, placeholder: 'Dénomination du produit' },
       { id: 'lot', label: 'Lot(s) concerné(s)', type: 'text', required: true, placeholder: 'Numéro(s) de lot' },
       { id: 'reason', label: 'Motif du retrait', type: 'textarea', required: true, placeholder: 'Raison du rappel/retrait' },
