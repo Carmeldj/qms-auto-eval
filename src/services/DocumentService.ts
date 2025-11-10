@@ -627,25 +627,70 @@ export class DocumentService {
     // Axes Stratégiques section
     addBoxedSection('AXES STRATEGIQUES', data.strategicAxes || 'Non renseigne', { r: 244, g: 67, b: 54 });
 
-    // Signature section on first page (if provided) - centered
-    if (data._signatureImage && data._signatoryName) {
-      const signatureY = pageHeight - 25;
-      const signatureWidth = 40;
-      const signatureHeight = 20;
-      const signatureX = (pageWidth - signatureWidth) / 2;
+    // Signature and Stamp section on first page (if provided) - centered
+    if (data._signatureImage || data._stampImage) {
+      const baseY = pageHeight - 30;
+      const hasSignature = data._signatureImage && data._signatoryName;
+      const hasStamp = data._stampImage;
 
-      // Add signature image centered
-      try {
-        pdf.addImage(data._signatureImage, 'PNG', signatureX, signatureY, signatureWidth, signatureHeight);
-      } catch (error) {
-        console.warn('Failed to add signature image:', error);
+      if (hasSignature && hasStamp) {
+        // Both signature and stamp - side by side centered
+        const signatureWidth = 35;
+        const signatureHeight = 18;
+        const stampSize = 25;
+        const spacing = 15;
+
+        const totalWidth = signatureWidth + spacing + stampSize;
+        const startX = (pageWidth - totalWidth) / 2;
+
+        // Add signature on the left
+        try {
+          pdf.addImage(data._signatureImage, 'PNG', startX, baseY, signatureWidth, signatureHeight);
+        } catch (error) {
+          console.warn('Failed to add signature image:', error);
+        }
+
+        // Add signatory name below signature
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text(this.removeAccents(data._signatoryName), startX + signatureWidth / 2, baseY + signatureHeight + 4, { align: 'center' });
+
+        // Add stamp on the right
+        try {
+          pdf.addImage(data._stampImage, 'PNG', startX + signatureWidth + spacing, baseY, stampSize, stampSize);
+        } catch (error) {
+          console.warn('Failed to add stamp image:', error);
+        }
+
+      } else if (hasSignature) {
+        // Only signature - centered
+        const signatureWidth = 40;
+        const signatureHeight = 20;
+        const signatureX = (pageWidth - signatureWidth) / 2;
+
+        try {
+          pdf.addImage(data._signatureImage, 'PNG', signatureX, baseY, signatureWidth, signatureHeight);
+        } catch (error) {
+          console.warn('Failed to add signature image:', error);
+        }
+
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text(this.removeAccents(data._signatoryName), pageWidth / 2, baseY + signatureHeight + 4, { align: 'center' });
+
+      } else if (hasStamp) {
+        // Only stamp - centered
+        const stampSize = 30;
+        const stampX = (pageWidth - stampSize) / 2;
+
+        try {
+          pdf.addImage(data._stampImage, 'PNG', stampX, baseY, stampSize, stampSize);
+        } catch (error) {
+          console.warn('Failed to add stamp image:', error);
+        }
       }
-
-      // Add signatory name centered below signature
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text(this.removeAccents(data._signatoryName), pageWidth / 2, signatureY + signatureHeight + 4, { align: 'center' });
     }
 
     // Footer for first page

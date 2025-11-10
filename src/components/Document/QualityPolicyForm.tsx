@@ -3,6 +3,7 @@ import { X, Sparkles, Upload } from 'lucide-react';
 import { DocumentTemplate } from '../../types/documents';
 import { getQualityPolicyDefault } from '../../data/qualityPolicyDefaults';
 import { DocumentService } from '../../services/DocumentService';
+import { stampGenerator } from '../../services/StampGenerator';
 
 interface QualityPolicyFormProps {
   template: DocumentTemplate;
@@ -15,6 +16,9 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
   const [hasAutoFilled, setHasAutoFilled] = useState(false);
   const [signatureImage, setSignatureImage] = useState<string | null>(null);
   const [signatoryName, setSignatoryName] = useState<string>('');
+  const [stampImage, setStampImage] = useState<string | null>(null);
+  const [showStampGenerator, setShowStampGenerator] = useState(false);
+  const [stampPharmacyName, setStampPharmacyName] = useState<string>('');
 
   useEffect(() => {
     const initialData: Record<string, string> = {};
@@ -56,6 +60,32 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
     }
   };
 
+  const handleStampUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setStampImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGenerateStamp = () => {
+    if (!stampPharmacyName.trim()) {
+      alert('Veuillez entrer le nom de la pharmacie pour générer le cachet');
+      return;
+    }
+    try {
+      const generatedStamp = stampGenerator.generateStamp(stampPharmacyName, 200);
+      setStampImage(generatedStamp);
+      setShowStampGenerator(false);
+    } catch (error) {
+      console.error('Erreur lors de la génération du cachet:', error);
+      alert('Erreur lors de la génération du cachet');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -65,7 +95,8 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
       data: {
         ...formData,
         _signatureImage: signatureImage || '',
-        _signatoryName: signatoryName
+        _signatoryName: signatoryName,
+        _stampImage: stampImage || ''
       },
       createdAt: new Date().toISOString()
     };
@@ -238,6 +269,85 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
                   Formats acceptés: PNG, JPG, JPEG. La signature sera affichée en bas de la première page.
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Stamp Section */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cachet de la Pharmacie</h3>
+
+            <div className="space-y-4">
+              {/* Generate or Import Stamp */}
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowStampGenerator(!showStampGenerator)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {showStampGenerator ? 'Annuler' : 'Générer un cachet'}
+                </button>
+
+                <span className="text-gray-500">ou</span>
+
+                <label className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <Upload className="h-5 w-5 text-gray-600 mr-2" />
+                  <span className="text-sm text-gray-700">Importer un cachet</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleStampUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              {/* Stamp Generator Panel */}
+              {showStampGenerator && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <label htmlFor="stampPharmacyName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nom de la pharmacie pour le cachet
+                  </label>
+                  <input
+                    type="text"
+                    id="stampPharmacyName"
+                    value={stampPharmacyName}
+                    onChange={(e) => setStampPharmacyName(e.target.value)}
+                    placeholder="Ex: PHARMACIE CENTRALE"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGenerateStamp}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Créer le cachet
+                  </button>
+                </div>
+              )}
+
+              {/* Stamp Preview */}
+              {stampImage && (
+                <div className="flex items-center space-x-4">
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-300">
+                    <img
+                      src={stampImage}
+                      alt="Cachet"
+                      className="h-24 w-24"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setStampImage(null)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500">
+                Le cachet sera affiché à côté de la signature en bas de la première page.
+              </p>
             </div>
           </div>
 
