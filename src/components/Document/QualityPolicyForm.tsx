@@ -77,7 +77,11 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
       return;
     }
     try {
-      const generatedStamp = stampGenerator.generateStamp(stampPharmacyName, 200);
+      const generatedStamp = stampGenerator.generateCustomStamp({
+        pharmacyName: stampPharmacyName,
+        size: 200,
+        centerText: 'PHARMACIEN'
+      });
       setStampImage(generatedStamp);
       setShowStampGenerator(false);
     } catch (error) {
