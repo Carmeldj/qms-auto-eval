@@ -621,11 +621,11 @@ export class DocumentService {
     // Missions section
     addBoxedSection('MISSIONS', data.missions || 'Non renseigne', { r: 76, g: 175, b: 80 });
 
-    // Moyens et Responsabilités section
-    addBoxedSection('MOYENS ET RESPONSABILITES', data.means || 'Non renseigne', { r: 255, g: 152, b: 0 });
-
     // Axes Stratégiques section
     addBoxedSection('AXES STRATEGIQUES', data.strategicAxes || 'Non renseigne', { r: 244, g: 67, b: 54 });
+
+    // Moyens et Responsabilités section
+    addBoxedSection('MOYENS ET RESPONSABILITES', data.means || 'Non renseigne', { r: 255, g: 152, b: 0 });
 
     // Signature and Stamp section on first page (if provided) - centered
     if (data._signatureImage || data._stampImage) {
