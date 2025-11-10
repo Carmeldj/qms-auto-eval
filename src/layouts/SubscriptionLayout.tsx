@@ -12,7 +12,9 @@ const SubscriptionLayout: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    let mounted = true;
+    // COMMENTED OUT AUTH - Skip subscription check for development
+    setChecking(false);
+    /* let mounted = true;
     const run = async () => {
       if (!isAuthenticated) {
         // let auth guard or modal handle login
@@ -32,7 +34,7 @@ const SubscriptionLayout: React.FC = () => {
 
     return () => {
       mounted = false;
-    };
+    }; */
   }, [isAuthenticated, isAuthLoading, checkSubscription]);
 
   if (isAuthLoading || checking) {
@@ -63,14 +65,14 @@ const SubscriptionLayout: React.FC = () => {
     );
   }
 
-  // If user is authenticated but does not have subscription, redirect to subscribe
-  if (isAuthenticated && !hasSubscription) {
+  // COMMENTED OUT AUTH - Skip subscription redirect for development
+  /* if (isAuthenticated && !hasSubscription) {
     // avoid redirect loop if already on /subscribe
     if (location.pathname !== '/subscribe') {
       navigate('/subscribe');
       return null;
     }
-  }
+  } */
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -29,7 +29,8 @@ const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 
     useEffect(() => {
-        const path = location.pathname;
+        // COMMENTED OUT AUTH - No route protection for development
+        /* const path = location.pathname;
         const wantsProtected = PROTECTED_PREFIXES.some(prefix => path === prefix || path.startsWith(prefix + '/'));
 
         // if (wantsProtected && isAuthenticated && !hasSubscription) {
@@ -41,7 +42,7 @@ const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             navigate('/login');
             openModal('login');
             return;
-        }
+        } */
     }, [location.pathname, isAuthenticated, navigate]);
 
     return <>{children}</>;
