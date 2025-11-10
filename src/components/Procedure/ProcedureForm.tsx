@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Save, X, Plus, Trash2, FileText, Download, AlertCircle, CheckCircle, UserPlus, Edit2, Upload, Image as ImageIcon } from 'lucide-react';
+import { Save, X, Plus, Trash2, FileText, Download, AlertCircle, CheckCircle, UserPlus, Edit2, Upload, Image as ImageIcon, CheckSquare, Square } from 'lucide-react';
 import { ProcedureTemplate, ProcedureInfo, ProcedureStep, ProcedureIndicator, ProcedureAnnex } from '../../types/procedure';
 import { procedureService } from '../../services/ProcedureService';
 import { procedureDefaults } from '../../data/procedureDefaults';
 import ClassificationBadge from '../ClassificationBadge';
 import { stampGenerator } from '../../services/StampGenerator';
 import { signatureGenerator } from '../../services/SignatureGenerator';
+import { beninReferences, getAllCategories, getReferencesByCategory } from '../../data/beninReferences';
 
 interface ProcedureFormProps {
   template: ProcedureTemplate;
@@ -92,7 +93,11 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({ template, onCancel }) => 
       reference: annex.reference
     })) || []
   );
-  
+
+  const [showBeninReferences, setShowBeninReferences] = useState<boolean>(false);
+  const [selectedBeninRefs, setSelectedBeninRefs] = useState<Set<string>>(new Set());
+  const [beninRefCategory, setBeninRefCategory] = useState<string>('');
+
   const [currentSection, setCurrentSection] = useState<'info' | 'steps' | 'indicators' | 'annexes' | 'signatures'>('info');
 
   const handleImageUpload = (file: File, role: 'author' | 'reviewer' | 'approver', type: 'signature' | 'stamp') => {
@@ -220,6 +225,30 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({ template, onCancel }) => 
 
   const updateAnnex = (annexId: string, field: keyof ProcedureAnnex, value: any) => {
     setAnnexes(annexes.map(a => a.id === annexId ? { ...a, [field]: value } : a));
+  };
+
+  const toggleBeninReference = (refId: string) => {
+    const newSelected = new Set(selectedBeninRefs);
+    if (newSelected.has(refId)) {
+      newSelected.delete(refId);
+    } else {
+      newSelected.add(refId);
+    }
+    setSelectedBeninRefs(newSelected);
+  };
+
+  const addSelectedBeninReferences = () => {
+    const refsToAdd = beninReferences.filter(ref => selectedBeninRefs.has(ref.id));
+    const newAnnexes = refsToAdd.map(ref => ({
+      id: Date.now().toString() + Math.random().toString(),
+      title: ref.title,
+      type: 'regulation' as const,
+      description: `${ref.category} - ${ref.type}`,
+      reference: ref.title
+    }));
+    setAnnexes([...annexes, ...newAnnexes]);
+    setSelectedBeninRefs(new Set());
+    setShowBeninReferences(false);
   };
 
   const handleGeneratePDF = async () => {
@@ -1282,19 +1311,110 @@ const ProcedureForm: React.FC<ProcedureFormProps> = ({ template, onCancel }) => 
 
         {currentSection === 'annexes' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h3 className="text-lg font-bold text-gray-900">Annexes et Références (Optionnel)</h3>
-              <button
-                onClick={addAnnex}
-                className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200"
-                style={{backgroundColor: '#009688'}}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
-              >
-                <Plus className="h-4 w-4" />
-                <span>Ajouter une annexe</span>
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setShowBeninReferences(!showBeninReferences)}
+                  className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200"
+                  style={{backgroundColor: showBeninReferences ? '#00796b' : '#009688'}}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = showBeninReferences ? '#00796b' : '#009688'}
+                >
+                  {showBeninReferences ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                  <span>Références Bénin</span>
+                </button>
+                <button
+                  onClick={addAnnex}
+                  className="flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200"
+                  style={{backgroundColor: '#009688'}}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Ajouter une annexe</span>
+                </button>
+              </div>
             </div>
+
+            {/* Benin References Selection Panel */}
+            {showBeninReferences && (
+              <div className="border-2 border-teal-200 rounded-lg p-4 bg-teal-50">
+                <h4 className="font-semibold text-gray-900 mb-3">Sélectionner les références réglementaires du Bénin</h4>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Filtrer par catégorie
+                  </label>
+                  <select
+                    value={beninRefCategory}
+                    onChange={(e) => setBeninRefCategory(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                    style={{'--tw-ring-color': '#009688'} as React.CSSProperties}
+                  >
+                    <option value="">Toutes les catégories</option>
+                    {getAllCategories().map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="max-h-96 overflow-y-auto space-y-2 mb-4">
+                  {(beninRefCategory ? getReferencesByCategory(beninRefCategory) : beninReferences).map(ref => (
+                    <div
+                      key={ref.id}
+                      onClick={() => toggleBeninReference(ref.id)}
+                      className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-white cursor-pointer transition-colors"
+                    >
+                      <div className="flex-shrink-0 mt-0.5">
+                        {selectedBeninRefs.has(ref.id) ? (
+                          <CheckSquare className="h-5 w-5 text-teal-600" />
+                        ) : (
+                          <Square className="h-5 w-5 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">{ref.title}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {ref.category} • {ref.type}
+                          {ref.year && ` • ${ref.year}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => {
+                      setShowBeninReferences(false);
+                      setSelectedBeninRefs(new Set());
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={addSelectedBeninReferences}
+                    disabled={selectedBeninRefs.size === 0}
+                    className="px-4 py-2 rounded-lg text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{backgroundColor: '#009688'}}
+                    onMouseEnter={(e) => {
+                      if (selectedBeninRefs.size > 0) {
+                        e.currentTarget.style.backgroundColor = '#00796b';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedBeninRefs.size > 0) {
+                        e.currentTarget.style.backgroundColor = '#009688';
+                      }
+                    }}
+                  >
+                    Ajouter {selectedBeninRefs.size > 0 && `(${selectedBeninRefs.size})`}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {annexes.length > 0 ? (
               <div className="space-y-4">
