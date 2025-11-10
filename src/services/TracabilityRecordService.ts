@@ -1,10 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
+import { useAuth } from "../contexts/AuthContext";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  throw new Error("Missing Supabase environment variables");
 }
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -37,40 +38,44 @@ export class TraceabilityRecordService {
   async saveRecord(record: TraceabilityRecord): Promise<string> {
     try {
       const { data, error } = await supabase
-        .from('traceability_records')
-        .insert([{
-          template_id: record.template_id,
-          template_title: record.template_title,
-          template_category: record.template_category,
-          classification: record.classification,
-          process_code: record.process_code,
-          pharmacy_name: record.pharmacy_name,
-          record_data: record.record_data,
-          created_by: record.created_by
-        }])
-        .select('id')
+        .from("traceability_records")
+        .insert([
+          {
+            template_id: record.template_id,
+            template_title: record.template_title,
+            template_category: record.template_category,
+            classification: record.classification,
+            process_code: record.process_code,
+            pharmacy_name: record.pharmacy_name,
+            record_data: record.record_data,
+            created_by: record.created_by,
+          },
+        ])
+        .select("id")
         .single();
 
       if (error) throw error;
       return data.id;
     } catch (error) {
-      console.error('Error saving record:', error);
+      console.error("Error saving record:", error);
       throw error;
     }
   }
 
-  async getRecordsByTemplate(templateId: string): Promise<TraceabilityRecord[]> {
+  async getRecordsByTemplate(
+    templateId: string
+  ): Promise<TraceabilityRecord[]> {
     try {
       const { data, error } = await supabase
-        .from('traceability_records')
-        .select('*')
-        .eq('template_id', templateId)
-        .order('created_at', { ascending: false });
+        .from("traceability_records")
+        .select("*")
+        .eq("template_id", templateId)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching records:', error);
+      console.error("Error fetching records:", error);
       throw error;
     }
   }
@@ -78,21 +83,23 @@ export class TraceabilityRecordService {
   async getRecordsByDateRange(
     templateId: string,
     startDate: string,
-    endDate: string
+    endDate: string,
+    userEmail: string
   ): Promise<TraceabilityRecord[]> {
     try {
       const { data, error } = await supabase
-        .from('traceability_records')
-        .select('*')
-        .eq('template_id', templateId)
-        .gte('created_at', startDate)
-        .lte('created_at', endDate)
-        .order('created_at', { ascending: true });
+        .from("traceability_records")
+        .select("*")
+        .eq("template_id", templateId)
+        .eq("created_by", userEmail)
+        .gte("created_at", startDate)
+        .lte("created_at", endDate)
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching records by date range:', error);
+      console.error("Error fetching records by date range:", error);
       throw error;
     }
   }
@@ -100,15 +107,21 @@ export class TraceabilityRecordService {
   async getRecordsByMonth(
     templateId: string,
     year: number,
-    month: number
+    month: number,
+    userEmail: string
   ): Promise<TraceabilityRecord[]> {
     try {
       const startDate = new Date(year, month - 1, 1).toISOString();
       const endDate = new Date(year, month, 0, 23, 59, 59, 999).toISOString();
 
-      return await this.getRecordsByDateRange(templateId, startDate, endDate);
+      return await this.getRecordsByDateRange(
+        templateId,
+        startDate,
+        endDate,
+        userEmail
+      );
     } catch (error) {
-      console.error('Error fetching records by month:', error);
+      console.error("Error fetching records by month:", error);
       throw error;
     }
   }
@@ -123,14 +136,14 @@ export class TraceabilityRecordService {
       const endDate = new Date(year, month, 0, 23, 59, 59, 999).toISOString();
 
       let query = supabase
-        .from('traceability_records')
-        .select('*')
-        .gte('created_at', startDate)
-        .lte('created_at', endDate)
-        .order('created_at', { ascending: true });
+        .from("traceability_records")
+        .select("*")
+        .gte("created_at", startDate)
+        .lte("created_at", endDate)
+        .order("created_at", { ascending: true });
 
       if (pharmacyName) {
-        query = query.eq('pharmacy_name', pharmacyName);
+        query = query.eq("pharmacy_name", pharmacyName);
       }
 
       const { data, error } = await query;
@@ -138,7 +151,7 @@ export class TraceabilityRecordService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching all records by month:', error);
+      console.error("Error fetching all records by month:", error);
       throw error;
     }
   }
@@ -146,13 +159,13 @@ export class TraceabilityRecordService {
   async deleteRecord(id: string): Promise<void> {
     try {
       const { error } = await supabase
-        .from('traceability_records')
+        .from("traceability_records")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error deleting record:', error);
+      console.error("Error deleting record:", error);
       throw error;
     }
   }
@@ -160,16 +173,16 @@ export class TraceabilityRecordService {
   async getAllTemplateCategories(): Promise<string[]> {
     try {
       const { data, error } = await supabase
-        .from('traceability_records')
-        .select('template_category')
-        .order('template_category');
+        .from("traceability_records")
+        .select("template_category")
+        .order("template_category");
 
       if (error) throw error;
 
-      const categories = new Set(data?.map(r => r.template_category) || []);
+      const categories = new Set(data?.map((r) => r.template_category) || []);
       return Array.from(categories);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
       throw error;
     }
   }
@@ -181,11 +194,11 @@ export class TraceabilityRecordService {
   }> {
     try {
       let query = supabase
-        .from('traceability_records')
-        .select('template_category, created_at');
+        .from("traceability_records")
+        .select("template_category, created_at");
 
       if (pharmacyName) {
-        query = query.eq('pharmacy_name', pharmacyName);
+        query = query.eq("pharmacy_name", pharmacyName);
       }
 
       const { data, error } = await query;
@@ -195,26 +208,31 @@ export class TraceabilityRecordService {
       const byCategory: Record<string, number> = {};
       const byMonth: Record<string, number> = {};
 
-      data?.forEach(record => {
-        byCategory[record.template_category] = (byCategory[record.template_category] || 0) + 1;
+      data?.forEach((record) => {
+        byCategory[record.template_category] =
+          (byCategory[record.template_category] || 0) + 1;
 
-        const monthKey = new Date(record.created_at).toLocaleDateString('fr-FR', {
-          year: 'numeric',
-          month: 'long'
-        });
+        const monthKey = new Date(record.created_at).toLocaleDateString(
+          "fr-FR",
+          {
+            year: "numeric",
+            month: "long",
+          }
+        );
         byMonth[monthKey] = (byMonth[monthKey] || 0) + 1;
       });
 
       return {
         total: data?.length || 0,
         byCategory,
-        byMonth
+        byMonth,
       };
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
       throw error;
     }
   }
 }
 
-export const traceabilityRecordService = TraceabilityRecordService.getInstance();
+export const traceabilityRecordService =
+  TraceabilityRecordService.getInstance();

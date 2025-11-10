@@ -92,3 +92,16 @@ export interface TraceabilityField {
   options?: string[];
   placeholder?: string;
 }
+
+export interface SignatureData {
+  name: string;
+  date: string;
+  signatureImage?: string;
+  stampImage?: string;
+}
+
+export interface TraceabilitySignatures {
+  recorder?: SignatureData;
+  verifier?: SignatureData;
+  approver?: SignatureData;
+}

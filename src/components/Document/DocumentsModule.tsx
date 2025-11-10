@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import { FileText, Download, Clock, Plus, Building, Users, Wrench, MessageCircle, AlertTriangle, Stethoscope, GraduationCap, ClipboardList } from 'lucide-react';
+import { FileText, Download, Clock, Plus, Building, Users, Wrench, MessageCircle, AlertTriangle, Stethoscope, GraduationCap, ClipboardList, GitBranch } from 'lucide-react';
 import { documentTemplates, getAllDocumentCategories, getDocumentTemplatesByCategory } from '../../data/documentTemplates';
 import DocumentForm from './DocumentForm';
+import CAPAForm from './CAPAForm';
+import ProcessSheetForm from './ProcessSheetForm';
+import JobDescriptionForm from './JobDescriptionForm';
+import QualityPolicyForm from './QualityPolicyForm';
+import { ProcessSheet } from '../../types/documents';
+import { ProcessSheetService } from '../../services/ProcessSheetService';
+import { processTemplates } from '../../data/processSheetTemplates';
 
 const DocumentsModule: React.FC = () => {
-  const [view, setView] = useState<'list' | 'form'>('list');
+  const [view, setView] = useState<'list' | 'form' | 'process-list'>('list');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedProcess, setSelectedProcess] = useState<{ code: string; name: string } | null>(null);
 
   const categories = getAllDocumentCategories();
   const filteredTemplates = selectedCategory === 'all' 
@@ -14,13 +22,25 @@ const DocumentsModule: React.FC = () => {
     : getDocumentTemplatesByCategory(selectedCategory);
 
   const handleCreateDocument = (templateId: string) => {
-    setSelectedTemplate(templateId);
-    setView('form');
+    // Si c'est les fiches de processus, afficher la liste des processus
+    if (templateId === 'process-sheets') {
+      setView('process-list');
+    } else {
+      setSelectedTemplate(templateId);
+      setView('form');
+    }
   };
 
   const handleBackToList = () => {
     setView('list');
     setSelectedTemplate(null);
+    setSelectedProcess(null);
+  };
+
+  const handleProcessSheetSave = (data: ProcessSheet) => {
+    ProcessSheetService.generatePDF(data);
+    setView('list');
+    setSelectedProcess(null);
   };
 
   const getCategoryIcon = (category: string) => {
@@ -33,13 +53,91 @@ const DocumentsModule: React.FC = () => {
       case 'Dispensation': return Stethoscope;
       case 'Vigilance': return AlertTriangle;
       case 'Formation': return GraduationCap;
+      case 'Fiches de processus': return GitBranch;
       default: return FileText;
     }
   };
 
+  // Vue du formulaire de fiche de processus
+  if (view === 'form' && selectedProcess) {
+    return (
+      <ProcessSheetForm
+        processCode={selectedProcess.code}
+        processName={selectedProcess.name}
+        onSave={handleProcessSheetSave}
+        onCancel={handleBackToList}
+      />
+    );
+  }
+
+  // Vue de liste des processus
+  if (view === 'process-list') {
+    return (
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Sélectionner un Processus</h2>
+            <button
+              onClick={handleBackToList}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              Retour
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {processTemplates.map((process) => (
+              <button
+                key={process.id}
+                onClick={() => {
+                  setSelectedProcess({ code: process.id, name: process.name });
+                  setView('form');
+                }}
+                className="bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg p-4 text-left transition-colors"
+              >
+                <div className="flex items-center space-x-3 mb-2">
+                  <GitBranch className="h-6 w-6 text-teal-600" />
+                  <h3 className="font-semibold text-gray-900">{process.name}</h3>
+                </div>
+                <p className="text-sm text-gray-600">{process.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (view === 'form') {
     const template = documentTemplates.find(t => t.id === selectedTemplate);
     if (!template) return null;
+
+    // Cas spécial pour le Plan CAPA
+    if (selectedTemplate === 'capa-plan') {
+      return (
+        <CAPAForm onCancel={handleBackToList} />
+      );
+    }
+
+    // Cas spécial pour la Fiche de fonction par poste
+    if (selectedTemplate === 'job-description') {
+      return (
+        <JobDescriptionForm
+          template={template}
+          onCancel={handleBackToList}
+        />
+      );
+    }
+
+    // Cas spécial pour la Politique Qualité
+    if (selectedTemplate === 'quality-policy') {
+      return (
+        <QualityPolicyForm
+          template={template}
+          onCancel={handleBackToList}
+        />
+      );
+    }
 
     return (
       <DocumentForm

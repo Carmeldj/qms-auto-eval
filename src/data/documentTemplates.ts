@@ -49,7 +49,7 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'jobTitle', label: 'Intitulé du poste', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Auxiliaire en pharmacie', 'Vendeur/Assistant', 'Responsable qualité', 'Stagiaire'] },
       { id: 'holderName', label: 'Nom du titulaire du poste', type: 'text', required: true, placeholder: 'Nom de la personne' },
-      { id: 'reportingTo', label: 'Rattachement hiérarchique', type: 'text', required: true, placeholder: 'Supérieur hiérarchique' },
+      { id: 'reportingTo', label: 'Rattachement hiérarchique', type: 'text', required: false, placeholder: 'Supérieur hiérarchique (optionnel)' },
       { id: 'mission', label: 'Mission principale', type: 'textarea', required: true, placeholder: 'Description de la mission principale du poste', rows: 3 },
       { id: 'responsibilities', label: 'Responsabilités', type: 'textarea', required: true, placeholder: 'Liste des responsabilités principales', rows: 5 },
       { id: 'competences', label: 'Compétences requises', type: 'textarea', required: true, placeholder: 'Compétences techniques et comportementales', rows: 4 },
@@ -80,6 +80,24 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'correctiveActions', label: 'Actions correctives planifiées', type: 'textarea', required: true, placeholder: 'Actions pour éviter la récurrence', rows: 3 },
       { id: 'responsible', label: 'Responsable du suivi', type: 'text', required: true, placeholder: 'Personne responsable du suivi' },
       { id: 'deadline', label: 'Échéance', type: 'date', required: true }
+    ]
+  },
+  {
+    id: 'quality-policy',
+    title: 'Politique Qualité',
+    category: 'Qualité',
+    description: 'Document définissant la vision, les valeurs et les engagements qualité de l\'officine',
+    estimatedTime: '15-20 min',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'vision', label: 'Vision', type: 'textarea', required: true, placeholder: 'Notre vision pour l\'officine', rows: 3 },
+      { id: 'values', label: 'Valeurs', type: 'textarea', required: true, placeholder: 'Nos valeurs fondamentales (ex: Excellence, Bienveillance, Professionnalisme)', rows: 3 },
+      { id: 'missions', label: 'Missions', type: 'textarea', required: true, placeholder: 'Nos missions principales en matière de qualité', rows: 4 },
+      { id: 'means', label: 'Moyens et Responsabilités', type: 'textarea', required: true, placeholder: 'Moyens mis en œuvre et répartition des responsabilités', rows: 4 },
+      { id: 'strategicAxes', label: 'Axes Stratégiques', type: 'textarea', required: true, placeholder: 'Nos axes stratégiques pour l\'amélioration continue', rows: 4 },
+      { id: 'references', label: 'Références', type: 'textarea', required: false, placeholder: 'Documents de référence, normes applicables, textes réglementaires...', rows: 3 },
+      { id: 'dateCreation', label: 'Date de création', type: 'date', required: true },
+      { id: 'dateRevision', label: 'Date de révision', type: 'date', required: false }
     ]
   },
   {
@@ -254,18 +272,18 @@ export const documentTemplates: DocumentTemplate[] = [
     ]
   },
 
-  // Gestion des déchets
+  // Gestion des périmés
   {
     id: 'pharmaceutical-waste',
-    title: 'Liste des déchets pharmaceutiques',
+    title: 'Liste des périmés pharmaceutiques',
     category: 'Environnement',
-    description: 'Enregistrement détaillé des déchets pharmaceutiques collectés',
+    description: 'Enregistrement détaillé des périmés pharmaceutiques collectés',
     estimatedTime: '10-15 min',
     classificationCode: documentClassificationMapping['pharmaceutical-waste'],
     fields: [
       { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
       { id: 'recordDate', label: 'Date d\'enregistrement', type: 'date', required: true },
-      { id: 'wasteType', label: 'Type de déchet', type: 'select', required: true, options: ['Médicaments périmés', 'Médicaments non utilisés', 'Stupéfiants', 'Cytostatiques', 'Déchets d\'activités de soins à risques infectieux (DASRI)', 'Autres déchets dangereux'] },
+      { id: 'wasteType', label: 'Type de périmé', type: 'select', required: true, options: ['Médicaments périmés', 'Médicaments non utilisés', 'Stupéfiants', 'Cytostatiques', 'Produits de soins à risques infectieux (DASRI)', 'Autres produits dangereux'] },
       { id: 'productName', label: 'Nom du produit', type: 'text', required: true, placeholder: 'Dénomination du médicament ou produit' },
       { id: 'laboratoryName', label: 'Laboratoire', type: 'text', required: true, placeholder: 'Nom du laboratoire fabricant' },
       { id: 'batchNumber', label: 'Numéro de lot', type: 'text', required: false, placeholder: 'Numéro de lot' },
@@ -312,6 +330,34 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'followUp', label: 'Suivi recommandé', type: 'textarea', required: false, placeholder: 'Suivi thérapeutique conseillé', rows: 2 },
       { id: 'globalAssessment', label: 'Évaluation globale', type: 'select', required: true, options: ['Ordonnance optimale', 'Ordonnance acceptable', 'Ordonnance nécessitant surveillance', 'Ordonnance problématique'] }
     ]
+  },
+
+  // Plan CAPA
+  {
+    id: 'capa-plan',
+    title: 'Plan CAPA (Actions Correctives et Préventives)',
+    category: 'Qualité',
+    description: 'Plan d\'actions correctives et préventives',
+    estimatedTime: '30-40 min',
+    classificationCode: documentClassificationMapping['capa-plan'] || '02.03',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'dateCreation', label: 'Date de création', type: 'date', required: true },
+      { id: 'responsableQualite', label: 'Responsable Qualité', type: 'text', required: true, placeholder: 'Nom du responsable qualité' },
+      { id: 'periode', label: 'Période concernée', type: 'text', required: true, placeholder: 'Ex: Q1 2025, Janvier-Mars 2025' },
+      { id: 'actionsCount', label: 'Nombre d\'actions CAPA', type: 'number', required: true, min: 1, max: 20, defaultValue: 5,
+        help: 'Nombre d\'actions correctives/préventives à planifier' }
+    ]
+  },
+
+  // Fiches de processus - Un seul template pour tous les processus
+  {
+    id: 'process-sheets',
+    title: 'Fiches de Processus',
+    category: 'Fiches de processus',
+    description: 'Documentation détaillée des 10 processus de l\'officine (étapes, responsables, documents, KPI)',
+    estimatedTime: '30-40 min par processus',
+    fields: []
   }
 ];
 

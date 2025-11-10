@@ -4,6 +4,8 @@ import {
   TraceabilityRecord,
 } from "./TracabilityRecordService";
 import jsPDF from "jspdf";
+import { signatureGenerator } from "./SignatureGenerator";
+import { useAuth } from "../contexts/AuthContext";
 
 export class TraceabilityService {
   private static instance: TraceabilityService;
@@ -45,6 +47,7 @@ export class TraceabilityService {
     template: TraceabilityTemplate,
     record: any
   ): Promise<any> {
+    const user = useAuth().user;
     try {
       // Sauvegarder dans Supabase
       const savedRecord: TraceabilityRecord = {
@@ -55,7 +58,7 @@ export class TraceabilityService {
         process_code: template.processCode,
         pharmacy_name: record.data.pharmacyName || "Non renseigné",
         record_data: record.data,
-        created_by: "Utilisateur",
+        created_by: user?.email || "unknown",
       };
 
       await traceabilityRecordService.saveRecord(savedRecord);
@@ -85,7 +88,8 @@ export class TraceabilityService {
 
       pdf.setFontSize(12);
       pdf.setFont("helvetica", "normal");
-      pdf.text(template.title.toUpperCase(), pageWidth / 2, 23, {
+      const documentTitle = record.data._customTitle || template.title;
+      pdf.text(documentTitle.toUpperCase(), pageWidth / 2, 23, {
         align: "center",
       });
 
@@ -205,31 +209,177 @@ export class TraceabilityService {
       pdf.text("VALIDATION ET SIGNATURES", margin, yPos);
       yPos += 8;
 
+      // Helper function to add signature or initials with blue styled signature
+      const addSignatureOrInitials = (
+        x: number,
+        y: number,
+        name: string,
+        signatureImage?: string,
+        maxWidth: number = 25,
+        maxHeight: number = 8
+      ) => {
+        if (signatureImage) {
+          // Add signature image provided by user
+          try {
+            pdf.addImage(
+              signatureImage,
+              "PNG",
+              x,
+              y,
+              maxWidth,
+              maxHeight,
+              undefined,
+              "FAST"
+            );
+          } catch (error) {
+            console.error("Failed to add signature image:", error);
+            // Generate default signature as fallback
+            const generatedSignature = signatureGenerator.generateSignature(
+              name,
+              maxWidth * 10,
+              maxHeight * 10
+            );
+            try {
+              pdf.addImage(
+                generatedSignature,
+                "PNG",
+                x,
+                y,
+                maxWidth,
+                maxHeight,
+                undefined,
+                "FAST"
+              );
+            } catch (err) {
+              console.error("Failed to generate signature:", err);
+            }
+          }
+        } else {
+          // Generate default manuscript-style signature with blue color and decorative line
+          try {
+            const generatedSignature = signatureGenerator.generateSignature(
+              name,
+              maxWidth * 10,
+              maxHeight * 10
+            );
+            pdf.addImage(
+              generatedSignature,
+              "PNG",
+              x,
+              y,
+              maxWidth,
+              maxHeight,
+              undefined,
+              "FAST"
+            );
+          } catch (error) {
+            console.error("Failed to generate signature:", error);
+            // Ultimate fallback: simple text
+            const nameParts = name.trim().split(/\s+/);
+            let signatureText = "";
+            if (nameParts.length >= 2) {
+              const lastName = nameParts[nameParts.length - 1];
+              const firstNameInitial = nameParts[0][0].toUpperCase();
+              signatureText = `${lastName} ${firstNameInitial}`;
+            } else {
+              signatureText = name;
+            }
+            pdf.setFont("times", "italic");
+            pdf.setFontSize(10);
+            pdf.setTextColor(0, 102, 204);
+            pdf.text(signatureText, x + maxWidth / 2, y + maxHeight / 2 + 2, {
+              align: "center",
+            });
+          }
+        }
+      };
+
       const signatureBoxWidth = (pageWidth - 2 * margin - 20) / 3;
       const signatureBoxHeight = 25;
 
-      // Trois zones de signature
-      const signatureLabels = [
-        "Enregistre par:",
-        "Verifie par:",
-        "Approuve par:",
+      // Trois zones de signature avec données
+      const signatureData = [
+        { label: "Enregistre par:", data: record.signatures?.recorder },
+        { label: "Verifie par:", data: record.signatures?.verifier },
+        { label: "Approuve par:", data: record.signatures?.approver },
       ];
 
       xPos = margin;
-      signatureLabels.forEach((label) => {
+      signatureData.forEach(({ label, data }, index) => {
+        const isApprover = index === 2; // L'approbateur est le 3ème (index 2)
+
         pdf.setDrawColor(150, 150, 150);
         pdf.setLineWidth(0.3);
         pdf.rect(xPos, yPos, signatureBoxWidth, signatureBoxHeight);
 
         pdf.setFontSize(9);
         pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(0, 0, 0);
         pdf.text(label, xPos + 3, yPos + 5);
 
         pdf.setFont("helvetica", "normal");
         pdf.setFontSize(8);
-        pdf.text("Date: ___/___/______", xPos + 3, yPos + 12);
-        pdf.text("Nom:", xPos + 3, yPos + 18);
-        pdf.text("Signature:", xPos + 3, yPos + 23);
+
+        if (data) {
+          const dateStr = data.date
+            ? new Date(data.date).toLocaleDateString("fr-FR")
+            : "___/___/______";
+          pdf.text(`Date: ${dateStr}`, xPos + 3, yPos + 11);
+          pdf.text(`Nom: ${data.name || ""}`, xPos + 3, yPos + 16);
+
+          if (data.name) {
+            const signatureX = xPos + 3;
+            const signatureY = yPos + 17;
+
+            // Pour l'approbateur, ajouter signature + cachet côte à côte
+            if (isApprover) {
+              const signatureWidth = (signatureBoxWidth - 6) / 2 - 2;
+              // Signature à gauche
+              addSignatureOrInitials(
+                signatureX,
+                signatureY,
+                data.name,
+                data.signatureImage,
+                signatureWidth,
+                6
+              );
+
+              // Cachet à droite
+              if (data.stampImage) {
+                try {
+                  pdf.addImage(
+                    data.stampImage,
+                    "PNG",
+                    signatureX + signatureWidth + 4,
+                    signatureY - 1,
+                    8,
+                    8,
+                    undefined,
+                    "FAST"
+                  );
+                } catch (error) {
+                  console.error("Failed to add stamp image:", error);
+                }
+              }
+            } else {
+              // Pour les autres, signature normale
+              addSignatureOrInitials(
+                signatureX,
+                signatureY,
+                data.name,
+                data.signatureImage,
+                signatureBoxWidth - 6,
+                6
+              );
+            }
+          } else {
+            pdf.text("Signature:", xPos + 3, yPos + 21);
+          }
+        } else {
+          pdf.text("Date: ___/___/______", xPos + 3, yPos + 11);
+          pdf.text("Nom:", xPos + 3, yPos + 16);
+          pdf.text("Signature:", xPos + 3, yPos + 21);
+        }
 
         xPos += signatureBoxWidth + 10;
       });
@@ -262,6 +412,7 @@ export class TraceabilityService {
       const fileName = `registre-${safeTemplateTitle}-${
         new Date().toISOString().split("T")[0]
       }-${record.id}.pdf`;
+      pdf.save(fileName);
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
     } catch (error) {
@@ -278,14 +429,16 @@ export class TraceabilityService {
     template: TraceabilityTemplate,
     year: number,
     month: number,
-    pharmacyName?: string
+    pharmacyName?: string,
+    userEmail?: string
   ): Promise<any> {
     try {
       // Récupérer tous les enregistrements du mois
       const records = await traceabilityRecordService.getRecordsByMonth(
         template.id,
         year,
-        month
+        month,
+        userEmail || ""
       );
 
       if (records.length === 0) {
@@ -420,7 +573,7 @@ export class TraceabilityService {
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(6);
 
-      records.forEach((record) => {
+      records.forEach((record, recordIndex) => {
         if (yPos > pageHeight - 30) {
           pdf.addPage("a4", "landscape");
           yPos = margin;
@@ -522,7 +675,7 @@ export class TraceabilityService {
       const fileName = `compilation-${template.id}-${year}-${String(
         month
       ).padStart(2, "0")}.pdf`;
-
+      pdf.save(fileName);
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
     } catch (error) {

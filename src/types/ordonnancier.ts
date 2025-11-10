@@ -20,8 +20,13 @@ export interface OrdonnancierEntry {
     nom: string;
     signature: string;
   };
+  prescriptionFileUrl?: string;
+  prescriptionFileType?: 'pdf' | 'jpg' | 'jpeg' | 'png';
+  prescriptionPasswordHash?: string;
+  prescriptionUploadedAt?: string;
   createdAt: string;
   updatedAt: string;
+  createdBy: string;
 }
 
 export interface OrdonnancierFilter {
@@ -29,6 +34,7 @@ export interface OrdonnancierFilter {
   dateFin?: string;
   trimestre?: number;
   annee?: number;
+  
 }
 
 export interface TrimestrialReport {

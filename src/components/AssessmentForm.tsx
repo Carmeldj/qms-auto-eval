@@ -100,7 +100,7 @@ const AssessmentForm: React.FC = () => {
 
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={() => {
