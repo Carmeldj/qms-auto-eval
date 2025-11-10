@@ -20,6 +20,12 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
   const [showStampGenerator, setShowStampGenerator] = useState(false);
   const [stampPharmacyName, setStampPharmacyName] = useState<string>('');
 
+  // Validation signatures
+  const [creatorName, setCreatorName] = useState<string>('');
+  const [creatorSignature, setCreatorSignature] = useState<string | null>(null);
+  const [verifierName, setVerifierName] = useState<string>('');
+  const [verifierSignature, setVerifierSignature] = useState<string | null>(null);
+
   useEffect(() => {
     const initialData: Record<string, string> = {};
     template.fields.forEach(field => {
@@ -71,6 +77,28 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
     }
   };
 
+  const handleCreatorSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCreatorSignature(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleVerifierSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setVerifierSignature(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleGenerateStamp = () => {
     if (!stampPharmacyName.trim()) {
       alert('Veuillez entrer le nom de la pharmacie pour générer le cachet');
@@ -100,7 +128,11 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
         ...formData,
         _signatureImage: signatureImage || '',
         _signatoryName: signatoryName,
-        _stampImage: stampImage || ''
+        _stampImage: stampImage || '',
+        _creatorName: creatorName,
+        _creatorSignature: creatorSignature || '',
+        _verifierName: verifierName,
+        _verifierSignature: verifierSignature || ''
       },
       createdAt: new Date().toISOString()
     };
@@ -353,6 +385,125 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
                 Le cachet sera affiché à côté de la signature en bas de la première page.
               </p>
             </div>
+          </div>
+
+          {/* Validation Signatures Section */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Signatures de Validation (Page 2)</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Creator Signature */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h4 className="font-semibold text-gray-800">Établi par</h4>
+
+                <div>
+                  <label htmlFor="creatorName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    id="creatorName"
+                    value={creatorName}
+                    onChange={(e) => setCreatorName(e.target.value)}
+                    placeholder="Nom complet"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Signature
+                  </label>
+                  <label className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-white transition-colors">
+                    <Upload className="h-5 w-5 text-gray-600 mr-2" />
+                    <span className="text-sm text-gray-700">Importer signature</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCreatorSignatureUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {creatorSignature && (
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-white p-2 rounded border border-gray-300">
+                      <img
+                        src={creatorSignature}
+                        alt="Signature créateur"
+                        className="h-16 w-auto"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCreatorSignature(null)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Verifier Signature */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h4 className="font-semibold text-gray-800">Vérifié par</h4>
+
+                <div>
+                  <label htmlFor="verifierName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    id="verifierName"
+                    value={verifierName}
+                    onChange={(e) => setVerifierName(e.target.value)}
+                    placeholder="Nom complet"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Signature
+                  </label>
+                  <label className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-white transition-colors">
+                    <Upload className="h-5 w-5 text-gray-600 mr-2" />
+                    <span className="text-sm text-gray-700">Importer signature</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleVerifierSignatureUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {verifierSignature && (
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-white p-2 rounded border border-gray-300">
+                      <img
+                        src={verifierSignature}
+                        alt="Signature vérificateur"
+                        className="h-16 w-auto"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setVerifierSignature(null)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-500 mt-3">
+              Les signatures seront affichées dans la section "Validation et Signatures" en page 2.
+            </p>
           </div>
 
           {/* Actions */}

@@ -744,8 +744,22 @@ export class DocumentService {
     pdf.setFontSize(8);
     const dateCreation = data.dateCreation ? new Date(data.dateCreation).toLocaleDateString('fr-FR') : '__________';
     pdf.text(`Date: ${dateCreation}`, leftMargin + 3, signaturesY + 10);
-    pdf.text('Nom:', leftMargin + 3, signaturesY + 14);
-    pdf.text('Signature:', leftMargin + 3, signaturesY + 18);
+
+    // Display creator name if provided
+    const creatorNameText = data._creatorName ? this.removeAccents(data._creatorName) : '__________';
+    pdf.text(`Nom: ${creatorNameText}`, leftMargin + 3, signaturesY + 14);
+
+    // Display creator signature if provided
+    if (data._creatorSignature) {
+      try {
+        pdf.addImage(data._creatorSignature, 'PNG', leftMargin + 3, signaturesY + 16, 25, 5);
+      } catch (error) {
+        console.warn('Failed to add creator signature:', error);
+        pdf.text('Signature:', leftMargin + 3, signaturesY + 18);
+      }
+    } else {
+      pdf.text('Signature:', leftMargin + 3, signaturesY + 18);
+    }
 
     // Right signature box - "Vérifié par"
     const rightBoxX = leftMargin + signatureBoxWidth + 10;
@@ -761,8 +775,22 @@ export class DocumentService {
     pdf.setFontSize(8);
     const dateRevision = data.dateRevision ? new Date(data.dateRevision).toLocaleDateString('fr-FR') : '__________';
     pdf.text(`Date: ${dateRevision}`, rightBoxX + 3, signaturesY + 10);
-    pdf.text('Nom:', rightBoxX + 3, signaturesY + 14);
-    pdf.text('Signature:', rightBoxX + 3, signaturesY + 18);
+
+    // Display verifier name if provided
+    const verifierNameText = data._verifierName ? this.removeAccents(data._verifierName) : '__________';
+    pdf.text(`Nom: ${verifierNameText}`, rightBoxX + 3, signaturesY + 14);
+
+    // Display verifier signature if provided
+    if (data._verifierSignature) {
+      try {
+        pdf.addImage(data._verifierSignature, 'PNG', rightBoxX + 3, signaturesY + 16, 25, 5);
+      } catch (error) {
+        console.warn('Failed to add verifier signature:', error);
+        pdf.text('Signature:', rightBoxX + 3, signaturesY + 18);
+      }
+    } else {
+      pdf.text('Signature:', rightBoxX + 3, signaturesY + 18);
+    }
 
     // Footer for second page
     footerY = pageHeight - 7;
