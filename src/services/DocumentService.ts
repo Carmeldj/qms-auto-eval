@@ -627,6 +627,24 @@ export class DocumentService {
     // Axes Stratégiques section
     addBoxedSection('AXES STRATEGIQUES', data.strategicAxes || 'Non renseigne', { r: 244, g: 67, b: 54 });
 
+    // Signature section on first page (if provided)
+    if (data._signatureImage && data._signatoryName) {
+      const signatureY = pageHeight - 35;
+
+      // Add signature image
+      try {
+        pdf.addImage(data._signatureImage, 'PNG', leftMargin, signatureY, 30, 15);
+      } catch (error) {
+        console.warn('Failed to add signature image:', error);
+      }
+
+      // Add signatory name
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text(this.removeAccents(data._signatoryName), leftMargin, signatureY + 18);
+    }
+
     // Footer for first page
     let footerY = pageHeight - 7;
     pdf.setFontSize(6);

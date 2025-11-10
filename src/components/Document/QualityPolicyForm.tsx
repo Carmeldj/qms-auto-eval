@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles } from 'lucide-react';
+import { X, Sparkles, Upload } from 'lucide-react';
 import { DocumentTemplate } from '../../types/documents';
 import { getQualityPolicyDefault } from '../../data/qualityPolicyDefaults';
 import { DocumentService } from '../../services/DocumentService';
@@ -13,6 +13,8 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [showAutoFillInfo, setShowAutoFillInfo] = useState(true);
   const [hasAutoFilled, setHasAutoFilled] = useState(false);
+  const [signatureImage, setSignatureImage] = useState<string | null>(null);
+  const [signatoryName, setSignatoryName] = useState<string>('');
 
   useEffect(() => {
     const initialData: Record<string, string> = {};
@@ -43,13 +45,28 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
     }));
   };
 
+  const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSignatureImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const documentData = {
       id: `DOC-${Date.now()}`,
       templateId: template.id,
-      data: formData,
+      data: {
+        ...formData,
+        _signatureImage: signatureImage || '',
+        _signatoryName: signatoryName
+      },
       createdAt: new Date().toISOString()
     };
 
@@ -164,6 +181,64 @@ const QualityPolicyForm: React.FC<QualityPolicyFormProps> = ({ template, onCance
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Signature Section */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Signature du Responsable</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="signatoryName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Nom du signataire
+                </label>
+                <input
+                  type="text"
+                  id="signatoryName"
+                  value={signatoryName}
+                  onChange={(e) => setSignatoryName(e.target.value)}
+                  placeholder="Ex: Dr. Ahmed BENALI, Pharmacien Titulaire"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Importer la signature
+                </label>
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <Upload className="h-5 w-5 text-gray-600 mr-2" />
+                    <span className="text-sm text-gray-700">Choisir une image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleSignatureUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {signatureImage && (
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={signatureImage}
+                        alt="Signature"
+                        className="h-16 border border-gray-300 rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setSignatureImage(null)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Formats acceptés: PNG, JPG, JPEG. La signature sera affichée en bas de la première page.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Actions */}
