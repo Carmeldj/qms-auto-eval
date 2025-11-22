@@ -358,6 +358,17 @@ export const documentTemplates: DocumentTemplate[] = [
     description: 'Documentation détaillée des 10 processus de l\'officine (étapes, responsables, documents, KPI)',
     estimatedTime: '30-40 min par processus',
     fields: []
+  },
+
+  // Manuel Qualité
+  {
+    id: 'quality-manual',
+    title: 'Manuel Qualité',
+    category: 'Qualité',
+    description: 'Document de référence complet du Système de Management de la Qualité (SMQ)',
+    estimatedTime: '60-90 min',
+    classificationCode: '02.01',
+    fields: []
   }
 ];
 

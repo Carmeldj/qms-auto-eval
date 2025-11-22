@@ -6,6 +6,7 @@ import CAPAForm from './CAPAForm';
 import ProcessSheetForm from './ProcessSheetForm';
 import JobDescriptionForm from './JobDescriptionForm';
 import QualityPolicyForm from './QualityPolicyForm';
+import QualityManualForm from './QualityManualForm';
 import { ProcessSheet } from '../../types/documents';
 import { ProcessSheetService } from '../../services/ProcessSheetService';
 import { processTemplates } from '../../data/processSheetTemplates';
@@ -136,6 +137,13 @@ const DocumentsModule: React.FC = () => {
           template={template}
           onCancel={handleBackToList}
         />
+      );
+    }
+
+    // Cas spécial pour le Manuel Qualité
+    if (selectedTemplate === 'quality-manual') {
+      return (
+        <QualityManualForm onCancel={handleBackToList} />
       );
     }
 
