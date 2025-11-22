@@ -5,6 +5,7 @@ import {
 } from "./TracabilityRecordService";
 import jsPDF from "jspdf";
 import { signatureGenerator } from "./SignatureGenerator";
+import { missingProductsService } from "./MissingProductsService";
 
 export class TraceabilityService {
   private static instance: TraceabilityService;
@@ -61,6 +62,29 @@ export class TraceabilityService {
       };
 
       await traceabilityRecordService.saveRecord(savedRecord);
+
+      // Si c'est un registre de produits manquants, sauvegarder aussi dans la table dédiée
+      if (template.id === 'missing-products-tracking' && userEmail) {
+        await missingProductsService.saveMissingProduct({
+          user_email: userEmail,
+          pharmacy_name: record.data.pharmacyName,
+          date: record.data.date,
+          time: record.data.time,
+          product_name: record.data.productName,
+          dosage: record.data.dosage,
+          quantity: record.data.quantity,
+          unit_price: parseFloat(record.data.unitPrice) || 0,
+          total_lost: parseFloat(record.data.totalLost) || 0,
+          customer_type: record.data.customerType,
+          customer_contact: record.data.customerContact,
+          has_ordered: record.data.hasOrdered,
+          supplier_name: record.data.supplierName,
+          expected_delivery: record.data.expectedDelivery,
+          reason: record.data.reason,
+          observations: record.data.observations,
+          recorded_by: record.data.recordedBy
+        });
+      }
 
       // Générer le PDF
       const pdf = new jsPDF("landscape", "mm", "a4");

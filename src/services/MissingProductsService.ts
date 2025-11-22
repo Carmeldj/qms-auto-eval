@@ -1,0 +1,371 @@
+import jsPDF from 'jspdf';
+import { supabase } from '../lib/supabase';
+
+interface MissingProduct {
+  id?: string;
+  user_email: string;
+  pharmacy_name: string;
+  date: string;
+  time?: string;
+  product_name: string;
+  dosage: string;
+  quantity: string;
+  unit_price: number;
+  total_lost: number;
+  customer_type?: string;
+  customer_contact?: string;
+  has_ordered: string;
+  supplier_name?: string;
+  expected_delivery?: string;
+  reason?: string;
+  observations?: string;
+  recorded_by: string;
+  created_at?: string;
+}
+
+interface MonthlyReport {
+  totalRecords: number;
+  totalCALost: number;
+  productsByCategory: Record<string, number>;
+  topMissingProducts: Array<{
+    product: string;
+    count: number;
+    totalLost: number;
+  }>;
+}
+
+class MissingProductsService {
+  private static instance: MissingProductsService;
+
+  private constructor() {}
+
+  static getInstance(): MissingProductsService {
+    if (!MissingProductsService.instance) {
+      MissingProductsService.instance = new MissingProductsService();
+    }
+    return MissingProductsService.instance;
+  }
+
+  async saveMissingProduct(product: MissingProduct): Promise<void> {
+    const { error } = await supabase
+      .from('missing_products')
+      .insert([product]);
+
+    if (error) {
+      console.error('Error saving missing product:', error);
+      throw error;
+    }
+  }
+
+  async getMissingProductsByMonth(
+    year: number,
+    month: number,
+    userEmail: string
+  ): Promise<MissingProduct[]> {
+    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from('missing_products')
+      .select('*')
+      .eq('user_email', userEmail)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching missing products:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  async generateMonthlyReport(
+    year: number,
+    month: number,
+    pharmacyName: string,
+    userEmail: string
+  ): Promise<void> {
+    const products = await this.getMissingProductsByMonth(year, month, userEmail);
+
+    if (products.length === 0) {
+      alert('Aucun produit manquant enregistré pour ce mois');
+      return;
+    }
+
+    const report = this.calculateMonthlyReport(products);
+    await this.generatePDF(products, report, year, month, pharmacyName);
+  }
+
+  private calculateMonthlyReport(products: MissingProduct[]): MonthlyReport {
+    const totalCALost = products.reduce((sum, p) => sum + Number(p.total_lost), 0);
+
+    const productCounts: Record<string, { count: number; totalLost: number }> = {};
+    products.forEach(p => {
+      const key = `${p.product_name} ${p.dosage}`;
+      if (!productCounts[key]) {
+        productCounts[key] = { count: 0, totalLost: 0 };
+      }
+      productCounts[key].count += 1;
+      productCounts[key].totalLost += Number(p.total_lost);
+    });
+
+    const topMissingProducts = Object.entries(productCounts)
+      .map(([product, data]) => ({
+        product,
+        count: data.count,
+        totalLost: data.totalLost
+      }))
+      .sort((a, b) => b.totalLost - a.totalLost)
+      .slice(0, 10);
+
+    const productsByCategory: Record<string, number> = {};
+    products.forEach(p => {
+      const reason = p.reason || 'Non spécifié';
+      productsByCategory[reason] = (productsByCategory[reason] || 0) + 1;
+    });
+
+    return {
+      totalRecords: products.length,
+      totalCALost,
+      productsByCategory,
+      topMissingProducts
+    };
+  }
+
+  private async generatePDF(
+    products: MissingProduct[],
+    report: MonthlyReport,
+    year: number,
+    month: number,
+    pharmacyName: string
+  ): Promise<void> {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    let yPosition = 20;
+
+    const monthNames = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+
+    // En-tête
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RAPPORT MENSUEL', pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 8;
+    doc.setFontSize(16);
+    doc.text('PRODUITS MANQUANTS', pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 12;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(pharmacyName, pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 8;
+    doc.setFontSize(11);
+    doc.text(`Période : ${monthNames[month - 1]} ${year}`, pageWidth / 2, yPosition, { align: 'center' });
+
+    // Statistiques globales
+    yPosition += 15;
+    doc.setFillColor(0, 150, 136);
+    doc.rect(margin, yPosition, pageWidth - 2 * margin, 30, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+
+    yPosition += 8;
+    doc.text('SYNTHÈSE MENSUELLE', pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Nombre de demandes : ${report.totalRecords}`, margin + 5, yPosition);
+
+    yPosition += 7;
+    const caFormatted = report.totalCALost.toLocaleString('fr-FR');
+    doc.text(`CHIFFRE D'AFFAIRES PERDU : ${caFormatted} FCFA`, margin + 5, yPosition);
+
+    doc.setTextColor(0, 0, 0);
+    yPosition += 15;
+
+    // Top 10 des produits manquants
+    if (report.topMissingProducts.length > 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOP 10 DES PRODUITS LES PLUS DEMANDÉS', margin, yPosition);
+
+      yPosition += 8;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+
+      // En-têtes du tableau
+      doc.text('N°', margin, yPosition);
+      doc.text('Produit', margin + 10, yPosition);
+      doc.text('Demandes', pageWidth - margin - 50, yPosition);
+      doc.text('CA Perdu (FCFA)', pageWidth - margin - 30, yPosition, { align: 'right' });
+
+      yPosition += 2;
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 5;
+
+      doc.setFont('helvetica', 'normal');
+
+      report.topMissingProducts.forEach((item, index) => {
+        if (yPosition > pageHeight - 30) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        doc.text(`${index + 1}`, margin, yPosition);
+
+        const productText = item.product.length > 50
+          ? item.product.substring(0, 50) + '...'
+          : item.product;
+        doc.text(productText, margin + 10, yPosition);
+
+        doc.text(`${item.count}`, pageWidth - margin - 50, yPosition);
+        doc.text(item.totalLost.toLocaleString('fr-FR'), pageWidth - margin - 5, yPosition, { align: 'right' });
+
+        yPosition += 6;
+      });
+
+      yPosition += 5;
+    }
+
+    // Raisons d'indisponibilité
+    if (Object.keys(report.productsByCategory).length > 0) {
+      if (yPosition > pageHeight - 60) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      yPosition += 5;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('RAISONS D\'INDISPONIBILITÉ', margin, yPosition);
+
+      yPosition += 8;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+
+      Object.entries(report.productsByCategory).forEach(([reason, count]) => {
+        doc.text(`• ${reason} : ${count} cas`, margin + 5, yPosition);
+        yPosition += 6;
+      });
+    }
+
+    // Nouvelle page pour le détail
+    doc.addPage();
+    yPosition = 20;
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DÉTAIL DES PRODUITS MANQUANTS', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 10;
+
+    // Tableau détaillé
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+
+    const colWidths = {
+      date: 20,
+      product: 60,
+      dosage: 25,
+      qty: 12,
+      price: 20,
+      total: 25,
+      ordered: 18
+    };
+
+    let xPos = margin;
+    doc.text('Date', xPos, yPosition);
+    xPos += colWidths.date;
+    doc.text('Produit', xPos, yPosition);
+    xPos += colWidths.product;
+    doc.text('Dosage', xPos, yPosition);
+    xPos += colWidths.dosage;
+    doc.text('Qté', xPos, yPosition);
+    xPos += colWidths.qty;
+    doc.text('PU (FCFA)', xPos, yPosition);
+    xPos += colWidths.price;
+    doc.text('Total (FCFA)', xPos, yPosition);
+    xPos += colWidths.total;
+    doc.text('Cmd?', xPos, yPosition);
+
+    yPosition += 2;
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 5;
+
+    doc.setFont('helvetica', 'normal');
+
+    products.forEach((product, index) => {
+      if (yPosition > pageHeight - 20) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      xPos = margin;
+
+      const dateStr = new Date(product.date).toLocaleDateString('fr-FR');
+      doc.text(dateStr, xPos, yPosition);
+      xPos += colWidths.date;
+
+      const productName = product.product_name.length > 30
+        ? product.product_name.substring(0, 30) + '...'
+        : product.product_name;
+      doc.text(productName, xPos, yPosition);
+      xPos += colWidths.product;
+
+      doc.text(product.dosage, xPos, yPosition);
+      xPos += colWidths.dosage;
+
+      doc.text(product.quantity, xPos, yPosition);
+      xPos += colWidths.qty;
+
+      doc.text(product.unit_price.toLocaleString('fr-FR'), xPos, yPosition);
+      xPos += colWidths.price;
+
+      doc.text(product.total_lost.toLocaleString('fr-FR'), xPos, yPosition);
+      xPos += colWidths.total;
+
+      doc.text(product.has_ordered === 'Oui' ? 'Oui' : 'Non', xPos, yPosition);
+
+      yPosition += 6;
+
+      if ((index + 1) % 5 === 0) {
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, yPosition - 1, pageWidth - margin, yPosition - 1);
+      }
+    });
+
+    // Pied de page final
+    const totalPages = doc.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(128, 128, 128);
+      doc.text(
+        `Page ${i} / ${totalPages}`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: 'center' }
+      );
+      doc.text(
+        `Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`,
+        pageWidth / 2,
+        pageHeight - 6,
+        { align: 'center' }
+      );
+    }
+
+    doc.save(`Rapport_Produits_Manquants_${monthNames[month - 1]}_${year}.pdf`);
+  }
+}
+
+export const missingProductsService = MissingProductsService.getInstance();

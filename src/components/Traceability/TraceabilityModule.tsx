@@ -5,6 +5,7 @@ import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
 import { useAuth } from '../../contexts/AuthContext';
 import { TraceabilityRecordService } from '../../services/TracabilityRecordService';
+import { missingProductsService } from '../../services/MissingProductsService';
 
 const TraceabilityModule: React.FC = () => {
   const [view, setView] = useState<'list' | 'form' | 'compilation'>('list');
@@ -96,13 +97,23 @@ const TraceabilityModule: React.FC = () => {
     if (!template) return;
 
     try {
-      await traceabilityService.generateMonthlyCompilation(
-        template,
-        compilationYear,
-        compilationMonth,
-        pharmacyName,
-        user?.email
-      );
+      // Si c'est le registre des produits manquants, utiliser le service dédié
+      if (selectedTemplate === 'missing-products-tracking' && user?.email) {
+        await missingProductsService.generateMonthlyReport(
+          compilationYear,
+          compilationMonth,
+          pharmacyName,
+          user.email
+        );
+      } else {
+        await traceabilityService.generateMonthlyCompilation(
+          template,
+          compilationYear,
+          compilationMonth,
+          pharmacyName,
+          user?.email
+        );
+      }
     } catch (error) {
       console.error('Error generating compilation:', error);
       alert('Erreur lors de la génération de la compilation');
@@ -154,7 +165,8 @@ const TraceabilityModule: React.FC = () => {
                 {[
                   { id: 'equipment-lifecycle', title: 'Registre de vie des équipements' },
                   { id: 'hygiene-tracking', title: "Registre de suivi de l'hygiène du personnel" },
-                  { id: 'premises-cleaning', title: "Registre de l'entretien des locaux et toilettes" }
+                  { id: 'premises-cleaning', title: "Registre de l'entretien des locaux et toilettes" },
+                  { id: 'missing-products-tracking', title: 'Registre de suivi des produits manquants' }
                 ].map(template => {
                   const count = recordCounts[template.id] || 0;
                   const badge = getCountBadge(count);

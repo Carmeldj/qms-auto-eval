@@ -466,6 +466,32 @@ export const traceabilityTemplates: TraceabilityTemplate[] = [
       { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières' },
       { id: 'controller', label: 'Contrôleur', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Responsable comptable', 'Gérant'] }
     ]
+  },
+  {
+    id: 'missing-products-tracking',
+    title: 'Registre de suivi des produits manquants',
+    description: 'Traçabilité des demandes clients pour produits non disponibles avec calcul du CA perdu',
+    category: 'Administration',
+    classification: '08.03',
+    processCode: '03',
+    fields: [
+      { id: 'pharmacyName', label: 'Nom de la pharmacie', type: 'text', required: true, placeholder: 'Nom de l\'officine' },
+      { id: 'date', label: 'Date de la demande', type: 'date', required: true },
+      { id: 'time', label: 'Heure', type: 'text', required: false, placeholder: 'HH:MM' },
+      { id: 'productName', label: 'Nom du produit', type: 'text', required: true, placeholder: 'Dénomination complète du produit' },
+      { id: 'dosage', label: 'Posologie / Dosage', type: 'text', required: true, placeholder: 'Ex: 500mg, 10mg/ml, etc.' },
+      { id: 'quantity', label: 'Quantité demandée', type: 'text', required: true, placeholder: 'Nombre d\'unités' },
+      { id: 'unitPrice', label: 'Prix unitaire (FCFA)', type: 'text', required: true, placeholder: 'Prix de vente unitaire' },
+      { id: 'totalLost', label: 'CA perdu total (FCFA)', type: 'text', required: true, placeholder: 'Montant total perdu' },
+      { id: 'customerType', label: 'Type de client', type: 'select', required: false, options: ['Client régulier', 'Nouveau client', 'Client occasionnel', 'Prescripteur'] },
+      { id: 'customerContact', label: 'Contact client', type: 'text', required: false, placeholder: 'Téléphone ou nom (si régulier)' },
+      { id: 'hasOrdered', label: 'Produit commandé ?', type: 'select', required: true, options: ['Oui', 'Non', 'En attente'] },
+      { id: 'supplierName', label: 'Fournisseur contacté', type: 'text', required: false, placeholder: 'Nom du fournisseur' },
+      { id: 'expectedDelivery', label: 'Date de livraison prévue', type: 'date', required: false },
+      { id: 'reason', label: 'Raison de l\'indisponibilité', type: 'select', required: false, options: ['Rupture de stock', 'Produit non référencé', 'Produit retiré du marché', 'Délai de livraison', 'Autre'] },
+      { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières' },
+      { id: 'recordedBy', label: 'Enregistré par', type: 'select', required: true, options: ['Pharmacien titulaire', 'Pharmacien adjoint', 'Auxiliaire en pharmacie', 'Rayonniste'] }
+    ]
   }
 ];
 
