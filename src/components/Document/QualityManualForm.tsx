@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Save, X, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { Save, X, Download, AlertCircle, CheckCircle, Wand2 } from 'lucide-react';
 import { QualityManualService } from '../../services/QualityManualService';
+import { getQualityManualDefaults } from '../../data/qualityPolicyDefaults';
 
 interface QualityManualData {
   pharmacyName: string;
@@ -72,6 +73,7 @@ interface QualityManualFormProps {
 }
 
 const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
+  const [isAutoFilled, setIsAutoFilled] = useState(false);
   const [formData, setFormData] = useState<QualityManualData>({
     pharmacyName: '',
     address: '',
@@ -139,6 +141,51 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
 
   const handleInputChange = (field: keyof QualityManualData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAutoFill = () => {
+    const defaults = getQualityManualDefaults();
+    setFormData(prev => ({
+      ...prev,
+      scopeApplication: defaults.scopeApplication,
+      exclusions: defaults.exclusions,
+      regulatoryReferences: defaults.regulatoryReferences,
+      qualityPolicy: defaults.qualityPolicy,
+      qualityObjectives: defaults.qualityObjectives,
+      organizationalStructure: defaults.organizationalStructure,
+      rolesResponsibilities: defaults.rolesResponsibilities,
+      documentControl: defaults.documentControl,
+      recordsManagement: defaults.recordsManagement,
+      changeManagement: defaults.changeManagement,
+      humanResources: defaults.humanResources,
+      trainingProgram: defaults.trainingProgram,
+      competencyEvaluation: defaults.competencyEvaluation,
+      infrastructure: defaults.infrastructure,
+      equipmentMaintenance: defaults.equipmentMaintenance,
+      workEnvironment: defaults.workEnvironment,
+      supplierManagement: defaults.supplierManagement,
+      procurementProcess: defaults.procurementProcess,
+      externalProviders: defaults.externalProviders,
+      receptionControl: defaults.receptionControl,
+      storageConditions: defaults.storageConditions,
+      dispensingProcess: defaults.dispensingProcess,
+      productIdentification: defaults.productIdentification,
+      traceability: defaults.traceability,
+      pharmacovigilance: defaults.pharmacovigilance,
+      complaints: defaults.complaints,
+      productRecalls: defaults.productRecalls,
+      customerProperty: defaults.customerProperty,
+      riskManagement: defaults.riskManagement,
+      emergencyPreparedness: defaults.emergencyPreparedness,
+      internalAudits: defaults.internalAudits,
+      nonConformities: defaults.nonConformities,
+      capaProcess: defaults.capaProcess,
+      kpis: defaults.kpis,
+      managementReview: defaults.managementReview,
+      dataAnalysis: defaults.dataAnalysis,
+      continuousImprovement: defaults.continuousImprovement
+    }));
+    setIsAutoFilled(true);
   };
 
   const isFormValid = () => {
@@ -331,6 +378,13 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
               <span>Retour</span>
             </button>
             <button
+              onClick={handleAutoFill}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200"
+            >
+              <Wand2 className="h-4 w-4" />
+              <span>Auto-remplir</span>
+            </button>
+            <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid()}
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
@@ -345,6 +399,18 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
           </div>
         </div>
       </div>
+
+      {/* Auto-fill notification */}
+      {isAutoFilled && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="h-5 w-5 text-blue-600" />
+            <p className="text-blue-800 font-medium">
+              Formulaire auto-rempli avec les modèles par défaut. Vous pouvez maintenant personnaliser les champs selon vos besoins.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Form Sections */}
       <div className="space-y-6">
