@@ -8,27 +8,61 @@ interface QualityManualData {
   titulaire: string;
   qualifications: string;
   qualityManager: string;
+
+  history: string;
+  sites: string;
+  keyFigures: string;
+  mission: string;
+  values: string;
+  activities: string;
+  organigram: string;
+  certifications: string;
+  applicationScope: string;
+  exclusions: string;
+
   qualityPolicy: string;
   qualityObjectives: string;
+
+  processMapping: string;
+  managementProcesses: string;
+  realizationProcesses: string;
+  supportProcesses: string;
+  processMonitoring: string;
+  internalAuditsProcess: string;
+  processReview: string;
+  managementReviewProcess: string;
+
   organizationalStructure: string;
   rolesResponsibilities: string;
+
+  documentarySystem: string;
   documentControl: string;
   recordsManagement: string;
+
   humanResources: string;
   trainingProgram: string;
+
   infrastructure: string;
   equipmentMaintenance: string;
+
   receptionControl: string;
   storageConditions: string;
   dispensingProcess: string;
+
   pharmacovigilance: string;
   complaints: string;
+
   internalAudits: string;
   nonConformities: string;
   capaProcess: string;
+
   kpis: string;
   managementReview: string;
+
   continuousImprovement: string;
+
+  normativeReferences: string;
+  abbreviations: string;
 }
 
 export class QualityManualService {
@@ -168,15 +202,18 @@ export class QualityManualService {
     doc.setFont('helvetica', 'normal');
 
     const chapters = [
-      '1. Politique et Objectifs Qualité',
-      '2. Organisation et Responsabilités',
-      '3. Gestion Documentaire',
-      '4. Ressources Humaines',
-      '5. Infrastructures et Équipements',
-      '6. Processus de Réalisation',
-      '7. Surveillance et Vigilance',
-      '8. Audits et Non-conformités',
-      '9. Mesure et Amélioration Continue'
+      '1. Présentation de l\'Entreprise',
+      '2. Politique et Objectifs Qualité',
+      '3. Système de Management de la Qualité',
+      '4. Organisation et Responsabilités',
+      '5. Système Documentaire',
+      '6. Ressources Humaines',
+      '7. Infrastructures et Équipements',
+      '8. Processus de Réalisation',
+      '9. Surveillance et Vigilance',
+      '10. Audits et Non-conformités',
+      '11. Mesure et Amélioration Continue',
+      'Annexes'
     ];
 
     chapters.forEach(chapter => {
@@ -188,19 +225,27 @@ export class QualityManualService {
     doc.addPage();
     yPos = margin;
 
-    // Chapitre 1
+    // Chapitre 1 - Présentation de l'Entreprise
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 1', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('POLITIQUE ET OBJECTIFS QUALITÉ', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('PRÉSENTATION DE L\'ENTREPRISE', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('1.1 Politique Qualité', data.qualityPolicy);
-    addSection('1.2 Objectifs Qualité', data.qualityObjectives);
+    addSection('1.1 Historique et dates clés', data.history);
+    addSection('1.2 Sites et implantations', data.sites);
+    addSection('1.3 Chiffres clés', data.keyFigures);
+    addSection('1.4 Mission de l\'entreprise', data.mission);
+    addSection('1.5 Valeurs de l\'entreprise', data.values);
+    addSection('1.6 Activités, produits et services', data.activities);
+    addSection('1.7 Organigramme', data.organigram);
+    addSection('1.8 Référentiels et certifications', data.certifications);
+    addSection('1.9 Périmètre d\'application', data.applicationScope);
+    addSection('1.10 Exclusions', data.exclusions);
 
-    // Chapitre 2
+    // Chapitre 2 - Politique et Objectifs Qualité
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -208,13 +253,13 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 2', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('ORGANISATION ET RESPONSABILITÉS', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('POLITIQUE ET OBJECTIFS QUALITÉ', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('2.1 Structure Organisationnelle', data.organizationalStructure);
-    addSection('2.2 Rôles et Responsabilités', data.rolesResponsibilities);
+    addSection('2.1 Politique Qualité', data.qualityPolicy);
+    addSection('2.2 Objectifs Qualité', data.qualityObjectives);
 
-    // Chapitre 3
+    // Chapitre 3 - Système de Management de la Qualité
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -222,13 +267,22 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 3', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('GESTION DOCUMENTAIRE', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('SYSTÈME DE MANAGEMENT DE LA QUALITÉ', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('3.1 Contrôle des Documents', data.documentControl);
-    addSection('3.2 Gestion des Enregistrements', data.recordsManagement);
+    addSection('3.1 Cartographie des processus', data.processMapping);
+    addSection('3.2 Description des processus', '');
+    if (data.managementProcesses || data.realizationProcesses || data.supportProcesses) {
+      addSection('3.2.a Processus de management', data.managementProcesses);
+      addSection('3.2.b Processus de réalisation', data.realizationProcesses);
+      addSection('3.2.c Processus support', data.supportProcesses);
+    }
+    addSection('3.3 Pilotage des processus', data.processMonitoring);
+    addSection('3.3.a Audit interne', data.internalAuditsProcess);
+    addSection('3.3.b Revue de processus', data.processReview);
+    addSection('3.3.c Revue de direction', data.managementReviewProcess);
 
-    // Chapitre 4
+    // Chapitre 4 - Organisation et Responsabilités
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -236,13 +290,13 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 4', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('RESSOURCES HUMAINES', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('ORGANISATION ET RESPONSABILITÉS', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('4.1 Gestion du Personnel', data.humanResources);
-    addSection('4.2 Programme de Formation', data.trainingProgram);
+    addSection('4.1 Structure Organisationnelle', data.organizationalStructure);
+    addSection('4.2 Rôles et Responsabilités', data.rolesResponsibilities);
 
-    // Chapitre 5
+    // Chapitre 5 - Système Documentaire
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -250,13 +304,15 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 5', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('INFRASTRUCTURES ET ÉQUIPEMENTS', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('SYSTÈME DOCUMENTAIRE', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('5.1 Locaux et Infrastructure', data.infrastructure);
-    addSection('5.2 Maintenance des Équipements', data.equipmentMaintenance);
+    addSection('5.1 Présentation du système documentaire', data.documentarySystem);
+    addSection('5.2 Gestion du système documentaire', '');
+    addSection('5.2.a Contrôle des Documents', data.documentControl);
+    addSection('5.2.b Gestion des Enregistrements', data.recordsManagement);
 
-    // Chapitre 6
+    // Chapitre 6 - Ressources Humaines
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -264,14 +320,13 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 6', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('PROCESSUS DE RÉALISATION', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('RESSOURCES HUMAINES', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('6.1 Réception et Contrôle', data.receptionControl);
-    addSection('6.2 Conditions de Stockage', data.storageConditions);
-    addSection('6.3 Processus de Dispensation', data.dispensingProcess);
+    addSection('6.1 Gestion du Personnel', data.humanResources);
+    addSection('6.2 Programme de Formation', data.trainingProgram);
 
-    // Chapitre 7
+    // Chapitre 7 - Infrastructures et Équipements
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -279,13 +334,13 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 7', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('SURVEILLANCE ET VIGILANCE', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('INFRASTRUCTURES ET ÉQUIPEMENTS', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('7.1 Pharmacovigilance', data.pharmacovigilance);
-    addSection('7.2 Gestion des Réclamations', data.complaints);
+    addSection('7.1 Locaux et Infrastructure', data.infrastructure);
+    addSection('7.2 Maintenance des Équipements', data.equipmentMaintenance);
 
-    // Chapitre 8
+    // Chapitre 8 - Processus de Réalisation
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -293,14 +348,14 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 8', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
-    doc.text('AUDITS ET NON-CONFORMITÉS', pageWidth / 2, yPos, { align: 'center' });
+    doc.text('PROCESSUS DE RÉALISATION', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('8.1 Audits Internes', data.internalAudits);
-    addSection('8.2 Gestion des Non-conformités', data.nonConformities);
-    addSection('8.3 Actions Correctives et Préventives', data.capaProcess);
+    addSection('8.1 Réception et Contrôle', data.receptionControl);
+    addSection('8.2 Conditions de Stockage', data.storageConditions);
+    addSection('8.3 Processus de Dispensation', data.dispensingProcess);
 
-    // Chapitre 9
+    // Chapitre 9 - Surveillance et Vigilance
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
@@ -308,12 +363,53 @@ export class QualityManualService {
     doc.setTextColor(0, 150, 136);
     doc.text('CHAPITRE 9', pageWidth / 2, yPos, { align: 'center' });
     yPos += 7;
+    doc.text('SURVEILLANCE ET VIGILANCE', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 12;
+
+    addSection('9.1 Pharmacovigilance', data.pharmacovigilance);
+    addSection('9.2 Gestion des Réclamations', data.complaints);
+
+    // Chapitre 10 - Audits et Non-conformités
+    addNewPageIfNeeded(30);
+    yPos += 10;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 150, 136);
+    doc.text('CHAPITRE 10', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 7;
+    doc.text('AUDITS ET NON-CONFORMITÉS', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 12;
+
+    addSection('10.1 Audits Internes', data.internalAudits);
+    addSection('10.2 Gestion des Non-conformités', data.nonConformities);
+    addSection('10.3 Actions Correctives et Préventives', data.capaProcess);
+
+    // Chapitre 11 - Mesure et Amélioration Continue
+    addNewPageIfNeeded(30);
+    yPos += 10;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 150, 136);
+    doc.text('CHAPITRE 11', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 7;
     doc.text('MESURE ET AMÉLIORATION CONTINUE', pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
 
-    addSection('9.1 Indicateurs de Performance', data.kpis);
-    addSection('9.2 Revue de Direction', data.managementReview);
-    addSection('9.3 Amélioration Continue', data.continuousImprovement);
+    addSection('11.1 Indicateurs de Performance', data.kpis);
+    addSection('11.2 Revue de Direction', data.managementReview);
+    addSection('11.3 Amélioration Continue', data.continuousImprovement);
+
+    // Annexes
+    addNewPageIfNeeded(30);
+    yPos += 10;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 150, 136);
+    doc.text('ANNEXES', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 12;
+
+    addSection('Annexe 1 - Références normatives', data.normativeReferences);
+    addSection('Annexe 2 - Abréviations', data.abbreviations);
 
     // Page finale - Approbation
     doc.addPage();

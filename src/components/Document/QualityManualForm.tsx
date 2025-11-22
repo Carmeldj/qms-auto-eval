@@ -11,12 +11,33 @@ interface QualityManualData {
   qualifications: string;
   qualityManager: string;
 
+  history: string;
+  sites: string;
+  keyFigures: string;
+  mission: string;
+  values: string;
+  activities: string;
+  organigram: string;
+  certifications: string;
+  applicationScope: string;
+  exclusions: string;
+
   qualityPolicy: string;
   qualityObjectives: string;
+
+  processMapping: string;
+  managementProcesses: string;
+  realizationProcesses: string;
+  supportProcesses: string;
+  processMonitoring: string;
+  internalAuditsProcess: string;
+  processReview: string;
+  managementReviewProcess: string;
 
   organizationalStructure: string;
   rolesResponsibilities: string;
 
+  documentarySystem: string;
   documentControl: string;
   recordsManagement: string;
 
@@ -41,6 +62,9 @@ interface QualityManualData {
   managementReview: string;
 
   continuousImprovement: string;
+
+  normativeReferences: string;
+  abbreviations: string;
 }
 
 interface QualityManualFormProps {
@@ -57,12 +81,33 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
     qualifications: '',
     qualityManager: '',
 
+    history: '',
+    sites: '',
+    keyFigures: '',
+    mission: '',
+    values: '',
+    activities: '',
+    organigram: '',
+    certifications: '',
+    applicationScope: '',
+    exclusions: '',
+
     qualityPolicy: '',
     qualityObjectives: '',
+
+    processMapping: '',
+    managementProcesses: '',
+    realizationProcesses: '',
+    supportProcesses: '',
+    processMonitoring: '',
+    internalAuditsProcess: '',
+    processReview: '',
+    managementReviewProcess: '',
 
     organizationalStructure: '',
     rolesResponsibilities: '',
 
+    documentarySystem: '',
     documentControl: '',
     recordsManagement: '',
 
@@ -86,7 +131,10 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
     kpis: '',
     managementReview: '',
 
-    continuousImprovement: ''
+    continuousImprovement: '',
+
+    normativeReferences: '',
+    abbreviations: ''
   });
 
   const handleInputChange = (field: keyof QualityManualData, value: string) => {
@@ -120,7 +168,32 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '2. POLITIQUE ET OBJECTIFS QUALITÉ',
+      title: '2. PRÉSENTATION DE L\'ENTREPRISE',
+      fields: [
+        { key: 'history', label: 'Historique et dates clés', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez l\'historique de la pharmacie, date de création, événements marquants...' },
+        { key: 'sites', label: 'Sites et implantations', type: 'textarea', rows: 2,
+          placeholder: 'Listez les différents sites et implantations de la pharmacie...' },
+        { key: 'keyFigures', label: 'Chiffres clés', type: 'textarea', rows: 3,
+          placeholder: 'Nombre d\'employés, chiffre d\'affaires, nombre de clients, etc...' },
+        { key: 'mission', label: 'Mission de l\'entreprise', type: 'textarea', rows: 3,
+          placeholder: 'Définissez la mission principale de votre pharmacie...' },
+        { key: 'values', label: 'Valeurs de l\'entreprise', type: 'textarea', rows: 3,
+          placeholder: 'Listez les valeurs fondamentales qui guident vos actions...' },
+        { key: 'activities', label: 'Activités, produits et services', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez vos activités principales et les services proposés...' },
+        { key: 'organigram', label: 'Organigramme', type: 'textarea', rows: 3,
+          placeholder: 'Décrivez la structure organisationnelle de l\'équipe...' },
+        { key: 'certifications', label: 'Référentiels et certifications', type: 'textarea', rows: 3,
+          placeholder: 'Listez les certifications obtenues et référentiels appliqués (ISO, BPF, etc.)...' },
+        { key: 'applicationScope', label: 'Périmètre d\'application', type: 'textarea', rows: 3,
+          placeholder: 'Définissez le périmètre d\'application du SMQ...' },
+        { key: 'exclusions', label: 'Exclusions', type: 'textarea', rows: 2,
+          placeholder: 'Indiquez les exclusions éventuelles du SMQ avec justifications...' }
+      ]
+    },
+    {
+      title: '3. POLITIQUE ET OBJECTIFS QUALITÉ',
       fields: [
         { key: 'qualityPolicy', label: 'Politique qualité', type: 'textarea', rows: 5, required: true,
           placeholder: 'Décrivez votre engagement qualité, vos valeurs et orientations stratégiques...' },
@@ -129,7 +202,28 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '3. ORGANISATION ET RESPONSABILITÉS',
+      title: '4. SYSTÈME DE MANAGEMENT DE LA QUALITÉ',
+      fields: [
+        { key: 'processMapping', label: 'Cartographie des processus', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez la cartographie de vos processus (vue d\'ensemble des interactions)...' },
+        { key: 'managementProcesses', label: 'Processus de management', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez les processus de management (stratégie, pilotage, revue de direction...)...' },
+        { key: 'realizationProcesses', label: 'Processus de réalisation', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez les processus de réalisation (approvisionnement, dispensation, conseil...)...' },
+        { key: 'supportProcesses', label: 'Processus support', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez les processus support (RH, achats, maintenance, informatique...)...' },
+        { key: 'processMonitoring', label: 'Pilotage des processus', type: 'textarea', rows: 3,
+          placeholder: 'Expliquez comment vous pilotez et surveillez vos processus...' },
+        { key: 'internalAuditsProcess', label: 'Audit interne', type: 'textarea', rows: 3,
+          placeholder: 'Décrivez votre programme d\'audits internes du SMQ...' },
+        { key: 'processReview', label: 'Revue de processus', type: 'textarea', rows: 3,
+          placeholder: 'Expliquez comment vous réalisez les revues de processus...' },
+        { key: 'managementReviewProcess', label: 'Revue de direction', type: 'textarea', rows: 3,
+          placeholder: 'Décrivez le processus de revue de direction...' }
+      ]
+    },
+    {
+      title: '5. ORGANISATION ET RESPONSABILITÉS',
       fields: [
         { key: 'organizationalStructure', label: 'Structure organisationnelle', type: 'textarea', rows: 4,
           placeholder: 'Décrivez la structure de votre équipe et l\'organigramme...' },
@@ -138,8 +232,10 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '4. GESTION DOCUMENTAIRE',
+      title: '6. SYSTÈME DOCUMENTAIRE',
       fields: [
+        { key: 'documentarySystem', label: 'Présentation du système documentaire', type: 'textarea', rows: 4,
+          placeholder: 'Décrivez la structure de votre système documentaire (hiérarchie des documents, types...)' },
         { key: 'documentControl', label: 'Contrôle des documents', type: 'textarea', rows: 4,
           placeholder: 'Décrivez votre système de gestion documentaire (création, validation, diffusion...)' },
         { key: 'recordsManagement', label: 'Gestion des enregistrements', type: 'textarea', rows: 3,
@@ -147,7 +243,7 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '5. RESSOURCES HUMAINES',
+      title: '7. RESSOURCES HUMAINES',
       fields: [
         { key: 'humanResources', label: 'Gestion du personnel', type: 'textarea', rows: 3,
           placeholder: 'Décrivez votre processus de recrutement, évaluation, etc...' },
@@ -156,7 +252,7 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '6. INFRASTRUCTURES ET ÉQUIPEMENTS',
+      title: '8. INFRASTRUCTURES ET ÉQUIPEMENTS',
       fields: [
         { key: 'infrastructure', label: 'Locaux et infrastructure', type: 'textarea', rows: 3,
           placeholder: 'Décrivez vos locaux, zones de stockage, conditions d\'hygiène...' },
@@ -165,7 +261,7 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '7. PROCESSUS DE RÉALISATION',
+      title: '9. PROCESSUS DE RÉALISATION',
       fields: [
         { key: 'receptionControl', label: 'Réception et contrôle', type: 'textarea', rows: 3,
           placeholder: 'Décrivez votre processus de réception et contrôle des commandes...' },
@@ -176,7 +272,7 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '8. SURVEILLANCE ET VIGILANCE',
+      title: '10. SURVEILLANCE ET VIGILANCE',
       fields: [
         { key: 'pharmacovigilance', label: 'Pharmacovigilance', type: 'textarea', rows: 3,
           placeholder: 'Décrivez votre système de pharmacovigilance et de signalement...' },
@@ -185,7 +281,7 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '9. AUDITS ET NON-CONFORMITÉS',
+      title: '11. AUDITS ET NON-CONFORMITÉS',
       fields: [
         { key: 'internalAudits', label: 'Audits internes', type: 'textarea', rows: 3,
           placeholder: 'Décrivez votre programme d\'audits internes...' },
@@ -196,7 +292,7 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
       ]
     },
     {
-      title: '10. MESURE ET AMÉLIORATION',
+      title: '12. MESURE ET AMÉLIORATION',
       fields: [
         { key: 'kpis', label: 'Indicateurs de performance (KPI)', type: 'textarea', rows: 3,
           placeholder: 'Listez vos indicateurs clés de performance et leurs cibles...' },
@@ -204,6 +300,15 @@ const QualityManualForm: React.FC<QualityManualFormProps> = ({ onCancel }) => {
           placeholder: 'Décrivez votre processus de revue de direction...' },
         { key: 'continuousImprovement', label: 'Amélioration continue', type: 'textarea', rows: 3,
           placeholder: 'Expliquez votre démarche d\'amélioration continue...' }
+      ]
+    },
+    {
+      title: '13. ANNEXES',
+      fields: [
+        { key: 'normativeReferences', label: 'Références normatives', type: 'textarea', rows: 4,
+          placeholder: 'Listez les références normatives utilisées (ISO 9001, BPF, textes réglementaires...)' },
+        { key: 'abbreviations', label: 'Abréviations', type: 'textarea', rows: 4,
+          placeholder: 'Listez les abréviations utilisées dans le manuel (SMQ, BPF, CAPA, KPI, etc.)' }
       ]
     }
   ];
