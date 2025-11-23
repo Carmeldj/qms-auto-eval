@@ -26,10 +26,10 @@ const TraceabilityModule: React.FC = () => {
     ? traceabilityTemplates
     : traceabilityTemplates.filter(t => t.category === selectedCategory);
 
-  // Fetch record counts when year or month changes
+  // Fetch record counts when year or month changes OR when in list view
   useEffect(() => {
     const fetchRecordCounts = async () => {
-      if (user?.email && view === 'compilation') {
+      if (user?.email) {
         try {
           const counts = await recordService.getRecordCountsByMonth(
             compilationYear,
@@ -436,47 +436,83 @@ const TraceabilityModule: React.FC = () => {
         </h3>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filteredTemplates.map(template => (
-            <div key={template.id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all duration-200">
-              <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                <div className="flex-1 w-full">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{template.title}</h4>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-600 mb-3">{template.description}</p>
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
-                    <span className="flex items-center space-x-1">
-                      <FileText className="h-3 w-3" />
-                      <span>{template.fields.length} champs</span>
-                    </span>
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                      {template.category}
-                    </span>
-                    {template.classification && template.processCode && (
-                      <span className="bg-teal-100 text-teal-800 px-2 py-1 rounded-full font-mono">
-                        {template.processCode}/{template.classification}
+          {filteredTemplates.map(template => {
+            const count = recordCounts[template.id] || 0;
+            const badge = getCountBadge(count);
+
+            return (
+              <div key={template.id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-all duration-200">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                  <div className="flex-1 w-full">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{template.title}</h4>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text} ml-2`}>
+                        {badge.label}
                       </span>
-                    )}
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-3">{template.description}</p>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
+                      <span className="flex items-center space-x-1">
+                        <FileText className="h-3 w-3" />
+                        <span>{template.fields.length} champs</span>
+                      </span>
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {template.category}
+                      </span>
+                      {template.classification && template.processCode && (
+                        <span className="bg-teal-100 text-teal-800 px-2 py-1 rounded-full font-mono">
+                          {template.processCode}/{template.classification}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  <button
+                    onClick={() => handleCreateRecord(template.id)}
+                    className="flex items-center justify-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 w-full sm:w-auto sm:ml-4 text-sm"
+                    style={{ backgroundColor: '#009688' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Créer</span>
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleCreateRecord(template.id)}
-                  className="flex items-center justify-center space-x-2 text-white px-4 py-2 rounded-lg transition-all duration-200 w-full sm:w-auto sm:ml-4 text-sm"
-                  style={{ backgroundColor: '#009688' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#00796b'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#009688'}
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Créer</span>
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
+      {/* Badge Legend */}
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 mt-6">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">
+          Légende des badges (mois actuel)
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
+          <div className="flex items-center space-x-2">
+            <span className="px-2 py-1 rounded bg-gray-200 text-gray-600 font-semibold">Aucun</span>
+            <span className="text-gray-600">0 enregistrement</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-semibold">1-5</span>
+            <span className="text-gray-600">1 à 5 enregistrements</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="px-2 py-1 rounded bg-orange-100 text-orange-800 font-semibold">6-10</span>
+            <span className="text-gray-600">6 à 10 enregistrements</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="px-2 py-1 rounded bg-green-100 text-green-800 font-semibold">11+</span>
+            <span className="text-gray-600">Plus de 10 enregistrements</span>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 mt-3">
+          Les badges affichent le nombre d'enregistrements pour le mois en cours : {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+        </p>
+      </div>
+
       {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-8">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6">
         <h3 className="text-lg font-bold text-blue-900 mb-3">
           Comment utiliser ce module
         </h3>
