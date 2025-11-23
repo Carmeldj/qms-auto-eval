@@ -37,7 +37,8 @@ class AdverseEventService {
 
   async sendEmail(
     report: AdverseEventReport,
-    pdfBase64: string
+    pdfBase64: string,
+    recipientEmail: string
   ): Promise<void> {
     try {
       const response = await fetch(
@@ -57,6 +58,7 @@ class AdverseEventService {
             productName:
               report.suspectProducts[0]?.productName || "Non spécifié",
             pdfBase64: pdfBase64,
+            recipientEmail: recipientEmail,
           }),
         }
       );

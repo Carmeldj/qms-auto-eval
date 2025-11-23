@@ -14,6 +14,7 @@ interface EmailRequest {
   patientName: string;
   productName: string;
   pdfBase64?: string;
+  recipientEmail: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -99,7 +100,7 @@ Deno.serve(async (req: Request) => {
 
     const emailPayload: any = {
       from: 'Pharmacovigilance <pharmacovigilance@notifications.gouv.local>',
-      to: ['agence.medicament@gouv.local'],
+      to: [data.recipientEmail],
       cc: data.notifierEmail ? [data.notifierEmail] : [],
       subject: `[Pharmacovigilance] Notification d'Effet Indésirable - ${data.epidNumber}`,
       html: emailBody,

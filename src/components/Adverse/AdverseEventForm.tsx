@@ -33,10 +33,13 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
     "notifier" | "patient" | "history" | "event" | "products" | "severity"
   >("notifier");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const [savedReport, setSavedReport] = useState<AdverseEventReport | null>(
     null
   );
+  const [recipientEmail, setRecipientEmail] = useState<string>("contact.abmed@gouv.bj");
   const { user } = useAuth();
   const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
 
@@ -276,30 +279,43 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
     }
   };
 
-  //@ts-ignore
+  const handleSendEmailClick = () => {
+    setShowEmailModal(true);
+  };
+
   const handleSendEmail = async () => {
-    if (!savedReport) {
-      const report = createReport();
-      setSavedReport(report);
-      try {
-        await adverseEventService.saveReport(report);
-      } catch (error) {
-        console.error("Error saving report:", error);
-        alert("Erreur lors de la sauvegarde du rapport");
-        return;
-      }
+    if (!recipientEmail.trim()) {
+      alert("Veuillez saisir l'adresse email de l'agence.");
+      return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipientEmail)) {
+      alert("Adresse email invalide. Veuillez vérifier.");
+      return;
+    }
+
+    setIsSending(true);
+
     try {
-      const reportToSend = savedReport || createReport();
-      const pdfBase64 = adverseEventService.generatePDFBase64(reportToSend);
-      await adverseEventService.sendEmail(reportToSend, pdfBase64);
+      let report = savedReport;
+      if (!report) {
+        report = createReport();
+        await adverseEventService.saveReport(report);
+        setSavedReport(report);
+      }
+
+      const pdfBase64 = adverseEventService.generatePDFBase64(report);
+      await adverseEventService.sendEmail(report, pdfBase64, recipientEmail);
+
+      setShowEmailModal(false);
       setShowSuccessModal(true);
       alert("Email envoyé avec succès à l'agence du médicament!");
     } catch (error) {
       console.error("Error sending email:", error);
       alert("Erreur lors de l'envoi de l'email. Veuillez réessayer.");
     } finally {
+      setIsSending(false);
     }
   };
 
@@ -367,8 +383,8 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
               )}
               <span>{isGenerating ? "Génération..." : "Générer PDF"}</span>
             </button>
-            {/* <button
-              onClick={handleSendEmail}
+            <button
+              onClick={handleSendEmailClick}
               disabled={!isFormValid() || isSending}
               className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${isFormValid() && !isSending
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -377,75 +393,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
             >
               {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
               <span>{isSending ? 'Envoi...' : 'Envoyer à l\'agence'}</span>
-            </button> */}
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                if (!isFormValid()) return;
-
-                // Ensure we have a saved report
-                let report = savedReport;
-                if (!report) {
-                  report = createReport();
-                  try {
-                    await adverseEventService.saveReport(report);
-                    setSavedReport(report);
-                  } catch (err) {
-                    console.error(
-                      "Erreur lors de la sauvegarde du rapport:",
-                      err
-                    );
-                    alert("Erreur lors de la sauvegarde du rapport");
-                    return;
-                  }
-                }
-
-                // Pre-fill mailto (attachments aren't supported via mailto)
-                const toPrompt = window.prompt(
-                  "Entrez l'adresse email de l'agence :",
-                  "abmed@abmed.bj"
-                );
-                if (!toPrompt) {
-                  alert("Adresse email non fournie. Opération annulée.");
-                  return;
-                }
-                const to = toPrompt.trim();
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(to)) {
-                  alert("Adresse email invalide. Veuillez réessayer.");
-                  return;
-                }
-                const subject = `Notification Effet Indésirable - ${report.epidNumber}`;
-                const body = [
-                  `Bonjour,`,
-                  ``,
-                  `Veuillez trouver ci-joint la notification d'effet indésirable (EPID: ${report.epidNumber}).`,
-                  ``,
-                  `Notificateur: ${notifier.fullName || ""}`,
-                  `Formation Sanitaire: ${notifier.fs || ""}`,
-                  `Téléphone: ${notifier.telephone || ""}`,
-                  ``,
-                  `Cordialement.`,
-                ].join("\n");
-
-                const mailto = `mailto:${encodeURIComponent(
-                  to
-                )}?subject=${encodeURIComponent(
-                  subject
-                )}&body=${encodeURIComponent(body)}`;
-                window.location.href = mailto;
-              }}
-              className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${
-                isFormValid()
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-              aria-disabled={!isFormValid()}
-            >
-              <Mail className="h-4 w-4" />
-              <span>Envoyez à l'agence sanitaire</span>
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -1797,6 +1745,73 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
         </div>
       </div>
 
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">
+                Envoyer à l'agence du médicament
+              </h3>
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Le rapport PDF sera automatiquement généré et envoyé par email avec toutes les informations de la notification.
+              </p>
+
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Adresse email de l'agence *
+              </label>
+              <input
+                type="email"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                placeholder="contact.abmed@gouv.bj"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-transparent"
+                style={{ "--tw-ring-color": "#2563eb" } as React.CSSProperties}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                L'email par défaut de l'agence est déjà pré-rempli
+              </p>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                disabled={isSending}
+                className="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200 disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleSendEmail}
+                disabled={isSending}
+                className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 disabled:opacity-50"
+              >
+                {isSending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Envoi...</span>
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4" />
+                    <span>Envoyer</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1806,11 +1821,10 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Notification enregistrée
+                Notification enregistrée et envoyée
               </h3>
               <p className="text-sm text-gray-600 mb-6">
-                Votre notification a été sauvegardée avec succès. Le numéro
-                épidémiologique est:
+                Votre notification a été sauvegardée et envoyée avec succès par email à l'agence du médicament. Le numéro épidémiologique est:
               </p>
               <div className="bg-gray-100 rounded-lg p-3 mb-6">
                 <p
@@ -1820,101 +1834,15 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                   {savedReport?.epidNumber}
                 </p>
               </div>
-              <input type="email" className="w-full h-10 p-4 mb-4" />
-              <div className="space-y-3">
-                {/* {!isSending && (
-                  <button
-                    onClick={handleSendEmail}
-                    className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200"
-                  >
-                    <Mail className="h-5 w-5" />
-                    <span>Envoyer par email à l'agence</span>
-                  </button>
-                )}
-                {isSending && (
-                  <button
-                    disabled
-                    className="w-full flex items-center justify-center space-x-2 bg-gray-300 text-gray-500 px-6 py-3 rounded-lg cursor-not-allowed"
-                  >
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Envoi en cours...</span>
-                  </button>
-                )} */}
-                <a
-                  href="#"
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    if (!isFormValid()) return;
-
-                    // Ensure we have a saved report
-                    let report = savedReport;
-                    if (!report) {
-                      report = createReport();
-                      try {
-                        await adverseEventService.saveReport(report);
-                        setSavedReport(report);
-                      } catch (err) {
-                        console.error(
-                          "Erreur lors de la sauvegarde du rapport:",
-                          err
-                        );
-                        alert("Erreur lors de la sauvegarde du rapport");
-                        return;
-                      }
-                    }
-
-                    // Pre-fill mailto (attachments aren't supported via mailto)
-                    const toPrompt = window.prompt(
-                      "Entrez l'adresse email de l'agence :",
-                      "abmed@abmed.bj"
-                    );
-                    if (!toPrompt) {
-                      alert("Adresse email non fournie. Opération annulée.");
-                      return;
-                    }
-                    const to = toPrompt.trim();
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(to)) {
-                      alert("Adresse email invalide. Veuillez réessayer.");
-                      return;
-                    }
-                    const subject = `Notification Effet Indésirable - ${report.epidNumber}`;
-                    const body = [
-                      `Bonjour,`,
-                      ``,
-                      `Veuillez trouver ci-joint la notification d'effet indésirable (EPID: ${report.epidNumber}).`,
-                      ``,
-                      `Notificateur: ${notifier.fullName || ""}`,
-                      `Formation Sanitaire: ${notifier.fs || ""}`,
-                      `Téléphone: ${notifier.telephone || ""}`,
-                      ``,
-                      `Cordialement.`,
-                    ].join("\n");
-
-                    const mailto = `mailto:${encodeURIComponent(
-                      to
-                    )}?subject=${encodeURIComponent(
-                      subject
-                    )}&body=${encodeURIComponent(body)}`;
-                    window.location.href = mailto;
-                  }}
-                  className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg active:scale-95 transition-all duration-200 ${
-                    isFormValid()
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                  aria-disabled={!isFormValid()}
-                >
-                  <Mail className="h-4 w-4" />
-                  <span>Envoyez à l'agence sanitaire</span>
-                </a>
-                <button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 active:scale-95 transition-all duration-200"
-                >
-                  Fermer
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  onCancel();
+                }}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200"
+              >
+                Retour à la liste
+              </button>
             </div>
           </div>
         </div>
