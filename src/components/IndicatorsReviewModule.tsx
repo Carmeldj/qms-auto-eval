@@ -283,7 +283,7 @@ const IndicatorsReviewModule: React.FC = () => {
   };
 
   const frequencyOptions = ['Quotidienne', 'Hebdomadaire', 'Mensuelle', 'Trimestrielle', 'Semestrielle', 'Annuelle'];
-  const unitOptions = ['nombre', 'pourcentage (%)', 'heures', 'euros (€)', 'jours', 'autre'];
+  const unitOptions = ['nombre', 'pourcentage (%)', 'heures', 'FCFA', 'jours', 'autre'];
 
   if (showForm) {
     return (

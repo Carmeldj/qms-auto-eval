@@ -317,7 +317,7 @@ export const processKPIs: Record<string, ProcessKPI[]> = {
       id: 'fin-2',
       name: 'Valeur du stock',
       target: 'À optimiser',
-      unit: '€',
+      unit: 'FCFA',
       frequency: 'Mensuelle',
       description: 'Valeur totale du stock en officine'
     },

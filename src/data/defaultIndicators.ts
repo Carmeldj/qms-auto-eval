@@ -578,7 +578,7 @@ export const defaultIndicators: DefaultIndicator[] = [
     objective: 'Optimiser l\'immobilisation financière et la trésorerie',
     definition: 'Valeur totale du stock en officine (prix d\'achat HT)',
     formula: 'Somme des valeurs de toutes les références en stock',
-    unit: 'euros (€)',
+    unit: 'FCFA',
     frequency: 'Mensuelle',
     source: 'Inventaire LGO',
     collection_responsible: 'Pharmacien adjoint ou comptable',
