@@ -129,24 +129,18 @@ export class TraceabilityRecordService {
   async getRecordCountsByMonth(
     year: number,
     month: number,
-    userEmail?: string
+    userEmail: string
   ): Promise<Record<string, number>> {
     try {
       const startDate = new Date(year, month - 1, 1).toISOString();
       const endDate = new Date(year, month, 0, 23, 59, 59, 999).toISOString();
 
-      let query = supabase
+      const { data, error } = await supabase
         .from("traceability_records")
         .select("template_id")
+        .eq("created_by", userEmail)
         .gte("created_at", startDate)
         .lte("created_at", endDate);
-
-      // Only filter by user if email is provided
-      if (userEmail) {
-        query = query.eq("created_by", userEmail);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
 
