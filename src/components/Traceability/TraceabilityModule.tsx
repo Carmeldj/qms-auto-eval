@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Clock, Plus, Calendar } from 'lucide-react';
+import { FileText, Download, Clock, Plus, Calendar, BarChart3 } from 'lucide-react';
 import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
 import { useAuth } from '../../contexts/AuthContext';
 import { TraceabilityRecordService } from '../../services/TracabilityRecordService';
 import { missingProductsService } from '../../services/MissingProductsService';
+import { useNavigate } from 'react-router-dom';
 
 const TraceabilityModule: React.FC = () => {
+  const navigate = useNavigate();
   const [view, setView] = useState<'list' | 'form' | 'compilation'>('list');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -405,6 +407,25 @@ const TraceabilityModule: React.FC = () => {
             Conformité
           </div>
           <div className="text-xs sm:text-sm text-gray-600">SMQ certifié</div>
+        </div>
+      </div>
+
+      {/* Indicator Tracking Button */}
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-white text-center sm:text-left">
+            <h2 className="text-base sm:text-lg font-bold mb-2">Registre de Suivi des Indicateurs</h2>
+            <p className="text-xs sm:text-sm text-blue-50">
+              Enregistrez les mesures régulières de tous vos indicateurs de performance
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/indicator-tracking')}
+            className="flex items-center space-x-2 bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 shadow-md whitespace-nowrap text-sm"
+          >
+            <BarChart3 className="h-5 w-5" />
+            <span>Accéder au registre</span>
+          </button>
         </div>
       </div>
 
