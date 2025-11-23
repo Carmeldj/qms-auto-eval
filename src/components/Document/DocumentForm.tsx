@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Download, AlertCircle, CheckCircle, FileText } from "lucide-react";
+import { X, Download, AlertCircle, CheckCircle, FileText, MessageCircle } from "lucide-react";
 import {
   DocumentTemplate,
   DocumentAccessLevel,
@@ -9,6 +9,7 @@ import { documentService } from "../../services/DocumentService";
 import ClassificationBadge from "../ClassificationBadge";
 import { uploadAndSaveDocument } from "../../utils/documentUploadHelper";
 import { useAuth } from "../../contexts/AuthContext";
+import { shareToWhatsApp } from "../../services/WhatsAppService";
 
 interface DocumentFormProps {
   template: DocumentTemplate;
@@ -19,7 +20,10 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const { user } = useAuth();
+
+  const isLiaisonBook = template.id === 'liaison-book';
 
   const handleInputChange = (fieldId: string, value: string) => {
     setFormData((prev) => ({
@@ -106,6 +110,30 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
     }
   };
 
+  const handleShareToWhatsApp = async () => {
+    if (!isFormValid()) return;
+    setIsSharing(true);
+
+    const documentData = {
+      id: Date.now().toString(),
+      templateId: template.id,
+      data: {
+        ...formData,
+        _pharmacyInitials: pharmacyInitials,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      await shareToWhatsApp(template, documentData, formData);
+    } catch (error) {
+      console.error("Erreur partage WhatsApp:", error);
+      alert("Erreur lors du partage WhatsApp. Veuillez réessayer.");
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   const renderField = (field: any) => {
     const value = formData[field.id] || "";
 
@@ -186,11 +214,25 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
               </div>
             )}
           </div>
-          <div className="w-full lg:w-max flex items-center justify-between ">
+          <div className="w-full lg:w-max flex items-center gap-3">
+            {isLiaisonBook && (
+              <button
+                onClick={handleShareToWhatsApp}
+                disabled={!isFormValid() || isSharing}
+                className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
+                  isFormValid() && !isSharing
+                    ? "bg-[#25D366] text-white hover:bg-[#20BA5A]"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{isSharing ? "Partage..." : "WhatsApp"}</span>
+              </button>
+            )}
             <button
               onClick={handleGeneratePDF}
               disabled={!isFormValid() || isGenerating}
-              className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
+              className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg transition-all duration-200 ${
                 isFormValid() && !isGenerating
                   ? "text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -208,7 +250,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
               }}
             >
               <Download className="h-4 w-4" />
-              <span>{isGenerating ? "Génération..." : "Générer PDF"}</span>
+              <span>{isGenerating ? "Génération..." : "Télécharger PDF"}</span>
             </button>
           </div>
         </div>
@@ -274,6 +316,62 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         </div>
       </div>
 
+      {/* WhatsApp Info Banner - Only for liaison book */}
+      {isLiaisonBook && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 mt-6">
+          <div className="flex items-start gap-3 mb-4">
+            <MessageCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                📱 Partage WhatsApp activé <span className="text-sm bg-green-600 text-white px-2 py-1 rounded-full">NOUVEAU</span>
+              </h3>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Comment ça marche :</h4>
+              <ol className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-green-600">1.</span>
+                  <span>Remplissez tous les champs du formulaire</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-green-600">2.</span>
+                  <span>Cliquez sur le bouton "WhatsApp"</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-green-600">3.</span>
+                  <span>Le PDF est généré et uploadé automatiquement</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-green-600">4.</span>
+                  <span>WhatsApp s'ouvre avec le message formaté</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-green-600">5.</span>
+                  <span>Sélectionnez le groupe et envoyez !</span>
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Aperçu du message :</h4>
+              <div className="bg-white rounded-lg p-4 border border-gray-200 text-xs space-y-1">
+                <div className="font-bold">📋 *CAHIER DE LIAISON*</div>
+                <div className="text-gray-600">━━━━━━━━━━━━━━━━━</div>
+                <div>🏥 *Pharmacie Exemple*</div>
+                <div>📅 {new Date().toLocaleDateString('fr-FR')} à 10:00</div>
+                <div>✍️ Auteur: Dr. Martin</div>
+                <div className="text-gray-600">...</div>
+                <div>📄 *Document PDF:* [lien]</div>
+                <div className="italic text-gray-500">_Généré par PHARMA QMS_</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Form Validation Summary */}
       <div className="bg-gray-50 rounded-xl p-4 mt-6">
         <div className="flex items-center space-x-2">
@@ -295,12 +393,30 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         </div>
       </div>
 
-      {/* Quick Generate Button */}
-      <div className="text-center mt-6">
+      {/* Quick Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+        {isLiaisonBook && (
+          <button
+            onClick={handleShareToWhatsApp}
+            disabled={!isFormValid() || isSharing}
+            className={`flex items-center justify-center space-x-3 px-8 py-4 rounded-xl font-semibold transition-all duration-200 ${
+              isFormValid() && !isSharing
+                ? "bg-[#25D366] text-white shadow-lg hover:shadow-xl transform hover:scale-105 hover:bg-[#20BA5A]"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            <MessageCircle className="h-5 w-5" />
+            <span>
+              {isSharing
+                ? "Partage en cours..."
+                : "Partager sur WhatsApp"}
+            </span>
+          </button>
+        )}
         <button
           onClick={handleGeneratePDF}
           disabled={!isFormValid() || isGenerating}
-          className={`flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold transition-all duration-200 mx-auto ${
+          className={`flex items-center justify-center space-x-3 px-8 py-4 rounded-xl font-semibold transition-all duration-200 ${
             isFormValid() && !isGenerating
               ? "text-white shadow-lg hover:shadow-xl transform hover:scale-105"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -321,7 +437,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
           <span>
             {isGenerating
               ? "Génération en cours..."
-              : "Générer le Document PDF"}
+              : "Télécharger le PDF"}
           </span>
         </button>
       </div>
