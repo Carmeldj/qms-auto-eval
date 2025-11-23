@@ -84,8 +84,88 @@ const IndicatorTrackingModule: React.FC = () => {
     }
   };
 
+  const calculateStatus = (measuredValue: string, indicator: Indicator | undefined): 'conforme' | 'alerte' | 'critique' => {
+    if (!indicator || !measuredValue || !indicator.alert_thresholds) {
+      return 'conforme';
+    }
+
+    const thresholds = indicator.alert_thresholds.toLowerCase();
+    const numValue = parseFloat(measuredValue.replace(/[^\d.-]/g, ''));
+
+    if (isNaN(numValue)) {
+      return 'conforme';
+    }
+
+    if (thresholds.includes('critique') && thresholds.includes('acceptable') && thresholds.includes('cible')) {
+      if (thresholds.includes('supérieur') || thresholds.includes('≥') || thresholds.includes('>=')) {
+        const critiqueMatch = thresholds.match(/critique[:\s]*<?[<\s]*(\d+\.?\d*)/i);
+        const acceptableMatch = thresholds.match(/acceptable[:\s]*(\d+\.?\d*)[-\s]*(\d+\.?\d*)/i);
+        const cibleMatch = thresholds.match(/cible[:\s]*[≥>=]+[?\s]*(\d+\.?\d*)/i);
+
+        if (critiqueMatch) {
+          const critiqueValue = parseFloat(critiqueMatch[1]);
+          if (numValue < critiqueValue) return 'critique';
+        }
+
+        if (acceptableMatch) {
+          const minAcceptable = parseFloat(acceptableMatch[1]);
+          const maxAcceptable = parseFloat(acceptableMatch[2]);
+          if (numValue >= minAcceptable && numValue < maxAcceptable) return 'alerte';
+        }
+
+        if (cibleMatch) {
+          const cibleValue = parseFloat(cibleMatch[1]);
+          if (numValue >= cibleValue) return 'conforme';
+        }
+      } else if (thresholds.includes('inférieur') || thresholds.includes('≤') || thresholds.includes('<=') || thresholds.includes('<')) {
+        const critiqueMatch = thresholds.match(/critique[:\s]*>?[>\s]*(\d+\.?\d*)/i);
+        const acceptableMatch = thresholds.match(/acceptable[:\s]*(\d+\.?\d*)[-\s]*(\d+\.?\d*)/i);
+        const cibleMatch = thresholds.match(/cible[:\s]*[≤<=]+[?\s]*(\d+\.?\d*)/i);
+
+        if (critiqueMatch) {
+          const critiqueValue = parseFloat(critiqueMatch[1]);
+          if (numValue > critiqueValue) return 'critique';
+        }
+
+        if (acceptableMatch) {
+          const minAcceptable = parseFloat(acceptableMatch[1]);
+          const maxAcceptable = parseFloat(acceptableMatch[2]);
+          if (numValue >= minAcceptable && numValue <= maxAcceptable) return 'alerte';
+        }
+
+        if (cibleMatch) {
+          const cibleValue = parseFloat(cibleMatch[1]);
+          if (numValue <= cibleValue) return 'conforme';
+        }
+      }
+    }
+
+    if (thresholds.includes('100%') && thresholds.includes('critique')) {
+      if (numValue === 100) return 'conforme';
+      return 'critique';
+    }
+
+    if (thresholds.includes('0') && (thresholds.includes('cible') || thresholds.includes('objectif'))) {
+      if (numValue === 0) return 'conforme';
+      return 'critique';
+    }
+
+    return 'conforme';
+  };
+
   const handleInputChange = (field: keyof Measurement, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+
+      if (field === 'measured_value' || field === 'indicator_id') {
+        const currentIndicator = indicators.find(ind => ind.id === (field === 'indicator_id' ? value : updated.indicator_id));
+        if (currentIndicator && updated.measured_value) {
+          updated.status = calculateStatus(updated.measured_value, currentIndicator);
+        }
+      }
+
+      return updated;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,17 +173,23 @@ const IndicatorTrackingModule: React.FC = () => {
     setIsLoading(true);
 
     try {
+      const currentIndicator = indicators.find(ind => ind.id === formData.indicator_id);
+      const finalData = {
+        ...formData,
+        status: calculateStatus(formData.measured_value, currentIndicator)
+      };
+
       if (selectedMeasurement?.id) {
         const { error } = await supabase
           .from('indicator_measurements')
-          .update(formData)
+          .update(finalData)
           .eq('id', selectedMeasurement.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('indicator_measurements')
-          .insert([formData]);
+          .insert([finalData]);
 
         if (error) throw error;
       }
@@ -322,6 +408,14 @@ const IndicatorTrackingModule: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                {formData.indicator_id && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-xs font-semibold text-blue-900 mb-1">Seuils d'alerte pour cet indicateur :</p>
+                    <p className="text-xs text-blue-800">
+                      {indicators.find(ind => ind.id === formData.indicator_id)?.alert_thresholds || 'Non défini'}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -367,18 +461,40 @@ const IndicatorTrackingModule: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Statut <span className="text-red-500">*</span>
+                  Statut (calculé automatiquement)
                 </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value as 'conforme' | 'alerte' | 'critique')}
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="conforme">Conforme (dans les seuils acceptables)</option>
-                  <option value="alerte">Alerte (nécessite une vigilance)</option>
-                  <option value="critique">Critique (nécessite des actions immédiates)</option>
-                </select>
+                <div className="flex items-center space-x-3 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                  {formData.status === 'conforme' && (
+                    <>
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-green-800">Conforme</p>
+                        <p className="text-sm text-gray-600">Dans les seuils acceptables</p>
+                      </div>
+                    </>
+                  )}
+                  {formData.status === 'alerte' && (
+                    <>
+                      <AlertTriangle className="h-6 w-6 text-orange-600" />
+                      <div>
+                        <p className="font-semibold text-orange-800">Alerte</p>
+                        <p className="text-sm text-gray-600">Nécessite une vigilance</p>
+                      </div>
+                    </>
+                  )}
+                  {formData.status === 'critique' && (
+                    <>
+                      <AlertCircle className="h-6 w-6 text-red-600" />
+                      <div>
+                        <p className="font-semibold text-red-800">Critique</p>
+                        <p className="text-sm text-gray-600">Nécessite des actions immédiates</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Le statut est déterminé automatiquement en fonction de la valeur mesurée et des seuils d'alerte définis pour l'indicateur.
+                </p>
               </div>
 
               <div>
