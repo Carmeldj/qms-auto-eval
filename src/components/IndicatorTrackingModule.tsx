@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, TrendingUp, AlertCircle, CheckCircle, AlertTriangle, Download, Edit2, Trash2, Calendar, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Plus, TrendingUp, AlertCircle, CheckCircle, AlertTriangle, Download, Edit2, Trash2, Calendar, BarChart3, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import jsPDF from 'jspdf';
 
@@ -32,9 +32,11 @@ const IndicatorTrackingModule: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMeasurement, setSelectedMeasurement] = useState<Measurement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterIndicator, setFilterIndicator] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedFrequency, setSelectedFrequency] = useState<string>('');
+  const [showRefreshMessage, setShowRefreshMessage] = useState(false);
   const [formData, setFormData] = useState<Measurement>({
     indicator_id: '',
     measurement_date: '',
@@ -49,9 +51,21 @@ const IndicatorTrackingModule: React.FC = () => {
   useEffect(() => {
     loadIndicators();
     loadMeasurements();
+
+    const indicatorsSubscription = supabase
+      .channel('indicators_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'indicators' }, () => {
+        loadIndicators();
+      })
+      .subscribe();
+
+    return () => {
+      indicatorsSubscription.unsubscribe();
+    };
   }, []);
 
-  const loadIndicators = async () => {
+  const loadIndicators = async (showMessage = false) => {
+    if (showMessage) setIsRefreshing(true);
     try {
       const { data, error } = await supabase
         .from('indicators')
@@ -60,9 +74,20 @@ const IndicatorTrackingModule: React.FC = () => {
 
       if (error) throw error;
       setIndicators(data || []);
+
+      if (showMessage) {
+        setShowRefreshMessage(true);
+        setTimeout(() => setShowRefreshMessage(false), 3000);
+      }
     } catch (error) {
       console.error('Erreur chargement indicateurs:', error);
+    } finally {
+      if (showMessage) setIsRefreshing(false);
     }
+  };
+
+  const handleRefreshIndicators = () => {
+    loadIndicators(true);
   };
 
   const loadMeasurements = async () => {
@@ -404,9 +429,18 @@ const IndicatorTrackingModule: React.FC = () => {
           </button>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {selectedMeasurement ? 'Modifier la mesure' : 'Nouvelle mesure d\'indicateur'}
-            </h2>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {selectedMeasurement ? 'Modifier la mesure' : 'Nouvelle mesure d\'indicateur'}
+              </h2>
+              <div className="flex items-start space-x-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-800">
+                  <strong>Synchronisation automatique :</strong> Si vous venez de créer un nouvel indicateur dans le module "Revue des Indicateurs",
+                  il apparaîtra automatiquement dans cette liste. Vous pouvez aussi cliquer sur "Actualiser la liste" pour forcer une mise à jour immédiate.
+                </p>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
@@ -454,9 +488,28 @@ const IndicatorTrackingModule: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Étape 2 : Sélectionnez l'indicateur <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Étape 2 : Sélectionnez l'indicateur <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleRefreshIndicators}
+                    disabled={isRefreshing}
+                    className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <span>{isRefreshing ? 'Actualisation...' : 'Actualiser la liste'}</span>
+                  </button>
+                </div>
+                {showRefreshMessage && (
+                  <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <p className="text-sm text-green-800">
+                      Liste des indicateurs mise à jour avec succès
+                    </p>
+                  </div>
+                )}
                 {!selectedFrequency && (
                   <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800">
