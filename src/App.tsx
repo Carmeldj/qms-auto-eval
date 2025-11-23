@@ -19,6 +19,7 @@ const WasteManagementModule = lazy(() => import("./components/WasteManagmentModu
 const SubscriptionPage = lazy(() => import("./components/SubscriptionPage"));
 const ProcessReviewModule = lazy(() => import("./components/ProcessReviewModule"));
 const DocumentsModule = lazy(() => import("./components/Document/DocumentsModule"));
+const LiaisonBookModule = lazy(() => import("./components/LiaisonBookModule"));
 
 function App() {
 
@@ -56,6 +57,7 @@ function App() {
               <Route path="/subscribe" element={<SubscriptionPage />} />
 
               <Route path="/process-review" element={<ProcessReviewModule />} />
+              <Route path="/liaison-book" element={<LiaisonBookModule />} />
 
             </Route>
           </Routes>

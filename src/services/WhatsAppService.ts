@@ -281,3 +281,34 @@ const showSuccessNotification = () => {
     }, 300);
   }, 3500);
 };
+
+export const downloadLiaisonBookPDF = async (
+  formData: LiaisonBookData,
+  documentCode: string
+): Promise<void> => {
+  try {
+    const template = {
+      id: 'liaison-book',
+      name: 'Cahier de Liaison',
+      category: 'Communication'
+    } as DocumentTemplate;
+
+    const document = {
+      id: Date.now().toString(),
+      templateId: 'liaison-book',
+      data: formData,
+      createdAt: new Date().toISOString()
+    } as DocumentData;
+
+    const pdfBlob = await generateLiaisonBookPDF(template, document);
+
+    const link = window.document.createElement('a');
+    link.href = URL.createObjectURL(pdfBlob);
+    link.download = `cahier-liaison-${new Date(formData.date).toISOString().split('T')[0]}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  } catch (error) {
+    console.error('Erreur lors du téléchargement du PDF:', error);
+    throw error;
+  }
+};

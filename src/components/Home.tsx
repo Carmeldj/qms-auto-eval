@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ClipboardList, TrendingUp, Users, Shield, BarChart3, BookOpen, MessageCircle, Search, FileText, Database, FolderOpen, Target, Globe, Play } from 'lucide-react';
+import { ClipboardList, TrendingUp, Users, Shield, BarChart3, BookOpen, MessageCircle, Search, FileText, Database, FolderOpen, Target, Globe, Play, Book } from 'lucide-react';
 import { pmqCategories } from '../data/principles';
 import { useNavigate } from 'react-router-dom';
 
@@ -118,6 +118,22 @@ const Home: React.FC = () => {
             >
               <Globe className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Analyse PESTEL</span>
+            </button>
+          </div>
+
+          <div className="w-full sm:w-auto mt-2">
+            <button
+              onClick={() => {
+                navigate('/liaison-book');
+              }}
+              className="flex items-center justify-center space-x-2 w-full text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+              style={{ backgroundColor: '#25D366' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#20BA5A'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#25D366'}
+            >
+              <Book className="h-5 w-5" />
+              <span>Cahier de Liaison</span>
+              <span className="text-xs bg-white text-green-600 px-2 py-1 rounded-full font-bold">NOUVEAU</span>
             </button>
           </div>
         </div>
