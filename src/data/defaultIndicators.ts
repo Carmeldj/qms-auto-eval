@@ -360,11 +360,11 @@ export const defaultIndicators: DefaultIndicator[] = [
     name: 'Volume de déchets pharmaceutiques collectés',
     theme: 'Déchets / Gestion environnementale',
     objective: 'Suivre le volume de déchets pour optimiser la collecte et respecter les obligations réglementaires',
-    definition: 'Quantité en kilogrammes de déchets pharmaceutiques éliminés dans le mois via Cyclamed ou filières spécialisées',
+    definition: 'Quantité en kilogrammes de déchets pharmaceutiques éliminés dans le mois via filières spécialisées',
     formula: 'Pesée des déchets collectés',
     unit: 'kg',
     frequency: 'Mensuelle',
-    source: 'Bordereaux de collecte Cyclamed, registre déchets',
+    source: 'Bordereaux de collecte, registre déchets',
     collection_responsible: 'Préparateur responsable déchets',
     alert_thresholds: 'Pas de seuil critique (indicateur de suivi environnemental). Analyse de tendance',
     actions_to_consider: 'Sensibiliser les clients, améliorer le tri, optimiser les collectes',
@@ -387,19 +387,19 @@ export const defaultIndicators: DefaultIndicator[] = [
     communication: 'Équipe officinale'
   },
   {
-    name: 'Fréquence de collecte Cyclamed',
+    name: 'Fréquence de collecte des déchets',
     theme: 'Déchets / Logistique',
     objective: 'Assurer une collecte régulière pour éviter l\'accumulation de déchets',
-    definition: 'Nombre de collectes Cyclamed effectuées dans le mois',
+    definition: 'Nombre de collectes de déchets effectuées dans le mois',
     formula: 'Comptage des passages de collecte',
     unit: 'fois/mois',
     frequency: 'Mensuelle',
-    source: 'Bordereaux de collecte Cyclamed',
+    source: 'Bordereaux de collecte',
     collection_responsible: 'Préparateur responsable déchets',
     alert_thresholds: 'Critique : < 1 | Cible : ≥ 1',
-    actions_to_consider: 'Planifier les collectes, contacter Cyclamed, augmenter la fréquence si nécessaire',
+    actions_to_consider: 'Planifier les collectes, contacter le prestataire, augmenter la fréquence si nécessaire',
     decision_responsible: 'Pharmacien adjoint',
-    communication: 'Cyclamed, équipe officinale'
+    communication: 'Prestataire de collecte, équipe officinale'
   },
   {
     name: 'Taux de traçabilité des destructions',

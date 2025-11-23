@@ -294,7 +294,7 @@ export const documentTemplates: DocumentTemplate[] = [
       { id: 'origin', label: 'Origine', type: 'select', required: true, options: ['Stock officine', 'Retour patient', 'Retour EHPAD', 'Retour établissement de santé', 'Autre'] },
       { id: 'collectionDate', label: 'Date de collecte', type: 'date', required: false },
       { id: 'collector', label: 'Collecteur', type: 'text', required: false, placeholder: 'Organisme de collecte' },
-      { id: 'eliminationMode', label: 'Mode d\'élimination', type: 'select', required: false, options: ['Incinération', 'Cyclamed', 'Prestataire spécialisé', 'En attente de collecte'] },
+      { id: 'eliminationMode', label: 'Mode d\'élimination', type: 'select', required: false, options: ['Incinération', 'Collecte filière agréée', 'Prestataire spécialisé', 'En attente de collecte'] },
       { id: 'traceabilityNumber', label: 'Numéro de traçabilité', type: 'text', required: false, placeholder: 'Numéro du bordereau de suivi' },
       { id: 'recorder', label: 'Enregistré par', type: 'text', required: true, placeholder: 'Nom de la personne' },
       { id: 'observations', label: 'Observations', type: 'textarea', required: false, placeholder: 'Remarques particulières', rows: 3 }

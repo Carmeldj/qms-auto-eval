@@ -268,8 +268,8 @@ export const processDefaults: Record<string, ProcessDefaults> = {
       { order: 3, description: 'Isoler les produits en zone de quarantaine', responsible: 'Préparateur', duration: '15 min', tools: 'Zone dédiée' },
       { order: 4, description: 'Trier les produits selon leur nature (médicaments, cosmétiques)', responsible: 'Préparateur', duration: '20 min', tools: 'Contenants adaptés' },
       { order: 5, description: 'Enregistrer les périmés dans le registre', responsible: 'Préparateur', duration: '10 min', tools: 'Registre périmés' },
-      { order: 6, description: 'Stocker dans des contenants sécurisés en attente de collecte', responsible: 'Préparateur', duration: '15 min', tools: 'Bacs Cyclamed' },
-      { order: 7, description: 'Faire collecter par l\'organisme agréé (Cyclamed)', responsible: 'Pharmacien', duration: 'Trimestriel', tools: 'Bordereau de suivi' },
+      { order: 6, description: 'Stocker dans des contenants sécurisés en attente de collecte', responsible: 'Préparateur', duration: '15 min', tools: 'Bacs de collecte agréés' },
+      { order: 7, description: 'Faire collecter par l\'organisme agréé', responsible: 'Pharmacien', duration: 'Trimestriel', tools: 'Bordereau de suivi' },
       { order: 8, description: 'Archiver les bordereaux de destruction', responsible: 'Préparateur', duration: '5 min', tools: 'Classeur' }
     ],
     responsibilities: [
@@ -298,7 +298,7 @@ export const processDefaults: Record<string, ProcessDefaults> = {
     associatedDocuments: [
       'Registre des produits périmés',
       'Procédure de gestion des périmés',
-      'Bordereaux de collecte Cyclamed',
+      'Bordereaux de collecte',
       'Contrat avec l\'organisme de collecte',
       'Planning de contrôle des péremptions'
     ],

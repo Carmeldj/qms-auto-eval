@@ -213,11 +213,11 @@ export const processKPIs: Record<string, ProcessKPI[]> = {
     },
     {
       id: 'dech-3',
-      name: 'Fréquence de collecte Cyclamed',
+      name: 'Fréquence de collecte des déchets',
       target: 'Supérieur ou égal à 1 par mois',
       unit: 'fois/mois',
       frequency: 'Mensuelle',
-      description: 'Nombre de collectes Cyclamed effectuées'
+      description: 'Nombre de collectes de déchets effectuées'
     },
     {
       id: 'dech-4',

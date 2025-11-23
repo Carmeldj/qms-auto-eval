@@ -462,10 +462,10 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
         howTo: "Préparer le support, Animer la session, Évaluer la compréhension"
       },
       {
-        description: "Organiser la collecte et la destruction selon les filières agréées (Cyclamed, DASTRI)",
+        description: "Organiser la collecte et la destruction selon les filières agréées (DASTRI, prestataires spécialisés)",
         responsible: "Pharmacien titulaire",
         concernedPersons: ["Tout le personnel"],
-        documents: ["Contrat Cyclamed", "Bon d'enlèvement DASTRI"],
+        documents: ["Contrat prestataire de collecte", "Bon d'enlèvement DASTRI"],
         duration: "1 heure par collecte",
         howTo: "Planifier l'action, Mobiliser les ressources, Mettre en œuvre progressivement"
       },
@@ -514,10 +514,10 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
     ],
     annexes: [
       {
-        title: "Réglementation Cyclamed",
+        title: "Réglementation collecte des déchets pharmaceutiques",
         type: "regulation",
         description: "Modalités de collecte et destruction des médicaments périmés",
-        reference: "Éco-organisme Cyclamed"
+        reference: "Filières agréées de collecte"
       },
       {
         title: "Code de l'environnement - Périmés de soins",
