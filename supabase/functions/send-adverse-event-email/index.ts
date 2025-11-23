@@ -45,7 +45,7 @@ Deno.serve(async (req: Request) => {
 <body>
   <div class="container">
     <div class="header">
-      <h2>Notification d'Effet Indésirable - ABMed</h2>
+      <h2>Notification d'Effet Indésirable - Agence du Médicament</h2>
     </div>
     <div class="content">
       <p>Bonjour,</p>
@@ -74,9 +74,8 @@ Deno.serve(async (req: Request) => {
       <p>Cordialement,<br>Système de Pharmacovigilance</p>
     </div>
     <div class="footer">
-      <p>ABMed - Agence Béninoise du Médicament</p>
-      <p>Guinkomey, rue 108, Cotonou, Bénin</p>
-      <p>Tél: (229) 01 51 45 79 87 | Email: contact.abmed@gouv.bj</p>
+      <p>Agence Nationale de Régulation Pharmaceutique</p>
+      <p>Veuillez contacter votre agence pour plus d'informations</p>
     </div>
   </div>
 </body>
@@ -99,10 +98,10 @@ Deno.serve(async (req: Request) => {
     }
 
     const emailPayload: any = {
-      from: 'Pharmacovigilance <pharmacovigilance@notifications.abmed.bj>',
-      to: ['contact.abmed@gouv.bj'],
+      from: 'Pharmacovigilance <pharmacovigilance@notifications.gouv.local>',
+      to: ['agence.medicament@gouv.local'],
       cc: data.notifierEmail ? [data.notifierEmail] : [],
-      subject: `[ABMed] Notification d'Effet Indésirable - ${data.epidNumber}`,
+      subject: `[Pharmacovigilance] Notification d'Effet Indésirable - ${data.epidNumber}`,
       html: emailBody,
     };
 
@@ -145,7 +144,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Notification envoyée avec succès à l\'ABMed',
+        message: 'Notification envoyée avec succès à l\'agence du médicament',
         emailId: emailResult.id 
       }),
       {

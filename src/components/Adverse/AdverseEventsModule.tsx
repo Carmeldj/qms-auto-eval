@@ -31,7 +31,7 @@ const AdverseEventsModule: React.FC = () => {
               Module PHARMACOVIGILANCE
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
-              Notification des effets/événements indésirables à l'ABMed (Agence Béninoise du Médicament)
+              Notification des effets/événements indésirables à l'agence du médicament
             </p>
           </div>
           <button
@@ -60,7 +60,7 @@ const AdverseEventsModule: React.FC = () => {
               la compréhension et la prévention des effets indésirables ou de tout autre problème lié aux médicaments.
             </p>
             <p className="text-sm sm:text-base text-orange-800 font-medium">
-              Tout professionnel de santé a l'obligation de notifier les effets indésirables observés à l'ABMed.
+              Tout professionnel de santé a l'obligation de notifier les effets indésirables observés à l'agence du médicament.
             </p>
           </div>
         </div>
@@ -94,7 +94,7 @@ const AdverseEventsModule: React.FC = () => {
           Aucune notification enregistrée
         </h3>
         <p className="text-gray-600 mb-6 max-w-md mx-auto">
-          Commencez par créer votre première notification d'effet indésirable pour la soumettre à l'ABMed.
+          Commencez par créer votre première notification d'effet indésirable pour la soumettre à l'agence du médicament.
         </p>
         <button
           onClick={handleCreateReport}
@@ -116,15 +116,15 @@ const AdverseEventsModule: React.FC = () => {
         <div className="space-y-2 text-sm sm:text-base text-blue-800">
           <p>1. <strong>Remplissez</strong> le formulaire de notification avec toutes les informations disponibles</p>
           <p>2. <strong>Vérifiez</strong> l'exactitude des données saisies (patient, produit, événement)</p>
-          <p>3. <strong>Générez</strong> automatiquement le PDF conforme au format officiel ABMed</p>
-          <p>4. <strong>Envoyez</strong> le rapport à l'ABMed via email ou courrier officiel</p>
+          <p>3. <strong>Générez</strong> automatiquement le PDF conforme au format officiel de l'agence</p>
+          <p>4. <strong>Envoyez</strong> le rapport à l'agence du médicament via email ou courrier officiel</p>
         </div>
       </div>
 
-      {/* Contact ABMed */}
+      {/* Contact Agence */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mt-6 sm:mt-8">
         <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-          Contact ABMed
+          Contact de l'agence du médicament
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base">
           <div>

@@ -295,7 +295,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
       const pdfBase64 = adverseEventService.generatePDFBase64(reportToSend);
       await adverseEventService.sendEmail(reportToSend, pdfBase64);
       setShowSuccessModal(true);
-      alert("Email envoyé avec succès à l'ABMed!");
+      alert("Email envoyé avec succès à l'agence du médicament!");
     } catch (error) {
       console.error("Error sending email:", error);
       alert("Erreur lors de l'envoi de l'email. Veuillez réessayer.");
@@ -338,7 +338,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">
-              Notification d'Effet Indésirable - ABMed
+              Notification d'Effet Indésirable - Agence du Médicament
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
               Fiche de notification des effets/événements indésirables observés
@@ -376,7 +376,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 }`}
             >
               {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-              <span>{isSending ? 'Envoi...' : 'Envoyer à ABMed'}</span>
+              <span>{isSending ? 'Envoi...' : 'Envoyer à l\'agence'}</span>
             </button> */}
             <a
               href="#"
@@ -1828,7 +1828,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                     className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200"
                   >
                     <Mail className="h-5 w-5" />
-                    <span>Envoyer par email à ABMed</span>
+                    <span>Envoyer par email à l'agence</span>
                   </button>
                 )}
                 {isSending && (

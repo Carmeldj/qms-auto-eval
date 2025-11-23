@@ -203,7 +203,7 @@ const OrdonnancierModule: React.FC = () => {
 
   const executeSendEmail = async () => {
     const confirmed = window.confirm(
-      `Voulez-vous envoyer le rapport trimestriel (${filteredEntries.length} délivrances) à l'ABMed?`
+      `Voulez-vous envoyer le rapport trimestriel (${filteredEntries.length} délivrances) à l'agence du médicament?`
     );
 
     if (!confirmed) return;
@@ -221,7 +221,7 @@ const OrdonnancierModule: React.FC = () => {
         reportConfig.signatureImage,
         reportConfig.stampImage
       );
-      alert('Rapport envoyé avec succès à l\'ABMed!');
+      alert('Rapport envoyé avec succès à l\'agence du médicament!');
       setShowReportConfig(false);
       setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined });
     } catch (error) {
@@ -1114,7 +1114,7 @@ const OrdonnancierModule: React.FC = () => {
                   } text-white`}
               >
                 <Send className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>{loading ? 'Envoi...' : 'Envoyer à ABMed'}</span>
+                <span>{loading ? 'Envoi...' : 'Envoyer à l\'agence'}</span>
               </button>
             </div>
           </>
@@ -1395,7 +1395,7 @@ const OrdonnancierModule: React.FC = () => {
                 disabled={!reportConfig.pharmacistName.trim() || loading}
                 className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {loading ? 'En cours...' : (reportAction === 'download' ? 'Télécharger PDF' : 'Envoyer à ABMed')}
+                {loading ? 'En cours...' : (reportAction === 'download' ? 'Télécharger PDF' : 'Envoyer à l\'agence')}
               </button>
             </div>
           </div>

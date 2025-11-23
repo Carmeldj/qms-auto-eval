@@ -148,7 +148,7 @@ class AdverseEventService {
       { align: "center" }
     );
     yPosition += 6;
-    addText("ABMed - Agence Béninoise du Médicament", 11, true, 1.0);
+    addText("Agence Nationale de Régulation Pharmaceutique", 11, true, 1.0);
     yPosition += 5;
 
     pdf.setFontSize(11);
@@ -381,11 +381,9 @@ class AdverseEventService {
     }
     yPosition += 5;
 
-    addText("CONTACT ABMed", 12, true);
-    addText("Tél: (229) 01 51 45 79 87", 10);
-    addText("Email: contact.abmed@gouv.bj", 10);
-    addText("Adresse: Guinkomey, rue 108, Cotonou, Bénin", 10);
-    addText("Site web: www.abmed.bj", 10);
+    addText("CONTACT DE L'AGENCE", 12, true);
+    addText("Veuillez contacter votre agence nationale du médicament", 10);
+    addText("pour obtenir les coordonnées de soumission des notifications.", 10);
 
     return pdf;
   }

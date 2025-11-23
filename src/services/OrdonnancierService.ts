@@ -39,7 +39,7 @@ class OrdonnancierService {
     yPosition += 6;
 
     pdf.setFontSize(11);
-    pdf.text('ABMed - Agence Béninoise du Médicament', pageWidth / 2, yPosition, { align: 'center' });
+    pdf.text('Agence Nationale de Régulation Pharmaceutique', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 8;
 
     pdf.setFontSize(12);
@@ -253,12 +253,10 @@ class OrdonnancierService {
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(0, 0, 0);
-    pdf.text('Contact ABMed:', margin, yPosition);
+    pdf.text('Contact:', margin, yPosition);
     pdf.setFont('helvetica', 'normal');
     yPosition += 4;
-    pdf.text('Tél: (229) 01 51 45 79 87 | Email: contact.abmed@gouv.bj', margin, yPosition);
-    yPosition += 4;
-    pdf.text('Adresse: Guinkomey, rue 108, Cotonou, Bénin | Site web: www.abmed.bj', margin, yPosition);
+    pdf.text('Veuillez contacter votre agence nationale du médicament pour plus d\'informations', margin, yPosition);
 
     const fileName = `ordonnancier-T${trimestre}-${annee}.pdf`;
     pdf.save(fileName);
@@ -307,7 +305,7 @@ class OrdonnancierService {
     pdf.text('MINISTÈRE DE LA SANTÉ', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 6;
     pdf.setFontSize(11);
-    pdf.text('ABMed - Agence Béninoise du Médicament', pageWidth / 2, yPosition, { align: 'center' });
+    pdf.text('Agence Nationale de Régulation Pharmaceutique', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 8;
     pdf.setFontSize(12);
     pdf.text('ANNEXE 1 - CARNET D\'ORDONNANCIER', pageWidth / 2, yPosition, { align: 'center' });
