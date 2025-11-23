@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, TrendingUp, Target, Download, Edit2, Trash2, Eye, Calendar } from 'lucide-react';
+import { ArrowLeft, Plus, TrendingUp, Target, Download, Edit2, Trash2, Eye, Calendar, Database } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import jsPDF from 'jspdf';
+import { defaultIndicators } from '../data/defaultIndicators';
 
 interface Indicator {
   id?: string;
@@ -145,6 +146,34 @@ const IndicatorsReviewModule: React.FC = () => {
     });
     setSelectedIndicator(null);
     setShowForm(false);
+  };
+
+  const handleInitializeDefaults = async () => {
+    if (!confirm('Voulez-vous initialiser les indicateurs par défaut ? Cela ajoutera tous les indicateurs standards des procédures.')) return;
+
+    setIsLoading(true);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+
+      const indicatorsToInsert = defaultIndicators.map(indicator => ({
+        ...indicator,
+        implementation_date: today
+      }));
+
+      const { error } = await supabase
+        .from('indicators')
+        .insert(indicatorsToInsert);
+
+      if (error) throw error;
+
+      await loadIndicators();
+      alert(`${defaultIndicators.length} indicateurs initialisés avec succès !`);
+    } catch (error) {
+      console.error('Erreur initialisation:', error);
+      alert('Erreur lors de l\'initialisation des indicateurs');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const generatePDF = (indicator: Indicator) => {
@@ -538,13 +567,25 @@ const IndicatorsReviewModule: React.FC = () => {
                 <p className="text-gray-600">Gestion des indicateurs de performance</p>
               </div>
             </div>
-            <button
-              onClick={() => setShowForm(true)}
-              className="flex items-center space-x-2 bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
-            >
-              <Plus className="h-5 w-5" />
-              <span>Nouvel indicateur</span>
-            </button>
+            <div className="flex gap-3">
+              {indicators.length === 0 && (
+                <button
+                  onClick={handleInitializeDefaults}
+                  disabled={isLoading}
+                  className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                >
+                  <Database className="h-5 w-5" />
+                  <span>Charger indicateurs par défaut</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowForm(true)}
+                className="flex items-center space-x-2 bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
+              >
+                <Plus className="h-5 w-5" />
+                <span>Nouvel indicateur</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -553,6 +594,11 @@ const IndicatorsReviewModule: React.FC = () => {
           <p className="text-sm text-blue-800">
             <strong>💡 Conseil :</strong> Les indicateurs permettent de suivre la performance de vos processus.
             Chaque fiche génère un PDF conforme au modèle standard de revue des indicateurs.
+            {indicators.length === 0 && (
+              <span className="block mt-2">
+                <strong>🎯 Démarrage rapide :</strong> Cliquez sur "Charger indicateurs par défaut" pour initialiser automatiquement tous les indicateurs standards des procédures (52 indicateurs).
+              </span>
+            )}
           </p>
         </div>
 
