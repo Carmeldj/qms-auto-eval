@@ -34,6 +34,7 @@ const IndicatorTrackingModule: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [filterIndicator, setFilterIndicator] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedFrequency, setSelectedFrequency] = useState<string>('');
   const [formData, setFormData] = useState<Measurement>({
     indicator_id: '',
     measurement_date: '',
@@ -250,8 +251,22 @@ const IndicatorTrackingModule: React.FC = () => {
       actions_taken: ''
     });
     setSelectedMeasurement(null);
+    setSelectedFrequency('');
     setShowForm(false);
   };
+
+  const getUniqueFrequencies = () => {
+    const frequencies = indicators.map(ind => ind.frequency);
+    return [...new Set(frequencies)].sort();
+  };
+
+  const getIndicatorsByFrequency = (frequency: string) => {
+    return indicators.filter(ind => ind.frequency === frequency);
+  };
+
+  const filteredIndicatorsByFrequency = selectedFrequency
+    ? getIndicatorsByFrequency(selectedFrequency)
+    : indicators;
 
   const generatePDF = () => {
     const pdf = new jsPDF();
@@ -394,20 +409,80 @@ const IndicatorTrackingModule: React.FC = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                  Étape 1 : Choisissez la fréquence de mesure
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {getUniqueFrequencies().map(frequency => {
+                    const count = getIndicatorsByFrequency(frequency).length;
+                    return (
+                      <button
+                        key={frequency}
+                        type="button"
+                        onClick={() => {
+                          setSelectedFrequency(frequency);
+                          setFormData(prev => ({ ...prev, indicator_id: '' }));
+                        }}
+                        className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                          selectedFrequency === frequency
+                            ? 'border-blue-600 bg-blue-100 shadow-md'
+                            : 'border-gray-300 bg-white hover:border-blue-400 hover:shadow'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-bold text-gray-900">{frequency}</span>
+                          {selectedFrequency === frequency && (
+                            <CheckCircle className="h-5 w-5 text-blue-600" />
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">{count} indicateur{count > 1 ? 's' : ''}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedFrequency && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFrequency('')}
+                    className="mt-4 text-sm text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Réinitialiser la sélection
+                  </button>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Indicateur <span className="text-red-500">*</span>
+                  Étape 2 : Sélectionnez l'indicateur <span className="text-red-500">*</span>
                 </label>
+                {!selectedFrequency && (
+                  <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ Veuillez d'abord choisir une fréquence de mesure ci-dessus
+                    </p>
+                  </div>
+                )}
                 <select
                   value={formData.indicator_id}
                   onChange={(e) => handleInputChange('indicator_id', e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!selectedFrequency}
+                  className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
+                    !selectedFrequency
+                      ? 'border-gray-200 bg-gray-100 cursor-not-allowed'
+                      : 'border-gray-300 bg-white focus:ring-blue-500'
+                  }`}
                 >
-                  <option value="">Sélectionner un indicateur...</option>
-                  {indicators.map(indicator => (
+                  <option value="">
+                    {selectedFrequency
+                      ? `Sélectionner un indicateur ${selectedFrequency.toLowerCase()}...`
+                      : 'Choisissez d\'abord une fréquence...'}
+                  </option>
+                  {filteredIndicatorsByFrequency.map(indicator => (
                     <option key={indicator.id} value={indicator.id}>
-                      {indicator.name} - {indicator.frequency} ({indicator.theme})
+                      {indicator.name} ({indicator.theme})
                     </option>
                   ))}
                 </select>
