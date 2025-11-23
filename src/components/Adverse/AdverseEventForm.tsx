@@ -305,15 +305,50 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
         setSavedReport(report);
       }
 
-      const pdfBase64 = adverseEventService.generatePDFBase64(report);
-      await adverseEventService.sendEmail(report, pdfBase64, recipientEmail);
+      // Générer et télécharger le PDF
+      const result = await adverseEventService.generatePDF(report);
+      const { blob, fileName } = result;
+
+      // Télécharger le PDF pour l'utilisateur
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      // Préparer le message email
+      const subject = `[Pharmacovigilance] Notification d'Effet Indésirable - ${report.epidNumber}`;
+      const body = [
+        `Bonjour,`,
+        ``,
+        `Veuillez trouver ci-joint la notification d'effet indésirable.`,
+        ``,
+        `Numéro épidémiologique: ${report.epidNumber}`,
+        `Notificateur: ${notifier.fullName || ""}`,
+        `Formation Sanitaire: ${notifier.fs || ""}`,
+        `Téléphone: ${notifier.telephone || ""}`,
+        ``,
+        `Patient: ${patient.firstName} ${patient.lastName}`,
+        `Produit suspect: ${suspectProducts[0]?.productName || "Non spécifié"}`,
+        ``,
+        `Le rapport PDF complet a été téléchargé. Veuillez l'attacher à cet email avant l'envoi.`,
+        ``,
+        `Cordialement,`,
+        `${notifier.fullName}`,
+      ].join("\n");
+
+      // Ouvrir Gmail avec le message pré-rempli
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+        recipientEmail
+      )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      window.open(gmailUrl, "_blank");
 
       setShowEmailModal(false);
       setShowSuccessModal(true);
-      alert("Email envoyé avec succès à l'agence du médicament!");
     } catch (error) {
-      console.error("Error sending email:", error);
-      alert("Erreur lors de l'envoi de l'email. Veuillez réessayer.");
+      console.error("Error preparing email:", error);
+      alert("Erreur lors de la préparation de l'email. Veuillez réessayer.");
     } finally {
       setIsSending(false);
     }
@@ -1763,7 +1798,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
 
             <div className="mb-6">
               <p className="text-sm text-gray-600 mb-4">
-                Le rapport PDF sera automatiquement généré et envoyé par email avec toutes les informations de la notification.
+                Le rapport PDF sera automatiquement téléchargé et une page Gmail s'ouvrira avec le message pré-rempli. Vous devrez attacher manuellement le PDF téléchargé avant d'envoyer.
               </p>
 
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1803,7 +1838,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 ) : (
                   <>
                     <Mail className="h-4 w-4" />
-                    <span>Envoyer</span>
+                    <span>Ouvrir Gmail</span>
                   </>
                 )}
               </button>
@@ -1821,10 +1856,10 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Notification enregistrée et envoyée
+                Notification enregistrée
               </h3>
               <p className="text-sm text-gray-600 mb-6">
-                Votre notification a été sauvegardée et envoyée avec succès par email à l'agence du médicament. Le numéro épidémiologique est:
+                Votre notification a été sauvegardée avec succès. Le PDF a été téléchargé et Gmail s'est ouvert pour l'envoi. Le numéro épidémiologique est:
               </p>
               <div className="bg-gray-100 rounded-lg p-3 mb-6">
                 <p

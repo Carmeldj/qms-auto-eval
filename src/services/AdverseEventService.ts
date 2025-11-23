@@ -110,8 +110,13 @@ class AdverseEventService {
   private createPDF(report: AdverseEventReport): jsPDF {
     const generator = new AdverseEventPDFGenerator();
     return generator.generate(report);
+  }
+}
 
-    /* OLD VERSION - Keep as backup
+export const adverseEventService = new AdverseEventService();
+
+/* OLD VERSION WITH CLASSIFICATION - Keep as backup
+  private createPDFOld(report: AdverseEventReport): jsPDF {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
@@ -345,7 +350,3 @@ class AdverseEventService {
 
     return pdf;
     */
-  }
-}
-
-export const adverseEventService = new AdverseEventService();
