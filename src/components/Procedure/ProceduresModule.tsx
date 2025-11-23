@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Download, Clock, CheckCircle, ClipboardCheck, Map } from 'lucide-react';
+import { FileText, Download, Clock, CheckCircle, ClipboardCheck, Map, TrendingUp } from 'lucide-react';
 import { procedureTemplates, getAllProcedureCategories, getProceduresByCategory } from '../../data/procedureTemplates';
 import ProcedureForm from './ProcedureForm';
 import { useNavigate } from 'react-router-dom';
@@ -146,6 +146,27 @@ const ProceduresModule: React.FC = () => {
                 <span>PDF</span>
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Indicators Review */}
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-white text-center sm:text-left">
+              <h2 className="text-base sm:text-lg font-bold mb-2">Revue des Indicateurs</h2>
+              <p className="text-xs sm:text-sm text-orange-50">
+                Gestion et suivi des indicateurs de performance
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                navigate('/indicators-review');
+              }}
+              className="flex items-center space-x-2 bg-white text-orange-600 px-4 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-all duration-200 shadow-md whitespace-nowrap text-sm cursor-pointer"
+            >
+              <TrendingUp className="h-5 w-5" />
+              <span>Gérer les indicateurs</span>
+            </button>
           </div>
         </div>
 

@@ -20,6 +20,7 @@ const SubscriptionPage = lazy(() => import("./components/SubscriptionPage"));
 const ProcessReviewModule = lazy(() => import("./components/ProcessReviewModule"));
 const DocumentsModule = lazy(() => import("./components/Document/DocumentsModule"));
 const LiaisonBookModule = lazy(() => import("./components/LiaisonBookModule"));
+const IndicatorsReviewModule = lazy(() => import("./components/IndicatorsReviewModule"));
 
 function App() {
 
@@ -58,6 +59,7 @@ function App() {
 
               <Route path="/process-review" element={<ProcessReviewModule />} />
               <Route path="/liaison-book" element={<LiaisonBookModule />} />
+              <Route path="/indicators-review" element={<IndicatorsReviewModule />} />
 
             </Route>
           </Routes>
