@@ -627,16 +627,18 @@ const IndicatorsReviewModule: React.FC = () => {
               <div key={indicator.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{indicator.name}</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900">{indicator.name}</h3>
+                      <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded ml-2">
+                        📅 {indicator.frequency}
+                      </span>
+                    </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
                       <Calendar className="h-4 w-4" />
                       <span>{new Date(indicator.implementation_date).toLocaleDateString('fr-FR')}</span>
                     </div>
                     <p className="text-sm text-gray-600">
                       <strong>Thématique:</strong> {indicator.theme}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Fréquence:</strong> {indicator.frequency}
                     </p>
                   </div>
                   <Target className="h-8 w-8 text-teal-600 flex-shrink-0" />

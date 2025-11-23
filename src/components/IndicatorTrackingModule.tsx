@@ -296,7 +296,7 @@ const IndicatorTrackingModule: React.FC = () => {
         yPos = margin;
       }
 
-      const boxHeight = 50;
+      const boxHeight = 55;
       pdf.setFillColor(255, 255, 255);
       pdf.setDrawColor(70, 130, 180);
       pdf.setLineWidth(0.5);
@@ -309,23 +309,26 @@ const IndicatorTrackingModule: React.FC = () => {
 
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`Date : ${new Date(measurement.measurement_date).toLocaleDateString('fr-FR')}`, margin + 3, yPos + 12);
-      pdf.text(`Valeur mesurée : ${measurement.measured_value} ${measurement.indicator?.unit || ''}`, margin + 3, yPos + 18);
-      pdf.text(`Valeur cible : ${measurement.target_value}`, margin + 3, yPos + 24);
+      pdf.setTextColor(0, 0, 255);
+      pdf.text(`Frequence : ${measurement.indicator?.frequency || 'N/A'}`, margin + 3, yPos + 12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Date : ${new Date(measurement.measurement_date).toLocaleDateString('fr-FR')}`, margin + 3, yPos + 18);
+      pdf.text(`Valeur mesuree : ${measurement.measured_value} ${measurement.indicator?.unit || ''}`, margin + 3, yPos + 24);
+      pdf.text(`Valeur cible : ${measurement.target_value}`, margin + 3, yPos + 30);
 
       const statusText = measurement.status === 'conforme' ? 'Conforme ✓' : measurement.status === 'alerte' ? 'Alerte ⚠' : 'Critique ✗';
       const statusColor = measurement.status === 'conforme' ? [0, 128, 0] : measurement.status === 'alerte' ? [255, 165, 0] : [255, 0, 0];
       pdf.setTextColor(...statusColor);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(`Statut : ${statusText}`, margin + 3, yPos + 30);
+      pdf.text(`Statut : ${statusText}`, margin + 3, yPos + 36);
 
       pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`Mesuré par : ${measurement.measured_by}`, margin + 3, yPos + 36);
+      pdf.text(`Mesure par : ${measurement.measured_by}`, margin + 3, yPos + 42);
 
       if (measurement.comments) {
         const commentLines = pdf.splitTextToSize(`Commentaires : ${measurement.comments}`, pageWidth - 2 * margin - 6);
-        pdf.text(commentLines[0], margin + 3, yPos + 42);
+        pdf.text(commentLines[0], margin + 3, yPos + 48);
       }
 
       yPos += boxHeight + 3;
@@ -404,13 +407,19 @@ const IndicatorTrackingModule: React.FC = () => {
                   <option value="">Sélectionner un indicateur...</option>
                   {indicators.map(indicator => (
                     <option key={indicator.id} value={indicator.id}>
-                      {indicator.name} ({indicator.theme})
+                      {indicator.name} - {indicator.frequency} ({indicator.theme})
                     </option>
                   ))}
                 </select>
                 {formData.indicator_id && (
                   <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-xs font-semibold text-blue-900 mb-1">Seuils d'alerte pour cet indicateur :</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-semibold text-blue-900">Fréquence de mesure :</p>
+                      <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded">
+                        {indicators.find(ind => ind.id === formData.indicator_id)?.frequency}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-blue-900 mb-1">Seuils d'alerte :</p>
                     <p className="text-xs text-blue-800">
                       {indicators.find(ind => ind.id === formData.indicator_id)?.alert_thresholds || 'Non défini'}
                     </p>
@@ -706,7 +715,12 @@ const IndicatorTrackingModule: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       {getStatusIcon(measurement.status)}
-                      <h3 className="text-lg font-bold text-gray-900">{measurement.indicator?.name || 'N/A'}</h3>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">{measurement.indicator?.name || 'N/A'}</h3>
+                        <span className="text-xs text-blue-600 font-medium">
+                          📅 Fréquence : {measurement.indicator?.frequency || 'N/A'}
+                        </span>
+                      </div>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{measurement.indicator?.theme || ''}</p>
                     <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
