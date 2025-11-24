@@ -70,6 +70,10 @@ const generateLiaisonBookPDF = async (
   template: DocumentTemplate,
   document: DocumentData
 ): Promise<Blob> => {
+  if (!document || !document.data) {
+    throw new Error('Les données du document sont manquantes');
+  }
+
   const pdf = new jsPDF();
   const pageWidth = pdf.internal.pageSize.getWidth();
   const leftMargin = 20;

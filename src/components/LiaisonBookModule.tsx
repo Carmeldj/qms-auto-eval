@@ -66,11 +66,14 @@ const LiaisonBookModule: React.FC = () => {
     const document = {
       id: Date.now().toString(),
       code: 'CL',
-      version: '1.0'
+      version: '1.0',
+      templateId: 'liaison-book',
+      data: formData,
+      createdAt: new Date().toISOString()
     };
 
     try {
-      await shareToWhatsApp(template, document, formData as any);
+      await shareToWhatsApp(template, document as any, formData as any);
     } catch (error: any) {
       console.error('Erreur partage WhatsApp:', error);
       const errorMessage = error.message || 'Erreur lors du partage WhatsApp. Veuillez réessayer.';
