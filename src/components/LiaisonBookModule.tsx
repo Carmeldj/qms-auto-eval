@@ -71,9 +71,10 @@ const LiaisonBookModule: React.FC = () => {
 
     try {
       await shareToWhatsApp(template, document, formData as any);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur partage WhatsApp:', error);
-      alert('Erreur lors du partage WhatsApp. Veuillez réessayer.');
+      const errorMessage = error.message || 'Erreur lors du partage WhatsApp. Veuillez réessayer.';
+      alert(errorMessage);
     } finally {
       setIsSharing(false);
     }

@@ -26,23 +26,43 @@ export const shareToWhatsApp = async (
   }
 
   try {
+    // Générer le PDF
     const pdfBlob = await generateLiaisonBookPDF(template, document);
+    console.log('PDF généré avec succès');
 
+    // Upload sur Supabase
     const documentUrl = await uploadPDFToSupabase(pdfBlob, document.id);
+    console.log('PDF uploadé avec succès:', documentUrl);
 
+    // Formater le message WhatsApp
     const whatsappMessage = formatWhatsAppMessage(formData as unknown as LiaisonBookData, documentUrl);
 
+    // Sauvegarder l'enregistrement
     await saveLiaisonBookRecord(document, documentUrl);
+    console.log('Enregistrement sauvegardé');
 
+    // Ouvrir WhatsApp
     const encodedMessage = encodeURIComponent(whatsappMessage);
     const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
 
     window.open(whatsappURL, '_blank');
 
     showSuccessNotification();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du partage WhatsApp:', error);
-    throw error;
+
+    // Messages d'erreur personnalisés
+    let errorMessage = 'Erreur lors du partage WhatsApp.';
+
+    if (error.message && error.message.includes('upload')) {
+      errorMessage = 'Erreur lors de l\'upload du document. Vérifiez votre connexion.';
+    } else if (error.message && error.message.includes('storage')) {
+      errorMessage = 'Erreur d\'accès au stockage. Contactez l\'administrateur.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    throw new Error(errorMessage);
   }
 };
 
@@ -125,26 +145,41 @@ const generateLiaisonBookPDF = async (
 };
 
 const uploadPDFToSupabase = async (pdfBlob: Blob, documentId: string): Promise<string> => {
-  const fileName = `liaison-book-${documentId}-${Date.now()}.pdf`;
-  const filePath = `liaison-books/${fileName}`;
+  try {
+    const fileName = `liaison-book-${documentId}-${Date.now()}.pdf`;
+    const filePath = `liaison-books/${fileName}`;
 
-  const { data, error } = await supabase.storage
-    .from('documents')
-    .upload(filePath, pdfBlob, {
-      contentType: 'application/pdf',
-      upsert: false
-    });
+    console.log('Début upload vers:', filePath);
 
-  if (error) {
-    console.error('Erreur upload Supabase:', error);
-    throw new Error(`Erreur lors de l'upload du document: ${error.message}`);
+    const { data, error } = await supabase.storage
+      .from('documents')
+      .upload(filePath, pdfBlob, {
+        contentType: 'application/pdf',
+        upsert: true,
+        cacheControl: '3600'
+      });
+
+    if (error) {
+      console.error('Erreur upload Supabase:', error);
+      throw new Error(`Erreur lors de l'upload du document: ${error.message}`);
+    }
+
+    console.log('Upload réussi, récupération de l\'URL publique...');
+
+    const { data: urlData } = supabase.storage
+      .from('documents')
+      .getPublicUrl(filePath);
+
+    if (!urlData || !urlData.publicUrl) {
+      throw new Error('Impossible de générer l\'URL publique du document');
+    }
+
+    console.log('URL publique générée:', urlData.publicUrl);
+    return urlData.publicUrl;
+  } catch (error: any) {
+    console.error('Erreur dans uploadPDFToSupabase:', error);
+    throw new Error(`Erreur storage: ${error.message || 'Erreur inconnue'}`);
   }
-
-  const { data: urlData } = supabase.storage
-    .from('documents')
-    .getPublicUrl(filePath);
-
-  return urlData.publicUrl;
 };
 
 const formatWhatsAppMessage = (data: LiaisonBookData, documentUrl: string): string => {

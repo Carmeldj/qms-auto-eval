@@ -126,9 +126,10 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
 
     try {
       await shareToWhatsApp(template, documentData, formData);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur partage WhatsApp:", error);
-      alert("Erreur lors du partage WhatsApp. Veuillez réessayer.");
+      const errorMessage = error.message || "Erreur lors du partage WhatsApp. Veuillez réessayer.";
+      alert(errorMessage);
     } finally {
       setIsSharing(false);
     }
