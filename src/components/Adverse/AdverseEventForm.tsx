@@ -284,17 +284,6 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
   };
 
   const handleSendEmail = async () => {
-    if (!recipientEmail.trim()) {
-      alert("Veuillez saisir l'adresse email de l'agence.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(recipientEmail)) {
-      alert("Adresse email invalide. Veuillez vérifier.");
-      return;
-    }
-
     setIsSending(true);
 
     try {
@@ -337,10 +326,8 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
         `${notifier.fullName}`,
       ].join("\n");
 
-      // Ouvrir Gmail avec le message pré-rempli
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-        recipientEmail
-      )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      // Ouvrir Gmail avec le message pré-rempli (sans destinataire, l'utilisateur le remplira)
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
       window.open(gmailUrl, "_blank");
 
@@ -1798,23 +1785,16 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
 
             <div className="mb-6">
               <p className="text-sm text-gray-600 mb-4">
-                Le rapport PDF sera automatiquement téléchargé et une page Gmail s'ouvrira avec le message pré-rempli. Vous devrez attacher manuellement le PDF téléchargé avant d'envoyer.
+                Le rapport PDF sera automatiquement téléchargé et une page Gmail s'ouvrira avec le message pré-rempli.
               </p>
-
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adresse email de l'agence *
-              </label>
-              <input
-                type="email"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-                placeholder="contact.abmed@gouv.bj"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-transparent"
-                style={{ "--tw-ring-color": "#2563eb" } as React.CSSProperties}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                L'email par défaut de l'agence est déjà pré-rempli
+              <p className="text-sm text-gray-600">
+                Vous devrez :
               </p>
+              <ul className="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
+                <li>Saisir l'adresse email de l'agence du médicament</li>
+                <li>Attacher le PDF téléchargé</li>
+                <li>Envoyer l'email</li>
+              </ul>
             </div>
 
             <div className="flex space-x-3">
@@ -1833,7 +1813,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 {isSending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Envoi...</span>
+                    <span>Préparation...</span>
                   </>
                 ) : (
                   <>
