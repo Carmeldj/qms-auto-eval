@@ -28,6 +28,8 @@ const IndicatorsReviewModule: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedIndicator, setSelectedIndicator] = useState<Indicator | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewIndicator, setPreviewIndicator] = useState<Indicator | null>(null);
   const [formData, setFormData] = useState<Indicator>({
     name: '',
     implementation_date: '',
@@ -176,7 +178,19 @@ const IndicatorsReviewModule: React.FC = () => {
     }
   };
 
-  const generatePDF = (indicator: Indicator) => {
+  const handlePreview = (indicator: Indicator) => {
+    setPreviewIndicator(indicator);
+    setShowPreviewModal(true);
+  };
+
+  const handleDownloadFromPreview = () => {
+    if (previewIndicator) {
+      generatePDF(previewIndicator);
+      setShowPreviewModal(false);
+    }
+  };
+
+  const generatePDF = (indicator: Indicator, download: boolean = true) => {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
@@ -279,7 +293,11 @@ const IndicatorsReviewModule: React.FC = () => {
     pdf.setTextColor(100, 100, 100);
     pdf.text('Généré par PHARMA QMS', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-    pdf.save(`indicateur-${indicator.name.replace(/\s+/g, '-')}.pdf`);
+    if (download) {
+      pdf.save(`indicateur-${indicator.name.replace(/\s+/g, '-')}.pdf`);
+    }
+
+    return pdf;
   };
 
   const frequencyOptions = ['Quotidienne', 'Hebdomadaire', 'Mensuelle', 'Trimestrielle', 'Semestrielle', 'Annuelle'];
@@ -646,21 +664,28 @@ const IndicatorsReviewModule: React.FC = () => {
 
                 <div className="border-t pt-4 flex gap-2">
                   <button
+                    onClick={() => handlePreview(indicator)}
+                    className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span>Visualiser</span>
+                  </button>
+                  <button
                     onClick={() => generatePDF(indicator)}
-                    className="flex-1 flex items-center justify-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+                    className="flex-1 flex items-center justify-center space-x-2 bg-teal-600 text-white px-3 py-2 rounded-lg hover:bg-teal-700 transition-colors"
                   >
                     <Download className="h-4 w-4" />
                     <span>PDF</span>
                   </button>
                   <button
                     onClick={() => handleEdit(indicator)}
-                    className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="flex items-center justify-center space-x-2 bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(indicator.id!)}
-                    className="flex items-center justify-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                    className="flex items-center justify-center space-x-2 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -670,6 +695,120 @@ const IndicatorsReviewModule: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de prévisualisation */}
+      {showPreviewModal && previewIndicator && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="bg-teal-600 text-white px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold">Prévisualisation de la carte indicateur</h3>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="text-white hover:text-gray-200"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: '#DCF0DC' }}>
+              <div className="bg-white rounded-lg shadow-lg p-6 max-w-3xl mx-auto">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-green-100 to-green-200 rounded-lg p-4 mb-6">
+                  <h2 className="text-2xl font-bold text-center text-gray-900">{previewIndicator.name}</h2>
+                  <p className="text-sm text-right text-gray-700 mt-2">
+                    Date de mise en place : {new Date(previewIndicator.implementation_date).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+
+                {/* Sections */}
+                <div className="space-y-4">
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Thématique :</h3>
+                    <p className="text-gray-700">{previewIndicator.theme}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Objectif :</h3>
+                    <p className="text-gray-700">{previewIndicator.objective}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Définition :</h3>
+                    <p className="text-gray-700">{previewIndicator.definition}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border border-green-300 rounded-lg p-4 bg-white">
+                      <h3 className="font-bold text-gray-900 mb-2">Formule :</h3>
+                      <p className="text-gray-700">{previewIndicator.formula}</p>
+                    </div>
+                    <div className="border border-green-300 rounded-lg p-4 bg-white">
+                      <h3 className="font-bold text-gray-900 mb-2">Unité :</h3>
+                      <p className="text-gray-700">{previewIndicator.unit}</p>
+                    </div>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Fréquence :</h3>
+                    <p className="text-gray-700">{previewIndicator.frequency}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Source :</h3>
+                    <p className="text-gray-700">{previewIndicator.source}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Responsable de collecte :</h3>
+                    <p className="text-gray-700">{previewIndicator.collection_responsible}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Seuils d'alerte :</h3>
+                    <p className="text-gray-700">{previewIndicator.alert_thresholds}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Actions à envisager :</h3>
+                    <p className="text-gray-700">{previewIndicator.actions_to_consider}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Responsable(s) de décision :</h3>
+                    <p className="text-gray-700">{previewIndicator.decision_responsible}</p>
+                  </div>
+
+                  <div className="border border-green-300 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-gray-900 mb-2">Communication à prévoir :</h3>
+                    <p className="text-gray-700">{previewIndicator.communication}</p>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="text-center text-gray-500 text-sm mt-6 pt-4 border-t">
+                  Généré par PHARMA QMS
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 px-6 py-4 flex gap-3 justify-end border-t">
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
+              >
+                Fermer
+              </button>
+              <button
+                onClick={handleDownloadFromPreview}
+                className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center space-x-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Télécharger PDF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
