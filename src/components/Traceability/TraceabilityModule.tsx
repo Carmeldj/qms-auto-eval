@@ -270,6 +270,41 @@ const TraceabilityModule: React.FC = () => {
           </div>
 
           <div className="mt-6">
+            {/* Récapitulatif si un registre est sélectionné */}
+            {selectedTemplate && (
+              <div className="mb-3 p-3 bg-teal-50 border border-teal-200 rounded-lg">
+                <p className="text-sm text-teal-800">
+                  <strong>✓ Registre sélectionné :</strong> {
+                    [
+                      { id: 'equipment-lifecycle', title: 'Registre de vie des équipements' },
+                      { id: 'hygiene-tracking', title: "Registre de suivi de l'hygiène du personnel" },
+                      { id: 'premises-cleaning', title: "Registre de l'entretien des locaux et toilettes" },
+                      { id: 'missing-products-tracking', title: 'Registre de suivi des produits manquants' }
+                    ].concat(traceabilityTemplates).find(t => t.id === selectedTemplate)?.title || selectedTemplate
+                  }
+                </p>
+                <p className="text-sm text-teal-800 mt-1">
+                  <strong>Nombre d'enregistrements :</strong> {recordCounts[selectedTemplate] || 0} pour {
+                    ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][compilationMonth]
+                  } {compilationYear}
+                </p>
+              </div>
+            )}
+
+            {/* Message d'aide si des champs sont manquants */}
+            {(!selectedTemplate || !pharmacyName) && (
+              <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>⚠️ Attention :</strong> Pour générer la compilation, veuillez :
+                </p>
+                <ul className="text-sm text-yellow-800 mt-1 ml-4 list-disc">
+                  {!pharmacyName && <li>Saisir le nom de la pharmacie</li>}
+                  {!selectedTemplate && <li>Sélectionner un type de registre</li>}
+                </ul>
+              </div>
+            )}
+
             <button
               onClick={handleGenerateCompilation}
               disabled={!selectedTemplate || !pharmacyName}
