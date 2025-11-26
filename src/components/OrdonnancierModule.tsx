@@ -370,8 +370,7 @@ const OrdonnancierModule: React.FC = () => {
         pharmacien_nom: formData.pharmacien!.nom,
         pharmacien_signature: formData.pharmacien!.signature,
         trimestre: trimestre,
-        annee: annee,
-        createdBy: user?.email || ""
+        annee: annee
       };
 
       const response = await fetch(`${SUPABASE_URL}/rest/v1/ordonnancier_entries`, {
