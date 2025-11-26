@@ -87,14 +87,21 @@ export class TraceabilityRecordService {
     userEmail: string
   ): Promise<TraceabilityRecord[]> {
     try {
-      const { data, error } = await supabase
+      // Ne pas filtrer par created_by si userEmail est vide ou "unknown"
+      let query = supabase
         .from("traceability_records")
         .select("*")
         .eq("template_id", templateId)
-        .eq("created_by", userEmail)
         .gte("created_at", startDate)
         .lte("created_at", endDate)
         .order("created_at", { ascending: true });
+
+      // Filtrer par created_by seulement si l'email est valide
+      if (userEmail && userEmail !== "unknown") {
+        query = query.or(`created_by.eq.${userEmail},created_by.eq.unknown`);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data || [];
@@ -135,10 +142,11 @@ export class TraceabilityRecordService {
       const startDate = new Date(year, month - 1, 1).toISOString();
       const endDate = new Date(year, month, 0, 23, 59, 59, 999).toISOString();
 
+      // Ne pas filtrer par created_by pour compter tous les enregistrements
+      // car certains ont created_by = "unknown"
       const { data, error } = await supabase
         .from("traceability_records")
         .select("template_id")
-        .eq("created_by", userEmail)
         .gte("created_at", startDate)
         .lte("created_at", endDate);
 
