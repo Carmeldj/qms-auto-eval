@@ -60,7 +60,9 @@ const OrdonnancierModule: React.FC = () => {
   const [reportConfig, setReportConfig] = useState({
     pharmacistName: '',
     signatureImage: undefined as string | undefined,
-    stampImage: undefined as string | undefined
+    stampImage: undefined as string | undefined,
+    pharmacyName: '',
+    pharmacyEmail: ''
   });
 
   function getCurrentTrimester(): number {
@@ -175,7 +177,7 @@ const OrdonnancierModule: React.FC = () => {
         reportConfig.stampImage
       );
       setShowReportConfig(false);
-      setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined });
+      setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Erreur lors de la génération du PDF');
@@ -188,25 +190,49 @@ const OrdonnancierModule: React.FC = () => {
       return;
     }
 
-    if (!pharmacyName.trim() || !pharmacyEmail.trim()) {
-      alert('Veuillez configurer le nom et l\'email de la pharmacie dans les paramètres');
-      return;
-    }
-
-    // Ouvrir le modal de configuration
+    // Ouvrir le modal de configuration (même si nom/email non configurés)
     setReportAction('send');
     setShowReportConfig(true);
   };
 
   const executeSendEmail = async () => {
+    // Valider les champs requis
+    const finalPharmacyName = reportConfig.pharmacyName || pharmacyName;
+    const finalPharmacyEmail = reportConfig.pharmacyEmail || pharmacyEmail;
+
+    if (!finalPharmacyName.trim()) {
+      alert('Veuillez saisir le nom de la pharmacie');
+      return;
+    }
+
+    if (!finalPharmacyEmail.trim()) {
+      alert('Veuillez saisir l\'email de la pharmacie');
+      return;
+    }
+
+    if (!reportConfig.pharmacistName.trim()) {
+      alert('Veuillez saisir le nom du pharmacien');
+      return;
+    }
+
     setLoading(true);
     try {
+      // Sauvegarder les valeurs si elles ont été modifiées
+      if (reportConfig.pharmacyName) {
+        setPharmacyName(reportConfig.pharmacyName);
+        localStorage.setItem('pharmacyName', reportConfig.pharmacyName);
+      }
+      if (reportConfig.pharmacyEmail) {
+        setPharmacyEmail(reportConfig.pharmacyEmail);
+        localStorage.setItem('pharmacyEmail', reportConfig.pharmacyEmail);
+      }
+
       // Générer et télécharger le PDF
       const pdfBlob = await ordonnancierService.generateTrimesterReportPDF(
         filteredEntries,
         selectedTrimester,
         selectedYear,
-        pharmacyName,
+        finalPharmacyName,
         pharmacyInitials,
         reportConfig.pharmacistName,
         reportConfig.signatureImage,
@@ -228,7 +254,8 @@ const OrdonnancierModule: React.FC = () => {
         '',
         `Veuillez trouver ci-joint le rapport trimestriel de l'ordonnancier pour le trimestre ${selectedTrimester} de l'année ${selectedYear}.`,
         '',
-        `Pharmacie: ${pharmacyName}`,
+        `Pharmacie: ${finalPharmacyName}`,
+        `Email: ${finalPharmacyEmail}`,
         `Nombre de délivrances: ${filteredEntries.length}`,
         `Période: ${TRIMESTRES[selectedTrimester - 1].label}`,
         '',
@@ -238,13 +265,14 @@ const OrdonnancierModule: React.FC = () => {
         reportConfig.pharmacistName
       ].join('\n');
 
-      // Ouvrir Gmail
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      // Ouvrir Gmail avec l'email de destination pré-rempli
+      const recipientEmail = 'agence.medicament@gouv.bj';
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(gmailUrl, '_blank');
 
       setShowReportConfig(false);
-      setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined });
-      alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF et de saisir l\'adresse email de l\'agence du médicament.');
+      setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
+      alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF avant l\'envoi.');
     } catch (error) {
       console.error('Error preparing email:', error);
       alert('Erreur lors de la préparation de l\'email. Veuillez réessayer.');
@@ -1265,7 +1293,7 @@ const OrdonnancierModule: React.FC = () => {
               <button
                 onClick={() => {
                   setShowReportConfig(false);
-                  setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined });
+                  setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -1274,16 +1302,33 @@ const OrdonnancierModule: React.FC = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Nom de la pharmacie (lecture seule) */}
+              {/* Nom de la pharmacie (éditable) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom de la pharmacie
+                  Nom de la pharmacie <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  value={pharmacyName}
-                  disabled
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50"
+                  value={reportConfig.pharmacyName || pharmacyName}
+                  onChange={(e) => setReportConfig(prev => ({ ...prev, pharmacyName: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
+                  placeholder="Ex: Pharmacie Centrale"
+                />
+              </div>
+
+              {/* Email de la pharmacie (éditable) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email de la pharmacie <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={reportConfig.pharmacyEmail || pharmacyEmail}
+                  onChange={(e) => setReportConfig(prev => ({ ...prev, pharmacyEmail: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
+                  placeholder="Ex: contact@pharmacie.com"
                 />
               </div>
 
@@ -1404,7 +1449,7 @@ const OrdonnancierModule: React.FC = () => {
               <button
                 onClick={() => {
                   setShowReportConfig(false);
-                  setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined });
+                  setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
                 }}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
               >
@@ -1412,7 +1457,12 @@ const OrdonnancierModule: React.FC = () => {
               </button>
               <button
                 onClick={reportAction === 'download' ? executeDownloadPDF : executeSendEmail}
-                disabled={!reportConfig.pharmacistName.trim() || loading}
+                disabled={
+                  !reportConfig.pharmacistName.trim() ||
+                  loading ||
+                  (reportAction === 'send' && !(reportConfig.pharmacyName || pharmacyName).trim()) ||
+                  (reportAction === 'send' && !(reportConfig.pharmacyEmail || pharmacyEmail).trim())
+                }
                 className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {loading ? 'Préparation...' : (reportAction === 'download' ? 'Télécharger PDF' : 'Ouvrir Gmail')}
