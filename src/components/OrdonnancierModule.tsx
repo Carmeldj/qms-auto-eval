@@ -259,7 +259,7 @@ const OrdonnancierModule: React.FC = () => {
         `Nombre de délivrances: ${filteredEntries.length}`,
         `Période: ${TRIMESTRES[selectedTrimester - 1].label}`,
         '',
-        'Le rapport PDF complet a été téléchargé. Veuillez l\'attacher à cet email avant l\'envoi.',
+        'Avant l\'expédition de ce mail, j\'ai vérifié que le rapport pdf complet est bien en pièce jointe et que l\'adresse email de votre agence est bien celle indiquée pour ce rapport. Je vous prie donc de recevoir nos salutations distinguées.',
         '',
         'Cordialement,',
         reportConfig.pharmacistName
