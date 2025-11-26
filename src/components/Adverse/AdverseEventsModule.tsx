@@ -121,30 +121,6 @@ const AdverseEventsModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Contact Agence */}
-      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mt-6 sm:mt-8">
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">
-          Contact de l'agence du médicament
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base">
-          <div>
-            <p className="font-semibold text-gray-700 mb-1">Téléphone</p>
-            <p className="text-gray-900">(229) 01 51 45 79 87</p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-700 mb-1">Email</p>
-            <p className="text-gray-900">contact.abmed@gouv.bj</p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-700 mb-1">Site web</p>
-            <p className="text-gray-900">www.abmed.bj</p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-700 mb-1">Adresse</p>
-            <p className="text-gray-900">Guinkomey, rue 108, Cotonou, Bénin</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
