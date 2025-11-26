@@ -96,12 +96,9 @@ export class PrescriptionFileService {
         throw new Error(`Erreur lors de l'upload: ${uploadError.message}`);
       }
 
-      // Obtenir l'URL publique
-      const { data: urlData } = supabase.storage
-        .from(this.BUCKET_NAME)
-        .getPublicUrl(filePath);
-
-      const fileUrl = urlData.publicUrl;
+      // Stocker uniquement le chemin du fichier (pas l'URL complète)
+      // L'URL signée sera générée à la demande lors de l'accès
+      const fileUrl = filePath;
 
       // Mettre à jour l'entrée dans la base de données
       const { error: updateError } = await supabase
@@ -128,7 +125,7 @@ export class PrescriptionFileService {
   }
 
   /**
-   * Vérifie le mot de passe et retourne l'URL du fichier
+   * Vérifie le mot de passe et retourne l'URL signée du fichier
    */
   static async accessPrescriptionFile({ entryId, password }: PrescriptionFileAccess): Promise<string> {
     try {
@@ -154,8 +151,18 @@ export class PrescriptionFileService {
         throw new Error('Mot de passe incorrect.');
       }
 
-      // Retourner l'URL du fichier
-      return entry.prescription_file_url;
+      // Générer une URL signée valide pendant 1 heure
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+        .from(this.BUCKET_NAME)
+        .createSignedUrl(entry.prescription_file_url, 3600);
+
+      if (signedUrlError || !signedUrlData) {
+        console.error('Erreur génération URL signée:', signedUrlError);
+        throw new Error('Erreur lors de la génération du lien d\'accès.');
+      }
+
+      // Retourner l'URL signée
+      return signedUrlData.signedUrl;
     } catch (error) {
       console.error('Erreur dans accessPrescriptionFile:', error);
       throw error;
