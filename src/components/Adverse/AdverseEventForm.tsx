@@ -977,12 +977,35 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="date"
                   value={adverseEvent.administrationDate}
-                  onChange={(e) =>
-                    setAdverseEvent({
-                      ...adverseEvent,
-                      administrationDate: e.target.value,
-                    })
-                  }
+                  onChange={(e) => {
+                    const newAdminDate = e.target.value;
+                    setAdverseEvent((prev) => {
+                      const updatedEvent = {
+                        ...prev,
+                        administrationDate: newAdminDate,
+                      };
+
+                      // Calculer automatiquement le délai si les deux dates sont présentes
+                      if (newAdminDate && prev.eventDate) {
+                        const adminDate = new Date(newAdminDate);
+                        const eventDate = new Date(prev.eventDate);
+
+                        if (!isNaN(adminDate.getTime()) && !isNaN(eventDate.getTime())) {
+                          const diffMs = eventDate.getTime() - adminDate.getTime();
+                          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+                          if (diffDays >= 1) {
+                            updatedEvent.delayDays = diffDays;
+                            updatedEvent.delayMinutes = undefined;
+                            updatedEvent.delayHours = undefined;
+                            updatedEvent.delayMonths = undefined;
+                          }
+                        }
+                      }
+
+                      return updatedEvent;
+                    });
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
                     { "--tw-ring-color": "#009688" } as React.CSSProperties
@@ -996,12 +1019,35 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
                 <input
                   type="date"
                   value={adverseEvent.eventDate}
-                  onChange={(e) =>
-                    setAdverseEvent({
-                      ...adverseEvent,
-                      eventDate: e.target.value,
-                    })
-                  }
+                  onChange={(e) => {
+                    const newEventDate = e.target.value;
+                    setAdverseEvent((prev) => {
+                      const updatedEvent = {
+                        ...prev,
+                        eventDate: newEventDate,
+                      };
+
+                      // Calculer automatiquement le délai si les deux dates sont présentes
+                      if (prev.administrationDate && newEventDate) {
+                        const adminDate = new Date(prev.administrationDate);
+                        const eventDate = new Date(newEventDate);
+
+                        if (!isNaN(adminDate.getTime()) && !isNaN(eventDate.getTime())) {
+                          const diffMs = eventDate.getTime() - adminDate.getTime();
+                          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+                          if (diffDays >= 1) {
+                            updatedEvent.delayDays = diffDays;
+                            updatedEvent.delayMinutes = undefined;
+                            updatedEvent.delayHours = undefined;
+                            updatedEvent.delayMonths = undefined;
+                          }
+                        }
+                      }
+
+                      return updatedEvent;
+                    });
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-transparent"
                   style={
                     { "--tw-ring-color": "#009688" } as React.CSSProperties
