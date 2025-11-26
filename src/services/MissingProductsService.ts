@@ -65,10 +65,11 @@ class MissingProductsService {
     const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
     const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
+    // Ne pas filtrer par user_email pour les compilations mensuelles
+    // car elles doivent inclure tous les produits manquants de la période
     const { data, error } = await supabase
       .from('missing_products')
       .select('*')
-      .eq('user_email', userEmail)
       .gte('date', startDate)
       .lte('date', endDate)
       .order('date', { ascending: true });
@@ -170,28 +171,42 @@ class MissingProductsService {
     doc.setFontSize(11);
     doc.text(`Période : ${monthNames[month - 1]} ${year}`, pageWidth / 2, yPosition, { align: 'center' });
 
-    // Statistiques globales
+    // Indicateurs clés en encadrés séparés
     yPosition += 15;
-    doc.setFillColor(0, 150, 136);
-    doc.rect(margin, yPosition, pageWidth - 2 * margin, 30, 'F');
+    const boxWidth = (pageWidth - 2 * margin - 10) / 2;
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-
-    yPosition += 8;
-    doc.text('SYNTHÈSE MENSUELLE', pageWidth / 2, yPosition, { align: 'center' });
-
-    yPosition += 8;
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Nombre de demandes : ${report.totalRecords}`, margin + 5, yPosition);
-
-    yPosition += 7;
-    const caFormatted = report.totalCALost.toLocaleString('fr-FR');
-    doc.text(`CHIFFRE D'AFFAIRES PERDU : ${caFormatted} FCFA`, margin + 5, yPosition);
+    // Encadré 1 : Nombre de produits non servis
+    doc.setFillColor(220, 240, 255);
+    doc.rect(margin, yPosition, boxWidth, 20, 'F');
+    doc.setDrawColor(0, 100, 200);
+    doc.setLineWidth(0.5);
+    doc.rect(margin, yPosition, boxWidth, 20);
 
     doc.setTextColor(0, 0, 0);
-    yPosition += 15;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('PRODUITS NON SERVIS', margin + boxWidth / 2, yPosition + 6, { align: 'center' });
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${report.totalRecords}`, margin + boxWidth / 2, yPosition + 15, { align: 'center' });
+
+    // Encadré 2 : CA Total Perdu
+    const caFormatted = report.totalCALost.toLocaleString('fr-FR');
+    doc.setFillColor(255, 230, 230);
+    doc.rect(margin + boxWidth + 10, yPosition, boxWidth, 20, 'F');
+    doc.setDrawColor(200, 0, 0);
+    doc.rect(margin + boxWidth + 10, yPosition, boxWidth, 20);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('CA TOTAL PERDU', margin + boxWidth + 10 + boxWidth / 2, yPosition + 6, { align: 'center' });
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(200, 0, 0);
+    doc.text(`${caFormatted} FCFA`, margin + boxWidth + 10 + boxWidth / 2, yPosition + 15, { align: 'center' });
+
+    doc.setTextColor(0, 0, 0);
+    yPosition += 25;
 
     // Top 10 des produits manquants
     if (report.topMissingProducts.length > 0) {
