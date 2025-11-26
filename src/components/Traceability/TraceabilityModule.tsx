@@ -29,18 +29,17 @@ const TraceabilityModule: React.FC = () => {
   // Fetch record counts when year or month changes OR when in list view
   useEffect(() => {
     const fetchRecordCounts = async () => {
-      if (user?.email) {
-        try {
-          const counts = await recordService.getRecordCountsByMonth(
-            compilationYear,
-            compilationMonth,
-            user.email
-          );
-          setRecordCounts(counts);
-        } catch (error) {
-          console.error('Error fetching record counts:', error);
-          setRecordCounts({});
-        }
+      try {
+        // Ne plus dépendre de user.email car getRecordCountsByMonth ne filtre plus par created_by
+        const counts = await recordService.getRecordCountsByMonth(
+          compilationYear,
+          compilationMonth,
+          user?.email || ''
+        );
+        setRecordCounts(counts);
+      } catch (error) {
+        console.error('Error fetching record counts:', error);
+        setRecordCounts({});
       }
     };
 
