@@ -153,10 +153,7 @@ const OrdonnancierModule: React.FC = () => {
 
       return trimestre === selectedTrimester && year === selectedYear;
     });
-    const filtered2 = filtered.filter(f => {
-      return f.createdBy === (user?.email || "");
-    })
-    setFilteredEntries(filtered2);
+    setFilteredEntries(filtered);
   };
 
   const handleDownloadPDF = () => {
