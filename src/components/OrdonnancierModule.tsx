@@ -202,31 +202,55 @@ const OrdonnancierModule: React.FC = () => {
   };
 
   const executeSendEmail = async () => {
-    const confirmed = window.confirm(
-      `Voulez-vous envoyer le rapport trimestriel (${filteredEntries.length} délivrances) à l'agence du médicament?`
-    );
-
-    if (!confirmed) return;
-
     setLoading(true);
     try {
-      await ordonnancierService.sendTrimesterReport(
+      // Générer et télécharger le PDF
+      const pdfBlob = await ordonnancierService.generateTrimesterReportPDF(
         filteredEntries,
         selectedTrimester,
         selectedYear,
         pharmacyName,
-        pharmacyEmail,
         pharmacyInitials,
         reportConfig.pharmacistName,
         reportConfig.signatureImage,
         reportConfig.stampImage
       );
-      alert('Rapport envoyé avec succès à l\'agence du médicament!');
+
+      // Télécharger le PDF
+      const fileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.pdf`;
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      // Préparer le message email
+      const subject = `Rapport Trimestriel Ordonnancier - T${selectedTrimester} ${selectedYear}`;
+      const body = [
+        'Bonjour,',
+        '',
+        `Veuillez trouver ci-joint le rapport trimestriel de l'ordonnancier pour le trimestre ${selectedTrimester} de l'année ${selectedYear}.`,
+        '',
+        `Pharmacie: ${pharmacyName}`,
+        `Nombre de délivrances: ${filteredEntries.length}`,
+        `Période: ${TRIMESTRES[selectedTrimester - 1].label}`,
+        '',
+        'Le rapport PDF complet a été téléchargé. Veuillez l\'attacher à cet email avant l\'envoi.',
+        '',
+        'Cordialement,',
+        reportConfig.pharmacistName
+      ].join('\n');
+
+      // Ouvrir Gmail
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(gmailUrl, '_blank');
+
       setShowReportConfig(false);
       setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined });
+      alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF et de saisir l\'adresse email de l\'agence du médicament.');
     } catch (error) {
-      console.error('Error sending report:', error);
-      alert('Erreur lors de l\'envoi du rapport. Veuillez réessayer.');
+      console.error('Error preparing email:', error);
+      alert('Erreur lors de la préparation de l\'email. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -1395,7 +1419,7 @@ const OrdonnancierModule: React.FC = () => {
                 disabled={!reportConfig.pharmacistName.trim() || loading}
                 className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {loading ? 'En cours...' : (reportAction === 'download' ? 'Télécharger PDF' : 'Envoyer à l\'agence')}
+                {loading ? 'Préparation...' : (reportAction === 'download' ? 'Télécharger PDF' : 'Ouvrir Gmail')}
               </button>
             </div>
           </div>

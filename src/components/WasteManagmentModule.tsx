@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2, Plus, Download, Save, ArrowLeft, X } from 'lucide-react';
+import { Trash2, Plus, Download, Save, ArrowLeft, X, Mail } from 'lucide-react';
 import { PharmaceuticalWasteEntry, PharmaceuticalWasteDocument } from '../types/waste';
 import { WasteService } from '../services/WasteService';
 import jsPDF from 'jspdf';
@@ -133,7 +133,78 @@ export default function WasteManagementModule() {
         generatePDF(allEntries);
     };
 
+    const handleSendByEmail = () => {
+        if (!startDate || !endDate) {
+            alert('Veuillez sélectionner une période (date de début et date de fin)');
+            return;
+        }
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (start > end) {
+            alert('La date de début doit être antérieure à la date de fin');
+            return;
+        }
+
+        const filteredDocs = savedDocuments.filter(doc => {
+            const docDate = new Date(doc.createdAt);
+            return docDate >= start && docDate <= end;
+        });
+
+        if (filteredDocs.length === 0) {
+            alert('Aucun document trouvé pour cette période');
+            return;
+        }
+
+        const allEntries: PharmaceuticalWasteEntry[] = [];
+        filteredDocs.forEach(doc => {
+            allEntries.push(...doc.entries);
+        });
+
+        // Générer le PDF et télécharger
+        const pdfBlob = generatePDFBlob(allEntries);
+        const fileName = `dechets_pharmaceutiques_${startDate}_${endDate}.pdf`;
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+
+        // Préparer le message email
+        const subject = `Rapport des Produits Périmés - Période ${startDate} au ${endDate}`;
+        const totalPrice = allEntries.reduce((sum, entry) => sum + entry.totalPrice, 0);
+        const body = [
+            'Bonjour,',
+            '',
+            `Veuillez trouver ci-joint le rapport des produits périmés pour la période du ${startDate} au ${endDate}.`,
+            '',
+            `Nombre total de produits: ${allEntries.length}`,
+            `Valeur totale: ${Math.round(totalPrice)} FCFA`,
+            '',
+            'Le rapport PDF complet a été téléchargé. Veuillez l\'attacher à cet email avant l\'envoi.',
+            '',
+            'Cordialement,'
+        ].join('\n');
+
+        // Ouvrir Gmail
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(gmailUrl, '_blank');
+
+        alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF et de saisir l\'adresse email de l\'agence du médicament.');
+    };
+
+    const generatePDFBlob = (entries: PharmaceuticalWasteEntry[]): Blob => {
+        const doc = createPDFDocument(entries);
+        return doc.output('blob');
+    };
+
     const generatePDF = (entries: PharmaceuticalWasteEntry[]) => {
+        const doc = createPDFDocument(entries);
+        doc.save(`dechets_pharmaceutiques_${startDate}_${endDate}.pdf`);
+    };
+
+    const createPDFDocument = (entries: PharmaceuticalWasteEntry[]) => {
         const doc = new jsPDF('landscape', 'mm', 'a4');
 
         doc.setFontSize(18);
@@ -237,7 +308,7 @@ export default function WasteManagementModule() {
         doc.setFont('helvetica', 'bold');
         doc.text(`Total général: ${Math.round(totalPrice)} FCFA`, 220, y);
 
-        doc.save(`dechets_pharmaceutiques_${startDate}_${endDate}.pdf`);
+        return doc;
     };
 
     const loadDocument = (doc: PharmaceuticalWasteDocument) => {
@@ -382,13 +453,20 @@ export default function WasteManagementModule() {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
-                            <div className="sm:col-span-2 md:col-span-1">
+                            <div className="sm:col-span-2 md:col-span-1 flex gap-2">
                                 <button
                                     onClick={handleExportByPeriod}
-                                    className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+                                    className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
                                 >
                                     <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                                    Exporter PDF
+                                    Télécharger PDF
+                                </button>
+                                <button
+                                    onClick={handleSendByEmail}
+                                    className="flex-1 flex items-center justify-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm sm:text-base"
+                                >
+                                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                                    Envoyer par email
                                 </button>
                             </div>
                         </div>

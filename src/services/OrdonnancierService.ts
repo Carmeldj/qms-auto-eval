@@ -7,6 +7,20 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 class OrdonnancierService {
+  async generateTrimesterReportPDF(
+    entries: OrdonnancierEntry[],
+    trimestre: number,
+    annee: number,
+    pharmacieName: string,
+    pharmacyInitials?: string,
+    pharmacistName?: string,
+    signatureImage?: string,
+    stampImage?: string
+  ): Promise<Blob> {
+    const pdf = this.createTrimesterPDF(entries, trimestre, annee, pharmacieName, pharmacyInitials, pharmacistName, signatureImage, stampImage);
+    return pdf.output('blob');
+  }
+
   async generateTrimesterPDF(
     entries: OrdonnancierEntry[],
     trimestre: number,
@@ -17,6 +31,20 @@ class OrdonnancierService {
     signatureImage?: string,
     stampImage?: string
   ): Promise<void> {
+    const pdf = this.createTrimesterPDF(entries, trimestre, annee, pharmacieName, pharmacyInitials, pharmacistName, signatureImage, stampImage);
+    pdf.save(`rapport_ordonnancier_T${trimestre}_${annee}.pdf`);
+  }
+
+  createTrimesterPDF(
+    entries: OrdonnancierEntry[],
+    trimestre: number,
+    annee: number,
+    pharmacieName: string,
+    pharmacyInitials?: string,
+    pharmacistName?: string,
+    signatureImage?: string,
+    stampImage?: string
+  ): jsPDF {
     const pdf = new jsPDF('l', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
@@ -258,8 +286,7 @@ class OrdonnancierService {
     yPosition += 4;
     pdf.text('Veuillez contacter votre agence nationale du médicament pour plus d\'informations', margin, yPosition);
 
-    const fileName = `ordonnancier-T${trimestre}-${annee}.pdf`;
-    pdf.save(fileName);
+    return pdf;
   }
 
   generatePDFBase64(
