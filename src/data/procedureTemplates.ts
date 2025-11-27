@@ -2,6 +2,16 @@ import { ProcedureTemplate } from '../types/procedure';
 import { procedureClassificationMapping } from './documentClassificationMapping';
 
 export const procedureTemplates: ProcedureTemplate[] = [
+  // Procédure Maître - La procédure des procédures
+  {
+    id: 'gestion-procedures',
+    title: 'Gestion des procédures (Procédure maître)',
+    category: 'Système Qualité',
+    description: 'Procédure maître définissant les règles de création, rédaction, validation, diffusion, révision et archivage de toutes les procédures',
+    isRequired: true,
+    estimatedTime: '60-90 min',
+    classificationCode: 'PR-SQ-001'
+  },
   // Modèle vierge
   {
     id: 'blank-template',

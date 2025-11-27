@@ -24,6 +24,192 @@ export interface ProcedureDefaults {
 }
 
 export const procedureDefaults: Record<string, ProcedureDefaults> = {
+  'gestion-procedures': {
+    objective: "Définir les règles et le processus de création, rédaction, validation, diffusion, application, révision et archivage de l'ensemble des 37 procédures du système qualité pharmaceutique, garantissant ainsi la maîtrise documentaire, la conformité réglementaire et l'amélioration continue.",
+    scope: "Cette procédure maître s'applique à toutes les procédures du système qualité de l'officine, incluant les 37 procédures existantes couvrant : la Dispensation (4), la Gestion des stocks (6), la Maintenance (5), la Sécurité (3), l'Exploitation (2), l'Hygiène (2), la Vigilance (2), la Documentation (3), l'Informatique (3), les Urgences (1), la Qualité (4), et les Ressources Humaines (2). Elle couvre également toute nouvelle procédure à créer.",
+    steps: [
+      {
+        description: "IDENTIFICATION DU BESOIN - Identifier et formaliser le besoin de création ou de révision d'une procédure (exigence réglementaire, non-conformité, nouveau processus, amélioration continue, inspection)",
+        responsible: "Pharmacien titulaire / Responsable Qualité",
+        concernedPersons: ["Tout le personnel"],
+        documents: ["Fiche de demande de création/modification", "Registre des non-conformités", "Rapport d'audit"],
+        duration: "1-3 jours",
+        howTo: "Analyser l'origine du besoin, Vérifier si procédure existante, Évaluer la criticité, Valider l'opportunité, Enregistrer la demande dans le système"
+      },
+      {
+        description: "ATTRIBUTION DU CODE DE CLASSIFICATION - Attribuer un code unique selon la nomenclature PR-XXX-NNN (PR=Procédure, XXX=Catégorie: SQ=Système Qualité, DIS=Dispensation, STO=Stocks, MAI=Maintenance, SEC=Sécurité, EXP=Exploitation, HYG=Hygiène, VIG=Vigilance, DOC=Documentation, INF=Informatique, URG=Urgences, QUA=Qualité, RH=Ressources Humaines, NNN=Numéro séquentiel)",
+        responsible: "Responsable Qualité",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Liste maîtresse des procédures", "Tableau de codification"],
+        duration: "15 minutes",
+        howTo: "Consulter la liste maîtresse, Identifier la catégorie appropriée, Attribuer le numéro suivant dans la série, Enregistrer dans la liste maîtresse"
+      },
+      {
+        description: "RÉDACTION DE LA PROCÉDURE - Rédiger la procédure selon le modèle standardisé comportant obligatoirement : En-tête (Titre, Code, Version, Date, Rédacteur, Vérificateur, Approbateur), Objectif, Domaine d'application, Responsabilités, Définitions (si nécessaire), Description des opérations (étapes numérotées avec responsables), Indicateurs de performance, Documents associés, Enregistrements, Annexes (si nécessaire)",
+        responsible: "Responsable Qualité ou personnel désigné compétent",
+        concernedPersons: ["Pharmacien titulaire", "Personnel concerné"],
+        documents: ["Modèle de procédure standardisé", "Réglementation BPO/BPD", "Procédures existantes similaires"],
+        duration: "3-10 jours selon complexité",
+        howTo: "Utiliser le modèle standardisé, Respecter la structure obligatoire, Rédiger en langage clair et précis, Numéroter les étapes séquentiellement, Définir les responsabilités clairement, Inclure les documents et enregistrements associés, Prévoir les indicateurs de suivi"
+      },
+      {
+        description: "VÉRIFICATION INDÉPENDANTE - Faire vérifier la procédure par une personne compétente dans le domaine et indépendante de la rédaction pour contrôler la conformité réglementaire, la clarté, la faisabilité opérationnelle, la cohérence avec les autres procédures et la complétude de la traçabilité",
+        responsible: "Vérificateur indépendant (compétent dans le domaine)",
+        concernedPersons: ["Responsable Qualité", "Personnel expert"],
+        documents: ["Grille de vérification des procédures", "Référentiels BPO/BPD", "Réglementation nationale"],
+        duration: "1-3 jours",
+        howTo: "Vérifier la conformité réglementaire (BPO, BPD, législation), Contrôler la clarté des instructions, Évaluer la faisabilité opérationnelle, Vérifier la cohérence avec les 37 procédures existantes, Valider la complétude de la traçabilité, Émettre des commentaires constructifs, Signer la fiche de vérification"
+      },
+      {
+        description: "APPROBATION FINALE - Faire approuver la procédure par le Pharmacien titulaire après avoir intégré les commentaires de vérification, signifiant l'engagement de mise en application et de conformité",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Responsable Qualité"],
+        documents: ["Procédure finalisée", "Tableau des signatures"],
+        duration: "1-2 jours",
+        howTo: "Vérifier l'intégration des commentaires, Valider la conformité finale, Apposer signature et date, Autoriser la diffusion"
+      },
+      {
+        description: "DIFFUSION ET MISE À DISPOSITION - Diffuser la procédure validée auprès de tout le personnel concerné via version papier (classeur des procédures au bureau du pharmacien) et version électronique (système qualité avec accès contrôlé). Retirer immédiatement les anciennes versions et les archiver avec mention DOCUMENT PÉRIMÉ",
+        responsible: "Responsable Qualité",
+        concernedPersons: ["Tout le personnel concerné"],
+        documents: ["Liste de diffusion", "Registre de retrait des documents périmés", "Système de gestion documentaire"],
+        duration: "1 jour",
+        howTo: "Imprimer et placer dans le classeur des procédures, Charger la version électronique dans le système, Retirer et archiver les anciennes versions, Mettre à jour la liste maîtresse des procédures, Informer tout le personnel concerné"
+      },
+      {
+        description: "FORMATION DU PERSONNEL - Former l'ensemble du personnel concerné avant la première application de la procédure, évaluer leur compréhension (quiz ou mise en situation), et enregistrer la formation sur feuille de présence avec attestation de compréhension. Compléter la formation dans les 15 jours suivant la diffusion",
+        responsible: "Pharmacien titulaire / Responsable Qualité",
+        concernedPersons: ["Tout le personnel concerné par la procédure"],
+        documents: ["Support de formation", "Quiz d'évaluation", "Feuille de présence", "Attestation de formation et compréhension"],
+        duration: "1-2 heures par session selon complexité",
+        howTo: "Planifier les sessions de formation, Préparer le support pédagogique, Animer la formation (explication + pratique), Évaluer la compréhension (quiz ou simulation), Faire signer la feuille de présence, Délivrer l'attestation, Archiver les enregistrements de formation"
+      },
+      {
+        description: "APPLICATION ET SUIVI - Appliquer la procédure au quotidien et suivre les indicateurs de performance définis. Enregistrer les écarts et difficultés d'application dans le registre des non-conformités pour amélioration continue",
+        responsible: "Tout le personnel concerné",
+        concernedPersons: ["Pharmacien titulaire", "Responsable Qualité"],
+        documents: ["Procédure en vigueur", "Registres d'enregistrement", "Tableau de bord des indicateurs", "Registre des non-conformités"],
+        duration: "Continu",
+        howTo: "Consulter la procédure en cas de doute, Respecter les étapes définies, Compléter les enregistrements requis, Signaler toute difficulté d'application, Mesurer les indicateurs périodiquement"
+      },
+      {
+        description: "RÉVISION PÉRIODIQUE - Réviser chaque procédure au minimum tous les 3 ans ou de manière anticipée en cas de changement réglementaire, non-conformité récurrente, évolution des bonnes pratiques, modification organisationnelle ou retour d'expérience du personnel. Gérer les versions selon la règle : modification mineure (correction, clarification) = +0.1, modification majeure (changement substantiel) = +1.0",
+        responsible: "Responsable Qualité",
+        concernedPersons: ["Pharmacien titulaire", "Personnel concerné"],
+        documents: ["Calendrier de révision", "Historique des modifications", "Registre des non-conformités", "Veille réglementaire"],
+        duration: "3-10 jours selon ampleur des modifications",
+        howTo: "Consulter le calendrier de révision triennal, Analyser les retours d'expérience, Vérifier les évolutions réglementaires, Évaluer les non-conformités liées, Décider du type de révision, Suivre le processus de création (étapes 3 à 7), Mettre à jour le tableau de suivi des révisions, Archiver l'ancienne version"
+      },
+      {
+        description: "ARCHIVAGE ET TRAÇABILITÉ - Archiver les procédures obsolètes avec mention DOCUMENT PÉRIMÉ - ARCHIVE pour une durée minimum de 5 ans après retrait, sur support papier et électronique, avec indexation par code procédure + version + date. Tenir à jour la liste maîtresse de toutes les procédures (en vigueur et archivées)",
+        responsible: "Responsable Qualité",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Procédures archivées", "Liste maîtresse des procédures", "Registre d'archivage"],
+        duration: "Conservation 5 ans minimum",
+        howTo: "Apposer la mention DOCUMENT PÉRIMÉ - ARCHIVE, Classer par code et version, Enregistrer dans le registre d'archivage, Sauvegarder la version électronique, Mettre à jour la liste maîtresse, Respecter la durée légale de conservation"
+      }
+    ],
+    indicators: [
+      {
+        name: "Taux de conformité documentaire",
+        description: "Pourcentage de procédures conformes au modèle standardisé et à jour sur les 37 procédures existantes",
+        target: "100%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Respect du calendrier de révision",
+        description: "Pourcentage de procédures révisées dans les délais réglementaires (tous les 3 ans maximum)",
+        target: "100%",
+        frequency: "Trimestrielle"
+      },
+      {
+        name: "Taux de formation du personnel",
+        description: "Pourcentage du personnel formé et ayant attesté la compréhension des procédures les concernant",
+        target: "100%",
+        frequency: "Continue"
+      },
+      {
+        name: "Non-conformités liées aux procédures",
+        description: "Nombre de non-conformités attribuables à une mauvaise compréhension, application ou absence de procédure",
+        target: "< 3 par an",
+        frequency: "Mensuelle"
+      },
+      {
+        name: "Délai moyen de création d'une procédure",
+        description: "Temps écoulé entre l'identification du besoin et la diffusion de la procédure validée",
+        target: "< 30 jours",
+        frequency: "Trimestrielle"
+      },
+      {
+        name: "Couverture documentaire",
+        description: "Pourcentage des processus critiques couverts par une procédure documentée",
+        target: "100%",
+        frequency: "Annuelle"
+      }
+    ],
+    annexes: [
+      {
+        title: "Modèle de procédure standardisé vierge",
+        type: 'form',
+        description: "Modèle Word/PDF comportant tous les champs obligatoires : En-tête avec zones de signature, Objectif, Domaine d'application, Responsabilités, Étapes numérotées, Indicateurs, Documents associés, Enregistrements, Annexes",
+        reference: "MOD-SQ-001"
+      },
+      {
+        title: "Liste maîtresse des 37 procédures existantes",
+        type: 'document',
+        description: "Tableau Excel/PDF recensant toutes les procédures en vigueur avec code, titre, version actuelle, date de création, date de dernière révision, prochaine révision due, et statut (en vigueur/archivée). Catégories : Dispensation (4), Gestion des stocks (6), Maintenance (5), Sécurité (3), Exploitation (2), Hygiène (2), Vigilance (2), Documentation (3), Informatique (3), Urgences (1), Qualité (4), Ressources Humaines (2)",
+        reference: "LST-SQ-001"
+      },
+      {
+        title: "Fiche de demande de création/modification de procédure",
+        type: 'form',
+        description: "Formulaire à remplir pour initier une nouvelle procédure ou modifier une existante : demandeur, date, procédure concernée, justification, urgence, ressources nécessaires, validation",
+        reference: "FRM-SQ-001"
+      },
+      {
+        title: "Grille de vérification des procédures",
+        type: 'form',
+        description: "Checklist pour le vérificateur indépendant : conformité réglementaire (BPO/BPD), structure du document, clarté des instructions, faisabilité, cohérence avec autres procédures, traçabilité, signature et date de vérification",
+        reference: "GRL-SQ-001"
+      },
+      {
+        title: "Tableau de suivi des révisions",
+        type: 'form',
+        description: "Tableau intégré à chaque procédure en page 2 : Version, Date, Nature des modifications, Rédigé par, Vérifié par, Approuvé par. Permet de tracer l'historique complet",
+        reference: "Intégré à chaque procédure"
+      },
+      {
+        title: "Feuille de présence et attestation de formation",
+        type: 'form',
+        description: "Document combiné pour enregistrer la participation et l'attestation de compréhension : titre de la procédure, date de formation, nom des participants, signatures, résultat du quiz d'évaluation, signature du formateur",
+        reference: "FRM-SQ-002"
+      },
+      {
+        title: "Calendrier de révision triennal",
+        type: 'document',
+        description: "Planning sur 3 ans de révision de toutes les procédures avec rappels automatiques 2 mois avant échéance",
+        reference: "CAL-SQ-001"
+      },
+      {
+        title: "Tableau de codification des procédures",
+        type: 'document',
+        description: "Table de correspondance des codes catégories : SQ=Système Qualité, DIS=Dispensation, STO=Stocks, MAI=Maintenance, SEC=Sécurité, EXP=Exploitation, HYG=Hygiène, VIG=Vigilance, DOC=Documentation, INF=Informatique, URG=Urgences, QUA=Qualité, RH=Ressources Humaines",
+        reference: "TAB-SQ-001"
+      },
+      {
+        title: "Référentiel BPO (Bonnes Pratiques Officinales)",
+        type: 'regulation',
+        description: "Réglementation nationale définissant les bonnes pratiques de dispensation et gestion pharmaceutique en officine",
+        reference: "Décision du Ministère de la Santé"
+      },
+      {
+        title: "Référentiel BPD (Bonnes Pratiques de Distribution)",
+        type: 'regulation',
+        description: "Réglementation définissant les bonnes pratiques de distribution en gros des médicaments",
+        reference: "Décision du Ministère de la Santé"
+      }
+    ]
+  },
   'blank-template': {
     objective: "",
     scope: "",
