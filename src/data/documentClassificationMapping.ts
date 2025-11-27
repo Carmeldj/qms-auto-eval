@@ -32,6 +32,9 @@ export const documentClassificationMapping: Record<string, string> = {
 
 // Mapping des templates de procédures vers les codes de classification
 export const procedureClassificationMapping: Record<string, string> = {
+  // Procédure Maître - Système Qualité
+  'gestion-procedures': '01.01',            // Procédures générales (Procédure des procédures)
+
   // Dispensation et conseil
   'dispensation': '09.02',                  // Dispensation sur prescription
   'analyse-ordonnances': '09.02',           // Dispensation sur prescription

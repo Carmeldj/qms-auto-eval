@@ -10,7 +10,7 @@ export const procedureTemplates: ProcedureTemplate[] = [
     description: 'Procédure maître définissant les règles de création, rédaction, validation, diffusion, révision et archivage de toutes les procédures',
     isRequired: true,
     estimatedTime: '60-90 min',
-    classificationCode: 'PR-SQ-001'
+    classificationCode: '01.01'
   },
   // Modèle vierge
   {

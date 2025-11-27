@@ -37,15 +37,15 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
         howTo: "Analyser l'origine du besoin, Vérifier si procédure existante, Évaluer la criticité, Valider l'opportunité, Enregistrer la demande dans le système"
       },
       {
-        description: "ATTRIBUTION DU CODE DE CLASSIFICATION - Attribuer un code unique selon la nomenclature PR-XXX-NNN (PR=Procédure, XXX=Catégorie: SQ=Système Qualité, DIS=Dispensation, STO=Stocks, MAI=Maintenance, SEC=Sécurité, EXP=Exploitation, HYG=Hygiène, VIG=Vigilance, DOC=Documentation, INF=Informatique, URG=Urgences, QUA=Qualité, RH=Ressources Humaines, NNN=Numéro séquentiel)",
+        description: "ATTRIBUTION DU CODE DE CLASSIFICATION - Attribuer un code unique selon le plan de classement documentaire SMQ au format [CATÉGORIE].[SOUS-CATÉGORIE]. Le système couvre 10 processus avec des catégories numérotées de 00 à 13. Exemples : 01.01 (Procédures générales - cette procédure maître), 09.02 (Dispensation sur prescription), 08.03 (Stockage produits), 05.04 (Relevés température), 02.02 (Non-conformités), 03.01 (Système informatisé). Le code complet suit le format [INITIALES]/[PROCESSUS]/[CATÉGORIE].[SOUS-CATÉGORIE]",
         responsible: "Responsable Qualité",
         concernedPersons: ["Pharmacien titulaire"],
-        documents: ["Liste maîtresse des procédures", "Tableau de codification"],
+        documents: ["Liste maîtresse des procédures", "CLASSIFICATION_GUIDE.md", "Plan de classement documentaire SMQ"],
         duration: "15 minutes",
-        howTo: "Consulter la liste maîtresse, Identifier la catégorie appropriée, Attribuer le numéro suivant dans la série, Enregistrer dans la liste maîtresse"
+        howTo: "Consulter le CLASSIFICATION_GUIDE.md, Identifier le processus concerné parmi les 10 processus (01=Direction, 02=Qualité, 03=Approvisionnement, 04=Dispensation, 05=Retours/réclamations, 06=Destruction déchets, 07=RH, 08=Infrastructures, 09=Financière, 10=Sous-traitance), Sélectionner la catégorie documentaire appropriée (00 à 13), Vérifier la cohérence avec les 37 procédures existantes déjà codifiées, Enregistrer dans la liste maîtresse"
       },
       {
-        description: "RÉDACTION DE LA PROCÉDURE - Rédiger la procédure selon le modèle standardisé comportant obligatoirement : En-tête (Titre, Code, Version, Date, Rédacteur, Vérificateur, Approbateur), Objectif, Domaine d'application, Responsabilités, Définitions (si nécessaire), Description des opérations (étapes numérotées avec responsables), Indicateurs de performance, Documents associés, Enregistrements, Annexes (si nécessaire)",
+        description: "RÉDACTION DE LA PROCÉDURE - Rédiger la procédure selon le modèle standardisé comportant obligatoirement : En-tête (Titre, Code de classification [CATÉGORIE].[SOUS-CATÉGORIE], Version, Date, Rédacteur, Vérificateur, Approbateur), Objectif, Domaine d'application, Responsabilités, Définitions (si nécessaire), Description des opérations (étapes numérotées avec responsables), Indicateurs de performance, Documents associés, Enregistrements, Annexes (si nécessaire). Le code de classification doit être visible et conforme au plan de classement documentaire SMQ",
         responsible: "Responsable Qualité ou personnel désigné compétent",
         concernedPersons: ["Pharmacien titulaire", "Personnel concerné"],
         documents: ["Modèle de procédure standardisé", "Réglementation BPO/BPD", "Procédures existantes similaires"],
@@ -191,10 +191,10 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
         reference: "CAL-SQ-001"
       },
       {
-        title: "Tableau de codification des procédures",
+        title: "Plan de classement documentaire SMQ (CLASSIFICATION_GUIDE.md)",
         type: 'document',
-        description: "Table de correspondance des codes catégories : SQ=Système Qualité, DIS=Dispensation, STO=Stocks, MAI=Maintenance, SEC=Sécurité, EXP=Exploitation, HYG=Hygiène, VIG=Vigilance, DOC=Documentation, INF=Informatique, URG=Urgences, QUA=Qualité, RH=Ressources Humaines",
-        reference: "TAB-SQ-001"
+        description: "Guide complet du système de classification documentaire avec les 10 processus et les catégories 00 à 13. Structure : [INITIALES]/[PROCESSUS]/[CATÉGORIE].[SOUS-CATÉGORIE]. Exemples de codes pour les 37 procédures : 01.01 (Procédures générales), 09.02 (Dispensation), 08.03 (Stockage), 02.02 (Non-conformités), 03.01 (Système informatisé), 05.04 (Relevés température), 08.04 (Périmés/détruits), 06.04 (Hygiène personnel)",
+        reference: "CLASSIFICATION_GUIDE.md"
       },
       {
         title: "Référentiel BPO (Bonnes Pratiques Officinales)",
