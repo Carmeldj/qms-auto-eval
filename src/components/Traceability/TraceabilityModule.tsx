@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Clock, Plus, Calendar, BarChart3 } from 'lucide-react';
+import { FileText, Download, Clock, Plus, Calendar, BarChart3, BookOpen, ClipboardList } from 'lucide-react';
 import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
 import { useAuth } from '../../contexts/AuthContext';
 import { TraceabilityRecordService } from '../../services/TracabilityRecordService';
 import { missingProductsService } from '../../services/MissingProductsService';
+import { registerListService } from '../../services/RegisterListService';
 import { useNavigate } from 'react-router-dom';
 
 const TraceabilityModule: React.FC = () => {
@@ -17,6 +18,8 @@ const TraceabilityModule: React.FC = () => {
   const [compilationMonth, setCompilationMonth] = useState<number>(new Date().getMonth() + 1);
   const [pharmacyName, setPharmacyName] = useState<string>('');
   const [recordCounts, setRecordCounts] = useState<Record<string, number>>({});
+  const [showRegisterListModal, setShowRegisterListModal] = useState<boolean>(false);
+  const [registerListPharmacyName, setRegisterListPharmacyName] = useState<string>('');
 
   const user = useAuth().user;
   const recordService = TraceabilityRecordService.getInstance();
@@ -119,6 +122,26 @@ const TraceabilityModule: React.FC = () => {
       console.error('Error generating compilation:', error);
       alert('Erreur lors de la génération de la compilation');
     }
+  };
+
+  const handleGenerateManagementList = () => {
+    if (!registerListPharmacyName.trim()) {
+      alert('Veuillez saisir le nom de la pharmacie');
+      return;
+    }
+    registerListService.generateManagementRegistersList(registerListPharmacyName);
+    setShowRegisterListModal(false);
+    setRegisterListPharmacyName('');
+  };
+
+  const handleGenerateDispensationList = () => {
+    if (!registerListPharmacyName.trim()) {
+      alert('Veuillez saisir le nom de la pharmacie');
+      return;
+    }
+    registerListService.generateDispensationAndVigilanceRegistersList(registerListPharmacyName);
+    setShowRegisterListModal(false);
+    setRegisterListPharmacyName('');
   };
 
   if (view === 'compilation') {
@@ -367,6 +390,89 @@ const TraceabilityModule: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      {/* Modal Liste des Registres */}
+      {showRegisterListModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Générer les Listes de Registres
+              </h2>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nom de la pharmacie *
+                </label>
+                <input
+                  type="text"
+                  value={registerListPharmacyName}
+                  onChange={(e) => setRegisterListPharmacyName(e.target.value)}
+                  placeholder="Nom de votre pharmacie"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <button
+                  onClick={handleGenerateManagementList}
+                  disabled={!registerListPharmacyName.trim()}
+                  className="w-full flex items-center justify-between p-4 border-2 border-teal-200 rounded-lg hover:bg-teal-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <BookOpen className="h-6 w-6 text-teal-600" />
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-900">
+                        Liste des Registres/Documents de Gestion
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Administration qualité, procédures, formation, équipements, etc.
+                      </div>
+                    </div>
+                  </div>
+                  <Download className="h-5 w-5 text-teal-600" />
+                </button>
+
+                <button
+                  onClick={handleGenerateDispensationList}
+                  disabled={!registerListPharmacyName.trim()}
+                  className="w-full flex items-center justify-between p-4 border-2 border-blue-200 rounded-lg hover:bg-blue-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <ClipboardList className="h-6 w-6 text-blue-600" />
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-900">
+                        Liste des Registres de Traçabilité & Vigilance
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Dispensations, stupéfiants, pharmacovigilance, événements indésirables, etc.
+                      </div>
+                    </div>
+                  </div>
+                  <Download className="h-5 w-5 text-blue-600" />
+                </button>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-blue-800">
+                  <strong>ℹ️ Information :</strong> Ces listes PDF récapitulent tous les registres et documents obligatoires
+                  prévus par le Système de Management de la Qualité (SMQ) et les Bonnes Pratiques Officinales (BPO).
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowRegisterListModal(false);
+                  setRegisterListPharmacyName('');
+                }}
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -378,13 +484,22 @@ const TraceabilityModule: React.FC = () => {
               Registres officiels avec export PDF direct pour la traçabilité pharmaceutique
             </p>
           </div>
-          <button
-            onClick={handleCompilation}
-            className="flex items-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-all duration-200"
-          >
-            <Calendar className="h-5 w-5" />
-            <span>Compilation Mensuelle</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setShowRegisterListModal(true)}
+              className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200"
+            >
+              <FileText className="h-5 w-5" />
+              <span>Listes des Registres</span>
+            </button>
+            <button
+              onClick={handleCompilation}
+              className="flex items-center justify-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-all duration-200"
+            >
+              <Calendar className="h-5 w-5" />
+              <span>Compilation Mensuelle</span>
+            </button>
+          </div>
         </div>
       </div>
 
