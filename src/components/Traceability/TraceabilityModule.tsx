@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Clock, Plus, Calendar, BarChart3, BookOpen, ClipboardList } from 'lucide-react';
+import { FileText, Download, Clock, Plus, Calendar, BarChart3, BookOpen, ClipboardList, FileCheck } from 'lucide-react';
 import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
@@ -140,6 +140,16 @@ const TraceabilityModule: React.FC = () => {
       return;
     }
     registerListService.generateDispensationAndVigilanceRegistersList(registerListPharmacyName);
+    setShowRegisterListModal(false);
+    setRegisterListPharmacyName('');
+  };
+
+  const handleGenerateInformationDocumentsList = () => {
+    if (!registerListPharmacyName.trim()) {
+      alert('Veuillez saisir le nom de la pharmacie');
+      return;
+    }
+    registerListService.generatePharmaceuticalInformationDocumentsList(registerListPharmacyName);
     setShowRegisterListModal(false);
     setRegisterListPharmacyName('');
   };
@@ -449,6 +459,25 @@ const TraceabilityModule: React.FC = () => {
                     </div>
                   </div>
                   <Download className="h-5 w-5 text-blue-600" />
+                </button>
+
+                <button
+                  onClick={handleGenerateInformationDocumentsList}
+                  disabled={!registerListPharmacyName.trim()}
+                  className="w-full flex items-center justify-between p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <FileCheck className="h-6 w-6 text-purple-600" />
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-900">
+                        Liste des Documents d'Informations Pharmaceutiques
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Affichages obligatoires, informations patients, prévention, documents professionnels
+                      </div>
+                    </div>
+                  </div>
+                  <Download className="h-5 w-5 text-purple-600" />
                 </button>
               </div>
 
