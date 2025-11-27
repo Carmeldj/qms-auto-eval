@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '../types/user';
-import { login, LoginCredentials } from '../api/auth';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { User } from "../types/user";
+import { login, LoginCredentials } from "../api/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -22,15 +28,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // COMMENTED OUT AUTH - Always authenticated for development
-  const isAuthenticated = true; // !!user;  
+  const isAuthenticated = !!user;
 
   // Check if user is already authenticated on app load
   const checkAuthStatus = async () => {
     // COMMENTED OUT AUTH - Skip auth check for development
     setIsLoading(false);
-    /* const token = localStorage.getItem('accessToken');
-    const tenantId = localStorage.getItem('tenantId');
-    const rawUser = localStorage.getItem('user');
+    const token = localStorage.getItem("accessToken");
+    const tenantId = localStorage.getItem("tenantId");
+    const rawUser = localStorage.getItem("user");
     if (token && tenantId) {
       // TODO: Replace this with a real API call to validate the token with your backend
       try {
@@ -49,11 +55,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       setUser(null);
       setIsLoading(false);
-    } */
+    }
   };
 
   // Login function
-  const handleLogin = async (credentials: LoginCredentials): Promise<boolean> => {
+  const handleLogin = async (
+    credentials: LoginCredentials
+  ): Promise<boolean> => {
     setIsLoading(true);
     try {
       const userData = await login(credentials);
@@ -66,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       setIsLoading(false);
       return false;
     }
@@ -75,9 +83,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Logout function
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('tenantId');
-    localStorage.removeItem('user');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("tenantId");
+    localStorage.removeItem("user");
   };
 
   // Check auth status on component mount
@@ -94,18 +102,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 // Custom hook to use the auth context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useSubscription } from '../contexts/SubscriptionContext';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useSubscription } from "../contexts/SubscriptionContext";
+import { useAuth } from "../contexts/AuthContext";
 // import Header from '../components/Header';
 
 const SubscriptionLayout: React.FC = () => {
@@ -14,7 +14,7 @@ const SubscriptionLayout: React.FC = () => {
   useEffect(() => {
     // COMMENTED OUT AUTH - Skip subscription check for development
     setChecking(false);
-    /* let mounted = true;
+    let mounted = true;
     const run = async () => {
       if (!isAuthenticated) {
         // let auth guard or modal handle login
@@ -34,7 +34,7 @@ const SubscriptionLayout: React.FC = () => {
 
     return () => {
       mounted = false;
-    }; */
+    };
   }, [isAuthenticated, isAuthLoading, checkSubscription]);
 
   if (isAuthLoading || checking) {
@@ -51,14 +51,23 @@ const SubscriptionLayout: React.FC = () => {
               role="status"
               aria-label="Chargement"
             >
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
               <path
                 className="opacity-75"
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
               />
             </svg>
-            <div className="text-center text-sm text-gray-700">Vérification de l'abonnement…</div>
+            <div className="text-center text-sm text-gray-700">
+              Vérification de l'abonnement…
+            </div>
           </div>
         </main>
       </div>
@@ -66,13 +75,13 @@ const SubscriptionLayout: React.FC = () => {
   }
 
   // COMMENTED OUT AUTH - Skip subscription redirect for development
-  /* if (isAuthenticated && !hasSubscription) {
+  if (isAuthenticated && !hasSubscription) {
     // avoid redirect loop if already on /subscribe
-    if (location.pathname !== '/subscribe') {
-      navigate('/subscribe');
+    if (location.pathname !== "/subscribe") {
+      navigate("/subscribe");
       return null;
     }
-  } */
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
