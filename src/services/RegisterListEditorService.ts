@@ -302,8 +302,8 @@ export class RegisterListEditorService {
       categories: [
         {
           id: 'cat-00',
-          category: '00 – ADMINISTRATION GÉNÉRALE DE LA QUALITÉ',
-          color: [240, 240, 240],
+          category: '00 - ADMINISTRATION GÉNÉRALE DE LA QUALITÉ',
+          color: [0, 150, 136],
           enabled: true,
           items: [
             { id: '00.01', title: 'Politique Qualité et Engagement', code: '00.01', enabled: true },
@@ -317,8 +317,8 @@ export class RegisterListEditorService {
         },
         {
           id: 'cat-01',
-          category: '01 – PROCÉDURES ET DOCUMENTS DE RÉFÉRENCE',
-          color: [240, 240, 240],
+          category: '01 - PROCÉDURES ET DOCUMENTS DE RÉFÉRENCE',
+          color: [0, 150, 136],
           enabled: true,
           items: [
             { id: '01.01', title: 'Procédures générales (37 procédures du SMQ)', code: '01.01', enabled: true },
@@ -326,6 +326,45 @@ export class RegisterListEditorService {
             { id: '01.03', title: 'Fiches techniques', code: '01.03', enabled: true },
             { id: '01.04', title: 'Modèles de documents', code: '01.04', enabled: true },
             { id: '01.05', title: 'Fiches de vie documentaire', code: '01.05', enabled: true }
+          ]
+        },
+        {
+          id: 'cat-02',
+          category: '02 - GESTION DES RISQUES ET AMÉLIORATION CONTINUE',
+          color: [0, 150, 136],
+          enabled: true,
+          items: [
+            { id: '02.01', title: 'Registre d\'audit interne / auto-inspections', code: '02.01', enabled: true },
+            { id: '02.02', title: 'Registre des non-conformités', code: '02.02', enabled: true },
+            { id: '02.03', title: 'Registre des actions correctives et préventives (CAPA)', code: '02.03', enabled: true },
+            { id: '02.04', title: 'Registre de gestion des incidents / Événements indésirables', code: '02.04', enabled: true },
+            { id: '02.05', title: 'Plan de gestion des risques', code: '02.05', enabled: true }
+          ]
+        },
+        {
+          id: 'cat-03',
+          category: '03 - BONNES PRATIQUES OFFICINALES (BPO)',
+          color: [0, 150, 136],
+          enabled: true,
+          items: [
+            { id: '03.01', title: 'Référentiels et guides BPO', code: '03.01', enabled: true },
+            { id: '03.02', title: 'Checklists de conformité BPO', code: '03.02', enabled: true },
+            { id: '03.03', title: 'Grilles d\'évaluation BPO', code: '03.03', enabled: true },
+            { id: '03.04', title: 'Fiches de suivi des pratiques', code: '03.04', enabled: true },
+            { id: '03.05', title: 'Preuves de mise en œuvre des BPO', code: '03.05', enabled: true }
+          ]
+        },
+        {
+          id: 'cat-04',
+          category: '04 - FORMATION ET COMPÉTENCES',
+          color: [0, 150, 136],
+          enabled: true,
+          items: [
+            { id: '04.01', title: 'Registre des formations', code: '04.01', enabled: true },
+            { id: '04.02', title: 'Plan de formation annuel', code: '04.02', enabled: true },
+            { id: '04.03', title: 'Fiches de présence / Attestations', code: '04.03', enabled: true },
+            { id: '04.04', title: 'Évaluations des compétences', code: '04.04', enabled: true },
+            { id: '04.05', title: 'Fiches de poste', code: '04.05', enabled: true }
           ]
         }
       ]
@@ -358,6 +397,148 @@ export class RegisterListEditorService {
               obligation: 'OBLIGATOIRE',
               retention: '10 ans minimum',
               enabled: true
+            },
+            {
+              id: '05.02-psycho',
+              code: '05.02',
+              title: 'Registre des psychotropes',
+              description: 'Traçabilité des médicaments assimilés stupéfiants',
+              obligation: 'OBLIGATOIRE',
+              retention: '10 ans minimum',
+              enabled: true
+            },
+            {
+              id: '05.01-prep',
+              code: '05.01',
+              title: 'Registre des préparations magistrales et officinales',
+              description: 'Composition, lot, date, prescripteur, patient',
+              obligation: 'OBLIGATOIRE (si activité)',
+              retention: '5 ans minimum',
+              enabled: true
+            },
+            {
+              id: '05.03',
+              code: '05.03',
+              title: 'Registre des retours clients/fournisseurs',
+              description: 'Traçabilité des retours de produits',
+              obligation: 'RECOMMANDÉ',
+              retention: '3 ans',
+              enabled: true
+            },
+            {
+              id: '05.04',
+              code: '05.04',
+              title: 'Relevés de température',
+              description: 'Surveillance quotidienne des conditions de conservation',
+              obligation: 'OBLIGATOIRE',
+              retention: '3 ans minimum',
+              enabled: true
+            },
+            {
+              id: '05.05',
+              code: '05.05',
+              title: 'Registre des médicaments non utilisés (MNU)',
+              description: 'Traçabilité des retours patients pour destruction',
+              obligation: 'RECOMMANDÉ',
+              retention: '3 ans',
+              enabled: true
+            },
+            {
+              id: '05.06',
+              code: '05.06',
+              title: 'Registre des rappels de lots / Alertes sanitaires',
+              description: 'Notifications des autorités sanitaires et actions entreprises',
+              obligation: 'OBLIGATOIRE',
+              retention: '5 ans minimum',
+              enabled: true
+            }
+          ]
+        },
+        {
+          id: 'cat-09',
+          category: '09 - DISPENSATION ET VIGILANCE',
+          color: [220, 53, 69],
+          enabled: true,
+          items: [
+            {
+              id: '09.06-pharma',
+              code: '09.06',
+              title: 'Registre de Pharmacovigilance',
+              description: 'Déclaration des effets indésirables médicamenteux (EIM)',
+              obligation: 'OBLIGATOIRE',
+              retention: '10 ans minimum',
+              enabled: true
+            },
+            {
+              id: '09.06-materio',
+              code: '09.06',
+              title: 'Registre de Matériovigilance',
+              description: 'Déclaration des incidents liés aux dispositifs médicaux',
+              obligation: 'OBLIGATOIRE',
+              retention: '10 ans minimum',
+              enabled: true
+            },
+            {
+              id: '09.02',
+              code: '09.02',
+              title: 'Registre des erreurs de dispensation',
+              description: 'Enregistrement et analyse des erreurs pour amélioration continue',
+              obligation: 'FORTEMENT RECOMMANDÉ',
+              retention: '5 ans',
+              enabled: true
+            }
+          ]
+        },
+        {
+          id: 'cat-10',
+          category: '10 - GESTION DES RETOURS, RÉCLAMATIONS, RETRAITS',
+          color: [255, 159, 64],
+          enabled: true,
+          items: [
+            {
+              id: '10.01',
+              code: '10.01',
+              title: 'Registre des retours clients',
+              description: 'Enregistrement des retours de produits par les patients',
+              obligation: 'RECOMMANDÉ',
+              retention: '3 ans',
+              enabled: true
+            },
+            {
+              id: '10.02',
+              code: '10.02',
+              title: 'Registre des réclamations patients et traçabilité',
+              description: 'Enregistrement systématique des réclamations et suivi',
+              obligation: 'OBLIGATOIRE',
+              retention: '3 ans minimum',
+              enabled: true
+            },
+            {
+              id: '10.03',
+              code: '10.03',
+              title: 'Registre des rappels de lots',
+              description: 'Traçabilité complète des rappels de lots',
+              obligation: 'OBLIGATOIRE',
+              retention: '5 ans minimum',
+              enabled: true
+            },
+            {
+              id: '10.04',
+              code: '10.04',
+              title: 'Registre des retraits de produits',
+              description: 'Notification Agence nationale/DPML, lot concerné, action entreprise',
+              obligation: 'OBLIGATOIRE',
+              retention: '5 ans minimum',
+              enabled: true
+            },
+            {
+              id: '10.05',
+              code: '10.05',
+              title: 'Registre des mesures correctives associées',
+              description: 'Actions correctives suite aux retraits et rappels',
+              obligation: 'OBLIGATOIRE',
+              retention: '5 ans',
+              enabled: true
             }
           ]
         }
@@ -382,6 +563,114 @@ export class RegisterListEditorService {
               location: 'Visible dans l\'espace de dispensation',
               obligation: 'OBLIGATOIRE',
               reference: 'Art. L.4221-1 CSP',
+              enabled: true
+            },
+            {
+              id: 'aff-02',
+              title: 'Horaires d\'ouverture',
+              description: 'Horaires d\'ouverture et de fermeture de l\'officine',
+              location: 'Vitrine extérieure visible de la rue',
+              obligation: 'OBLIGATOIRE',
+              reference: 'Art. R.5125-9 CSP',
+              enabled: true
+            },
+            {
+              id: 'aff-03',
+              title: 'Pharmacies de garde',
+              description: 'Liste des pharmacies de garde du secteur (mise à jour mensuelle)',
+              location: 'Vitrine extérieure',
+              obligation: 'OBLIGATOIRE',
+              reference: 'Art. R.5125-9 CSP',
+              enabled: true
+            },
+            {
+              id: 'aff-04',
+              title: 'Tarifs des honoraires de dispensation',
+              description: 'Grille tarifaire des honoraires pharmaceutiques',
+              location: 'Visible à l\'intérieur de l\'officine',
+              obligation: 'OBLIGATOIRE',
+              reference: 'Art. R.5125-9 CSP',
+              enabled: true
+            },
+            {
+              id: 'aff-05',
+              title: 'Information sur les médicaments génériques',
+              description: 'Affiche explicative sur le droit de substitution et les génériques',
+              location: 'Espace de dispensation',
+              obligation: 'OBLIGATOIRE',
+              reference: 'Art. L.5125-23 CSP',
+              enabled: true
+            }
+          ]
+        },
+        {
+          id: 'cat-doc',
+          category: 'DOCUMENTS D\'INFORMATION PATIENTS',
+          color: [34, 197, 94],
+          description: 'Supports d\'information remis ou mis à disposition des patients',
+          enabled: true,
+          items: [
+            {
+              id: 'doc-01',
+              title: 'Fiches conseils médicaments',
+              description: 'Fiches explicatives sur le bon usage des médicaments courants',
+              location: 'Comptoir de dispensation / Présentoir',
+              obligation: 'FORTEMENT RECOMMANDÉ',
+              reference: 'Conseil pharmaceutique',
+              enabled: true
+            },
+            {
+              id: 'doc-02',
+              title: 'Notices d\'utilisation dispositifs médicaux',
+              description: 'Modes d\'emploi : aérosols, autopiqueurs, lecteurs de glycémie, tensiomètres, etc.',
+              location: 'Remis avec le dispositif',
+              obligation: 'OBLIGATOIRE',
+              reference: 'Réglementation DM',
+              enabled: true
+            },
+            {
+              id: 'doc-03',
+              title: 'Guide d\'utilisation des inhalateurs',
+              description: 'Fiches illustrées sur la technique d\'inhalation',
+              location: 'Dispensation avec inhalateurs',
+              obligation: 'FORTEMENT RECOMMANDÉ',
+              reference: 'Éducation thérapeutique',
+              enabled: true
+            }
+          ]
+        },
+        {
+          id: 'cat-prev',
+          category: 'CAMPAGNES DE PRÉVENTION ET SANTÉ PUBLIQUE',
+          color: [168, 85, 247],
+          description: 'Affichages et documents dans le cadre de missions de santé publique',
+          enabled: true,
+          items: [
+            {
+              id: 'prev-01',
+              title: 'Campagnes de vaccination',
+              description: 'Affiches sur calendrier vaccinal, vaccination grippe, Covid-19, etc.',
+              location: 'Espace d\'attente',
+              obligation: 'RECOMMANDÉ',
+              reference: 'Santé publique',
+              enabled: true
+            },
+            {
+              id: 'prev-02',
+              title: 'Prévention des addictions',
+              description: 'Documents sur tabac, alcool, drogues, numéros d\'aide',
+              location: 'Présentoir / Affichage',
+              obligation: 'RECOMMANDÉ',
+              reference: 'MILDECA',
+              enabled: true
+            },
+            {
+              id: 'prev-03',
+              title: 'Contraception d\'urgence',
+              description: 'Information sur la contraception d\'urgence et sa délivrance gratuite pour mineures',
+              location: 'Espace confidentiel',
+              obligation: 'OBLIGATOIRE',
+              reference: 'Art. L.5134-1 CSP',
               enabled: true
             }
           ]
