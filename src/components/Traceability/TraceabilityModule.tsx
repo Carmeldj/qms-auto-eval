@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Clock, Plus, Calendar, BarChart3, BookOpen, ClipboardList, FileCheck, Edit } from 'lucide-react';
+import { FileText, Download, Clock, Plus, Calendar, BarChart3, BookOpen, ClipboardList, FileCheck } from 'lucide-react';
 import { traceabilityTemplates, getAllCategories } from '../../data/traceabilityTemplates';
 import TraceabilityForm from './TraceabilityForm';
 import { traceabilityService } from '../../services/TraceabilityService';
@@ -7,8 +7,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { TraceabilityRecordService } from '../../services/TracabilityRecordService';
 import { missingProductsService } from '../../services/MissingProductsService';
 import { registerListService } from '../../services/RegisterListService';
-import RegisterListEditor from '../RegisterListEditor';
-import { RegisterListType } from '../../types/registerList';
 import { useNavigate } from 'react-router-dom';
 
 const TraceabilityModule: React.FC = () => {
@@ -22,8 +20,6 @@ const TraceabilityModule: React.FC = () => {
   const [recordCounts, setRecordCounts] = useState<Record<string, number>>({});
   const [showRegisterListModal, setShowRegisterListModal] = useState<boolean>(false);
   const [registerListPharmacyName, setRegisterListPharmacyName] = useState<string>('');
-  const [showEditor, setShowEditor] = useState<boolean>(false);
-  const [editorListType, setEditorListType] = useState<RegisterListType>('management');
 
   const user = useAuth().user;
   const recordService = TraceabilityRecordService.getInstance();
@@ -156,15 +152,6 @@ const TraceabilityModule: React.FC = () => {
     registerListService.generatePharmaceuticalInformationDocumentsList(registerListPharmacyName);
     setShowRegisterListModal(false);
     setRegisterListPharmacyName('');
-  };
-
-  const handleOpenEditor = (listType: RegisterListType) => {
-    if (!registerListPharmacyName.trim()) {
-      alert('Veuillez saisir le nom de la pharmacie');
-      return;
-    }
-    setEditorListType(listType);
-    setShowEditor(true);
   };
 
   if (view === 'compilation') {
@@ -413,15 +400,6 @@ const TraceabilityModule: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-      {/* Éditeur de liste */}
-      {showEditor && (
-        <RegisterListEditor
-          listType={editorListType}
-          pharmacyName={registerListPharmacyName}
-          onClose={() => setShowEditor(false)}
-        />
-      )}
-
       {/* Modal Liste des Registres */}
       {showRegisterListModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -445,98 +423,62 @@ const TraceabilityModule: React.FC = () => {
               </div>
 
               <div className="space-y-3 mb-6">
-                <div className="border-2 border-teal-200 rounded-lg overflow-hidden">
-                  <div className="flex items-center">
-                    <button
-                      onClick={handleGenerateManagementList}
-                      disabled={!registerListPharmacyName.trim()}
-                      className="flex-1 flex items-center justify-between p-4 hover:bg-teal-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <BookOpen className="h-6 w-6 text-teal-600" />
-                        <div className="text-left">
-                          <div className="font-semibold text-gray-900">
-                            Liste des Registres/Documents de Gestion
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Administration qualité, procédures, formation, équipements, etc.
-                          </div>
-                        </div>
+                <button
+                  onClick={handleGenerateManagementList}
+                  disabled={!registerListPharmacyName.trim()}
+                  className="w-full flex items-center justify-between p-4 border-2 border-teal-200 rounded-lg hover:bg-teal-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <BookOpen className="h-6 w-6 text-teal-600" />
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-900">
+                        Liste des Registres/Documents de Gestion
                       </div>
-                      <Download className="h-5 w-5 text-teal-600" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenEditor('management')}
-                      disabled={!registerListPharmacyName.trim()}
-                      className="border-l-2 border-teal-200 px-4 py-4 hover:bg-teal-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Personnaliser cette liste"
-                    >
-                      <Edit className="h-5 w-5 text-teal-600" />
-                    </button>
+                      <div className="text-sm text-gray-600">
+                        Administration qualité, procédures, formation, équipements, etc.
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <Download className="h-5 w-5 text-teal-600" />
+                </button>
 
-                <div className="border-2 border-blue-200 rounded-lg overflow-hidden">
-                  <div className="flex items-center">
-                    <button
-                      onClick={handleGenerateDispensationList}
-                      disabled={!registerListPharmacyName.trim()}
-                      className="flex-1 flex items-center justify-between p-4 hover:bg-blue-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <ClipboardList className="h-6 w-6 text-blue-600" />
-                        <div className="text-left">
-                          <div className="font-semibold text-gray-900">
-                            Liste des Registres de Traçabilité & Vigilance
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Dispensations, stupéfiants, pharmacovigilance, événements indésirables, etc.
-                          </div>
-                        </div>
+                <button
+                  onClick={handleGenerateDispensationList}
+                  disabled={!registerListPharmacyName.trim()}
+                  className="w-full flex items-center justify-between p-4 border-2 border-blue-200 rounded-lg hover:bg-blue-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <ClipboardList className="h-6 w-6 text-blue-600" />
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-900">
+                        Liste des Registres de Traçabilité & Vigilance
                       </div>
-                      <Download className="h-5 w-5 text-blue-600" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenEditor('dispensation')}
-                      disabled={!registerListPharmacyName.trim()}
-                      className="border-l-2 border-blue-200 px-4 py-4 hover:bg-blue-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Personnaliser cette liste"
-                    >
-                      <Edit className="h-5 w-5 text-blue-600" />
-                    </button>
+                      <div className="text-sm text-gray-600">
+                        Dispensations, stupéfiants, pharmacovigilance, événements indésirables, etc.
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <Download className="h-5 w-5 text-blue-600" />
+                </button>
 
-                <div className="border-2 border-purple-200 rounded-lg overflow-hidden">
-                  <div className="flex items-center">
-                    <button
-                      onClick={handleGenerateInformationDocumentsList}
-                      disabled={!registerListPharmacyName.trim()}
-                      className="flex-1 flex items-center justify-between p-4 hover:bg-purple-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <FileCheck className="h-6 w-6 text-purple-600" />
-                        <div className="text-left">
-                          <div className="font-semibold text-gray-900">
-                            Liste des Documents d'Informations Pharmaceutiques
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Affichages obligatoires, informations patients, prévention, documents professionnels
-                          </div>
-                        </div>
+                <button
+                  onClick={handleGenerateInformationDocumentsList}
+                  disabled={!registerListPharmacyName.trim()}
+                  className="w-full flex items-center justify-between p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <FileCheck className="h-6 w-6 text-purple-600" />
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-900">
+                        Liste des Documents d'Informations Pharmaceutiques
                       </div>
-                      <Download className="h-5 w-5 text-purple-600" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenEditor('information')}
-                      disabled={!registerListPharmacyName.trim()}
-                      className="border-l-2 border-purple-200 px-4 py-4 hover:bg-purple-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Personnaliser cette liste"
-                    >
-                      <Edit className="h-5 w-5 text-purple-600" />
-                    </button>
+                      <div className="text-sm text-gray-600">
+                        Affichages obligatoires, informations patients, prévention, documents professionnels
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <Download className="h-5 w-5 text-purple-600" />
+                </button>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
