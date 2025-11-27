@@ -18,6 +18,10 @@ const PROTECTED_PREFIXES = [
   "/pestel",
   "/waste-management",
   "/subscribe",
+  "/process-review",
+  "/liaison-book",
+  "/indicators-review",
+  "/indicator-tracking",
 ];
 
 const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
