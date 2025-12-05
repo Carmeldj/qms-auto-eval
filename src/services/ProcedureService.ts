@@ -153,13 +153,7 @@ export class ProcedureService {
       }
 
       // ====== EN-TÊTE PROFESSIONNEL AVEC TABLEAU ======
-      const headerHeight = 85;
       const tableStartY = topMargin;
-
-      // Rectangle principal de l'en-tête SANS REMPLISSAGE
-      pdf.setDrawColor(100, 100, 100);
-      pdf.setLineWidth(0.3);
-      pdf.rect(leftMargin, tableStartY, pageWidth - leftMargin - rightMargin, headerHeight, 'S');
 
       // Section gauche - Informations de l'entreprise
       const leftColWidth = 120;
@@ -170,29 +164,33 @@ export class ProcedureService {
       pdf.setFontSize(14);
       pdf.setTextColor(60, 60, 60);
       const titleText = `PROCÉDURE : ${procedure.info.title.toUpperCase()}`;
-      pdf.text(titleText, leftMargin + 3, tableStartY + 8);
+      const titleLines = pdf.splitTextToSize(titleText, leftColWidth - 6);
+      pdf.text(titleLines, leftMargin + 3, tableStartY + 8);
 
-      // Ligne sous le titre
+      // Ligne sous le titre (ajustée selon le nombre de lignes du titre)
+      const titleHeight = titleLines.length * 4.9; // 14pt font * 0.35 line height
       pdf.setDrawColor(0, 150, 136);
       pdf.setLineWidth(0.5);
-      pdf.line(leftMargin + 3, tableStartY + 10, leftMargin + leftColWidth - 3, tableStartY + 10);
+      pdf.line(leftMargin + 3, tableStartY + 8 + titleHeight, leftMargin + leftColWidth - 3, tableStartY + 8 + titleHeight);
 
-      // Informations de la pharmacie
+      // Informations de la pharmacie (positionnée après le titre multi-lignes)
+      const pharmacyNameY = tableStartY + 8 + titleHeight + 9;
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(9);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Nom de l\'officine', leftMargin + 3, tableStartY + 17);
+      pdf.text('Nom de l\'officine', leftMargin + 3, pharmacyNameY);
 
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(8);
       pdf.setTextColor(60, 60, 60);
       const pharmacyLines = pdf.splitTextToSize(procedure.info.pharmacyName, leftColWidth - 10);
-      pdf.text(pharmacyLines, leftMargin + 3, tableStartY + 22);
+      pdf.text(pharmacyLines, leftMargin + 3, pharmacyNameY + 5);
 
       // Zone Logo supprimée - pas de logo affiché
 
-      // Tableau de métadonnées (5 colonnes)
-      const metaTableY = tableStartY + 32;
+      // Tableau de métadonnées (5 colonnes) - positionné après le nom de la pharmacie
+      const pharmacyTextHeight = pharmacyLines.length * 2.8; // 8pt font * 0.35 line height
+      const metaTableY = pharmacyNameY + 5 + pharmacyTextHeight + 5;
       const col1Width = 30;
       const col2Width = 28;
       const col3Width = 28;
@@ -313,6 +311,12 @@ export class ProcedureService {
       const reviewerText = procedure.info.reviewer || 'N/A';
       pdf.text(reviewerText, leftMargin + 50, row3Y + 5.5);
 
+      // Calculer la hauteur dynamique de l'en-tête et dessiner le rectangle principal
+      const headerHeight = row3Y + row3Height - tableStartY;
+      pdf.setDrawColor(100, 100, 100);
+      pdf.setLineWidth(0.3);
+      pdf.rect(leftMargin, tableStartY, pageWidth - leftMargin - rightMargin, headerHeight, 'S');
+
       // Mise à jour de la position Y après l'en-tête avec plus d'espacement
       yPosition = row3Y + row3Height + 15;
 
@@ -345,7 +349,7 @@ export class ProcedureService {
         }
 
         if (step.duration) {
-          addText(`> Duree estimee: ${step.duration}`, 10, false, 'gray', 'left', 1.1);
+          addText(`> QUAND?: ${step.duration}`, 10, false, 'gray', 'left', 1.1);
           yPosition -= 1;
         }
 
@@ -378,22 +382,22 @@ export class ProcedureService {
       }
 
       // Annexes
-      if (procedure.annexes.length > 0) {
+      if (procedure.annexes && procedure.annexes.length > 0) {
         addSection('ANNEXES');
-        
+
         procedure.annexes.forEach((annex, index) => {
           const typeLabel = annex.type === 'document' ? 'Document' :
                           annex.type === 'form' ? 'Formulaire' : 'Reference reglementaire';
 
-          addText(`Annexe ${index + 1}: ${annex.title}`, 10, true, 'black', 'left', 1.15);
+          addText(`Annexe ${index + 1}: ${annex.title || 'Sans titre'}`, 10, true, 'black', 'left', 1.15);
           yPosition -= 1;
           addText(`   Type: ${typeLabel}`, 10, false, 'black', 'left', 1.15);
           yPosition -= 1;
-          if (annex.description) {
+          if (annex.description && annex.description.trim()) {
             addText(`   Description: ${annex.description}`, 10, false, 'black', 'left', 1.15);
             yPosition -= 1;
           }
-          if (annex.reference) {
+          if (annex.reference && annex.reference.trim()) {
             addText(`   Reference: ${annex.reference}`, 10, false, 'black', 'left', 1.15);
             yPosition -= 1;
           }
