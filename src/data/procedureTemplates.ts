@@ -341,6 +341,14 @@ export const procedureTemplates: ProcedureTemplate[] = [
     description: 'Procédure d\'inventaire physique et comptable des immobilisations de la pharmacie',
     isRequired: true,
     estimatedTime: '30-40 min'
+  },
+  {
+    id: 'inventaire-stock-annuel',
+    title: 'Inventaire annuel des stocks',
+    category: 'Gestion des stocks',
+    description: 'Procédure d\'inventaire physique de fin d\'année des stocks de médicaments et produits de santé',
+    isRequired: true,
+    estimatedTime: '35-45 min'
   }
 ];
 
