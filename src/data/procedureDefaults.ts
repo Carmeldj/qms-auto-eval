@@ -4182,5 +4182,165 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
         description: "Liste de contrôle pour valider une restauration"
       }
     ]
+  },
+
+  'inventaire-immobilisations': {
+    objective: "Établir les règles et le processus d'inventaire physique annuel des immobilisations corporelles et incorporelles de la pharmacie, garantir la concordance entre l'inventaire physique et l'inventaire comptable, assurer le suivi patrimonial et la conformité avec les obligations comptables et fiscales.",
+    scope: "Cette procédure s'applique à l'ensemble des immobilisations de la pharmacie : installations techniques, matériels et outillages, mobilier, matériel informatique, logiciels, agencements et aménagements. Elle couvre l'inventaire annuel obligatoire ainsi que les inventaires ponctuels nécessaires.",
+    steps: [
+      {
+        description: "PLANIFICATION DE L'INVENTAIRE - Définir la date, le périmètre et les modalités de l'inventaire annuel des immobilisations",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Comptable", "Responsable administratif"],
+        documents: ["Planning annuel", "Liste des immobilisations à inventorier"],
+        duration: "1 semaine avant",
+        howTo: "Fixer une date (généralement en fin d'exercice), définir le périmètre (toutes immobilisations), désigner les participants, préparer les documents nécessaires"
+      },
+      {
+        description: "PRÉPARATION DE LA LISTE THÉORIQUE - Éditer depuis le logiciel comptable ou le fichier des immobilisations la liste exhaustive des biens inscrits à l'actif",
+        responsible: "Comptable ou Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Fichier des immobilisations", "Balance comptable", "Liste théorique pré-imprimée"],
+        duration: "1 journée",
+        howTo: "Extraire du logiciel comptable la liste de toutes les immobilisations avec : numéro d'inventaire, désignation, date d'acquisition, valeur d'origine, amortissement, valeur nette comptable, localisation"
+      },
+      {
+        description: "ORGANISATION DES ÉQUIPES - Constituer les équipes d'inventaire et définir les zones de comptage par secteur",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel participant"],
+        documents: ["Plan de la pharmacie zoné", "Feuilles d'inventaire par zone"],
+        duration: "30 minutes",
+        howTo: "Répartir la pharmacie en zones (officine, laboratoire, réserve, bureaux, extérieur), affecter une équipe de 2 personnes minimum par zone, distribuer les feuilles d'inventaire"
+      },
+      {
+        description: "RECENSEMENT PHYSIQUE DES IMMOBILISATIONS - Parcourir systématiquement chaque zone et identifier physiquement toutes les immobilisations présentes",
+        responsible: "Équipes d'inventaire",
+        concernedPersons: ["Tout le personnel"],
+        documents: ["Feuilles de comptage", "Étiquettes d'inventaire"],
+        duration: "2 à 4 heures",
+        howTo: "Examiner tous les locaux, identifier chaque bien immobilisé (matériel, mobilier, équipement), relever le numéro d'inventaire (étiquette), noter l'état (bon, moyen, défectueux), apposer étiquette si absente"
+      },
+      {
+        description: "RAPPROCHEMENT INVENTAIRE PHYSIQUE / INVENTAIRE COMPTABLE - Comparer la liste théorique avec les biens physiquement recensés",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire", "Comptable"],
+        documents: ["Liste théorique", "Feuilles de comptage", "Tableau de rapprochement"],
+        duration: "2 à 3 heures",
+        howTo: "Pointer chaque ligne de la liste théorique avec les biens recensés, identifier les écarts : biens manquants (en comptabilité mais pas physiquement), biens excédentaires (physiquement présents mais pas en comptabilité)"
+      },
+      {
+        description: "ANALYSE DES ÉCARTS ET RECHERCHES - Investiguer sur les écarts constatés pour en déterminer les causes",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Responsable administratif", "Comptable"],
+        documents: ["Tableau des écarts", "Factures", "Bons de sortie", "Déclarations de sinistre"],
+        duration: "Variable",
+        howTo: "Pour chaque écart : rechercher documents justificatifs (cession, mise au rebut, vol, destruction, erreur d'enregistrement), interroger le personnel, consulter les archives"
+      },
+      {
+        description: "TRAITEMENT COMPTABLE DES ÉCARTS - Régulariser les écarts identifiés dans la comptabilité",
+        responsible: "Comptable",
+        concernedPersons: ["Pharmacien titulaire", "Expert-comptable"],
+        documents: ["Pièces justificatives", "Écritures comptables de régularisation"],
+        duration: "1 à 2 jours",
+        howTo: "Sortir de l'actif les biens manquants avec justification (amortissement exceptionnel, perte, vol), inscrire à l'actif les biens excédentaires si éligibles, corriger les erreurs"
+      },
+      {
+        description: "ÉVALUATION DE L'ÉTAT DES IMMOBILISATIONS - Apprécier l'état physique de chaque bien et sa capacité à rendre service",
+        responsible: "Équipes d'inventaire",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Fiche d'évaluation de l'état", "Liste des biens à renouveler"],
+        duration: "Pendant le comptage",
+        howTo: "Classer chaque bien : Bon état (fonctionnel, utilisé), État moyen (usure visible mais fonctionnel), Mauvais état (défectueux, obsolète, hors service), Proposer mise au rebut si nécessaire"
+      },
+      {
+        description: "MISE À JOUR DU FICHIER DES IMMOBILISATIONS - Actualiser le fichier des immobilisations avec les informations collectées",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Comptable"],
+        documents: ["Fichier des immobilisations", "Procès-verbal d'inventaire"],
+        duration: "1 journée",
+        howTo: "Corriger les localisations, mettre à jour les états, ajouter les nouvelles immobilisations, retirer les biens sortis, vérifier la cohérence avec la comptabilité"
+      },
+      {
+        description: "ÉTABLISSEMENT DU PROCÈS-VERBAL D'INVENTAIRE - Formaliser les résultats de l'inventaire dans un document officiel",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Responsable administratif", "Expert-comptable"],
+        documents: ["Procès-verbal d'inventaire", "Liste finale valorisée", "Rapport d'écarts"],
+        duration: "2 heures",
+        howTo: "Rédiger le PV mentionnant : date et participants, méthodologie, résultats (nombre de biens, valeur totale), écarts et régularisations, recommandations, signature du pharmacien titulaire"
+      },
+      {
+        description: "ARCHIVAGE ET CONSERVATION - Archiver tous les documents relatifs à l'inventaire pour traçabilité et conformité",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Dossier complet d'inventaire", "PV signé", "Listes de comptage", "Justificatifs"],
+        duration: "1 heure",
+        howTo: "Constituer un dossier complet comprenant tous les documents, classer par ordre chronologique, conserver pendant 10 ans minimum (obligations comptables), référencer dans le système de gestion documentaire"
+      }
+    ],
+    indicators: [
+      {
+        name: "Taux de concordance inventaire physique/comptable",
+        description: "Pourcentage de biens présents physiquement et en comptabilité concordants",
+        target: "Supérieur ou égal à 95%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Nombre d'écarts non justifiés",
+        description: "Nombre de différences entre inventaire physique et comptable sans explication",
+        target: "0",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Respect du délai d'inventaire",
+        description: "Inventaire réalisé dans les délais planifiés",
+        target: "100%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Taux d'immobilisations identifiées par étiquette",
+        description: "Pourcentage de biens portant un numéro d'inventaire visible",
+        target: "100%",
+        frequency: "Annuelle"
+      }
+    ],
+    annexes: [
+      {
+        title: "Code de commerce - Obligations d'inventaire",
+        type: "regulation",
+        description: "Obligation légale d'inventaire annuel des immobilisations",
+        reference: "Articles L123-12 et suivants du Code de commerce"
+      },
+      {
+        title: "Plan comptable général - Immobilisations",
+        type: "regulation",
+        description: "Règles de comptabilisation et d'évaluation des immobilisations",
+        reference: "PCG - Comptes de classe 2"
+      },
+      {
+        title: "Modèle de procès-verbal d'inventaire",
+        type: "form",
+        description: "Formulaire type de PV d'inventaire des immobilisations"
+      },
+      {
+        title: "Feuille de comptage par zone",
+        type: "form",
+        description: "Support de relevé physique des biens par zone géographique"
+      },
+      {
+        title: "Tableau de rapprochement physique/comptable",
+        type: "form",
+        description: "Outil de rapprochement et identification des écarts"
+      },
+      {
+        title: "Fiche d'évaluation de l'état des biens",
+        type: "form",
+        description: "Grille d'appréciation de l'état physique des immobilisations"
+      },
+      {
+        title: "Registre des immobilisations",
+        type: "document",
+        description: "Fichier détaillé de toutes les immobilisations de la pharmacie"
+      }
+    ]
   }
 };

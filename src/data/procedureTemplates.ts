@@ -331,6 +331,16 @@ export const procedureTemplates: ProcedureTemplate[] = [
     description: 'Procédure de veille et mise à jour réglementaire',
     isRequired: false,
     estimatedTime: '20-30 min'
+  },
+
+  // Gestion comptable et administrative
+  {
+    id: 'inventaire-immobilisations',
+    title: 'Inventaire des immobilisations',
+    category: 'Gestion',
+    description: 'Procédure d\'inventaire physique et comptable des immobilisations de la pharmacie',
+    isRequired: true,
+    estimatedTime: '30-40 min'
   }
 ];
 
