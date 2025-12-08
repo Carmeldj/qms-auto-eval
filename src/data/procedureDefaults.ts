@@ -4182,5 +4182,347 @@ export const procedureDefaults: Record<string, ProcedureDefaults> = {
         description: "Liste de contrôle pour valider une restauration"
       }
     ]
+  },
+
+  'inventaire-immobilisations': {
+    objective: "Établir les règles et le processus d'inventaire physique annuel des immobilisations corporelles et incorporelles de la pharmacie, garantir la concordance entre l'inventaire physique et l'inventaire comptable, assurer le suivi patrimonial et la conformité avec les obligations comptables et fiscales.",
+    scope: "Cette procédure s'applique à l'ensemble des immobilisations de la pharmacie : installations techniques, matériels et outillages, mobilier, matériel informatique, logiciels, agencements et aménagements. Elle couvre l'inventaire annuel obligatoire ainsi que les inventaires ponctuels nécessaires.",
+    steps: [
+      {
+        description: "PLANIFICATION DE L'INVENTAIRE - Définir la date, le périmètre et les modalités de l'inventaire annuel des immobilisations",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Comptable", "Responsable administratif"],
+        documents: ["Planning annuel", "Liste des immobilisations à inventorier"],
+        duration: "1 semaine avant",
+        howTo: "Fixer une date (généralement en fin d'exercice), définir le périmètre (toutes immobilisations), désigner les participants, préparer les documents nécessaires"
+      },
+      {
+        description: "PRÉPARATION DE LA LISTE THÉORIQUE - Éditer depuis le logiciel comptable ou le fichier des immobilisations la liste exhaustive des biens inscrits à l'actif",
+        responsible: "Comptable ou Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Fichier des immobilisations", "Balance comptable", "Liste théorique pré-imprimée"],
+        duration: "1 journée",
+        howTo: "Extraire du logiciel comptable la liste de toutes les immobilisations avec : numéro d'inventaire, désignation, date d'acquisition, valeur d'origine, amortissement, valeur nette comptable, localisation"
+      },
+      {
+        description: "ORGANISATION DES ÉQUIPES - Constituer les équipes d'inventaire et définir les zones de comptage par secteur",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel participant"],
+        documents: ["Plan de la pharmacie zoné", "Feuilles d'inventaire par zone"],
+        duration: "30 minutes",
+        howTo: "Répartir la pharmacie en zones (officine, laboratoire, réserve, bureaux, extérieur), affecter une équipe de 2 personnes minimum par zone, distribuer les feuilles d'inventaire"
+      },
+      {
+        description: "RECENSEMENT PHYSIQUE DES IMMOBILISATIONS - Parcourir systématiquement chaque zone et identifier physiquement toutes les immobilisations présentes",
+        responsible: "Équipes d'inventaire",
+        concernedPersons: ["Tout le personnel"],
+        documents: ["Feuilles de comptage", "Étiquettes d'inventaire"],
+        duration: "2 à 4 heures",
+        howTo: "Examiner tous les locaux, identifier chaque bien immobilisé (matériel, mobilier, équipement), relever le numéro d'inventaire (étiquette), noter l'état (bon, moyen, défectueux), apposer étiquette si absente"
+      },
+      {
+        description: "RAPPROCHEMENT INVENTAIRE PHYSIQUE / INVENTAIRE COMPTABLE - Comparer la liste théorique avec les biens physiquement recensés",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire", "Comptable"],
+        documents: ["Liste théorique", "Feuilles de comptage", "Tableau de rapprochement"],
+        duration: "2 à 3 heures",
+        howTo: "Pointer chaque ligne de la liste théorique avec les biens recensés, identifier les écarts : biens manquants (en comptabilité mais pas physiquement), biens excédentaires (physiquement présents mais pas en comptabilité)"
+      },
+      {
+        description: "ANALYSE DES ÉCARTS ET RECHERCHES - Investiguer sur les écarts constatés pour en déterminer les causes",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Responsable administratif", "Comptable"],
+        documents: ["Tableau des écarts", "Factures", "Bons de sortie", "Déclarations de sinistre"],
+        duration: "Variable",
+        howTo: "Pour chaque écart : rechercher documents justificatifs (cession, mise au rebut, vol, destruction, erreur d'enregistrement), interroger le personnel, consulter les archives"
+      },
+      {
+        description: "TRAITEMENT COMPTABLE DES ÉCARTS - Régulariser les écarts identifiés dans la comptabilité",
+        responsible: "Comptable",
+        concernedPersons: ["Pharmacien titulaire", "Expert-comptable"],
+        documents: ["Pièces justificatives", "Écritures comptables de régularisation"],
+        duration: "1 à 2 jours",
+        howTo: "Sortir de l'actif les biens manquants avec justification (amortissement exceptionnel, perte, vol), inscrire à l'actif les biens excédentaires si éligibles, corriger les erreurs"
+      },
+      {
+        description: "ÉVALUATION DE L'ÉTAT DES IMMOBILISATIONS - Apprécier l'état physique de chaque bien et sa capacité à rendre service",
+        responsible: "Équipes d'inventaire",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Fiche d'évaluation de l'état", "Liste des biens à renouveler"],
+        duration: "Pendant le comptage",
+        howTo: "Classer chaque bien : Bon état (fonctionnel, utilisé), État moyen (usure visible mais fonctionnel), Mauvais état (défectueux, obsolète, hors service), Proposer mise au rebut si nécessaire"
+      },
+      {
+        description: "MISE À JOUR DU FICHIER DES IMMOBILISATIONS - Actualiser le fichier des immobilisations avec les informations collectées",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Comptable"],
+        documents: ["Fichier des immobilisations", "Procès-verbal d'inventaire"],
+        duration: "1 journée",
+        howTo: "Corriger les localisations, mettre à jour les états, ajouter les nouvelles immobilisations, retirer les biens sortis, vérifier la cohérence avec la comptabilité"
+      },
+      {
+        description: "ÉTABLISSEMENT DU PROCÈS-VERBAL D'INVENTAIRE - Formaliser les résultats de l'inventaire dans un document officiel",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Responsable administratif", "Expert-comptable"],
+        documents: ["Procès-verbal d'inventaire", "Liste finale valorisée", "Rapport d'écarts"],
+        duration: "2 heures",
+        howTo: "Rédiger le PV mentionnant : date et participants, méthodologie, résultats (nombre de biens, valeur totale), écarts et régularisations, recommandations, signature du pharmacien titulaire"
+      },
+      {
+        description: "ARCHIVAGE ET CONSERVATION - Archiver tous les documents relatifs à l'inventaire pour traçabilité et conformité",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Dossier complet d'inventaire", "PV signé", "Listes de comptage", "Justificatifs"],
+        duration: "1 heure",
+        howTo: "Constituer un dossier complet comprenant tous les documents, classer par ordre chronologique, conserver pendant 10 ans minimum (obligations comptables), référencer dans le système de gestion documentaire"
+      }
+    ],
+    indicators: [
+      {
+        name: "Taux de concordance inventaire physique/comptable",
+        description: "Pourcentage de biens présents physiquement et en comptabilité concordants",
+        target: "Supérieur ou égal à 95%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Nombre d'écarts non justifiés",
+        description: "Nombre de différences entre inventaire physique et comptable sans explication",
+        target: "0",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Respect du délai d'inventaire",
+        description: "Inventaire réalisé dans les délais planifiés",
+        target: "100%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Taux d'immobilisations identifiées par étiquette",
+        description: "Pourcentage de biens portant un numéro d'inventaire visible",
+        target: "100%",
+        frequency: "Annuelle"
+      }
+    ],
+    annexes: [
+      {
+        title: "Code de commerce - Obligations d'inventaire",
+        type: "regulation",
+        description: "Obligation légale d'inventaire annuel des immobilisations",
+        reference: "Articles L123-12 et suivants du Code de commerce"
+      },
+      {
+        title: "Plan comptable général - Immobilisations",
+        type: "regulation",
+        description: "Règles de comptabilisation et d'évaluation des immobilisations",
+        reference: "PCG - Comptes de classe 2"
+      },
+      {
+        title: "Modèle de procès-verbal d'inventaire",
+        type: "form",
+        description: "Formulaire type de PV d'inventaire des immobilisations"
+      },
+      {
+        title: "Feuille de comptage par zone",
+        type: "form",
+        description: "Support de relevé physique des biens par zone géographique"
+      },
+      {
+        title: "Tableau de rapprochement physique/comptable",
+        type: "form",
+        description: "Outil de rapprochement et identification des écarts"
+      },
+      {
+        title: "Fiche d'évaluation de l'état des biens",
+        type: "form",
+        description: "Grille d'appréciation de l'état physique des immobilisations"
+      },
+      {
+        title: "Registre des immobilisations",
+        type: "document",
+        description: "Fichier détaillé de toutes les immobilisations de la pharmacie"
+      }
+    ]
+  },
+
+  'inventaire-stock-annuel': {
+    objective: "Établir les règles et le processus d'inventaire physique annuel des stocks de médicaments et produits de santé, garantir la concordance entre l'inventaire physique et l'inventaire théorique du système informatique, assurer la valorisation exacte du stock pour la clôture comptable annuelle et la conformité avec les obligations légales et réglementaires.",
+    scope: "Cette procédure s'applique à l'ensemble des stocks de la pharmacie : médicaments (y compris stupéfiants et psychotropes), dispositifs médicaux, produits de parapharmacie, consommables. Elle couvre l'inventaire annuel de clôture obligatoire ainsi que les éventuels inventaires tournants ou ponctuels.",
+    steps: [
+      {
+        description: "PLANIFICATION DE L'INVENTAIRE ANNUEL - Définir la date, les modalités organisationnelles et préparer les ressources nécessaires",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel", "Pharmacien adjoint"],
+        documents: ["Planning d'inventaire", "Consignes d'inventaire", "Feuilles de comptage"],
+        duration: "2 semaines avant",
+        howTo: "Fixer la date (généralement 31 décembre ou date de clôture exercice), bloquer l'agenda, informer le personnel, préparer le matériel (feuilles, calculettes, étiquettes), fermer la pharmacie le jour J si nécessaire"
+      },
+      {
+        description: "PRÉPARATION DU STOCK - Organiser et ranger les produits pour faciliter le comptage et éviter les erreurs",
+        responsible: "Tout le personnel",
+        concernedPersons: ["Pharmacien titulaire", "Préparateurs"],
+        documents: ["Check-list de préparation", "Plan de rangement"],
+        duration: "1 à 2 jours avant",
+        howTo: "Ranger les produits par ordre alphabétique ou par rayon, regrouper les mêmes références, éliminer les cartons vides, identifier et séparer les produits périmés, apposer des étiquettes de zone"
+      },
+      {
+        description: "ÉDITION DE L'INVENTAIRE THÉORIQUE - Extraire du système informatique la liste complète des produits avec quantités théoriques",
+        responsible: "Pharmacien ou responsable administratif",
+        concernedPersons: ["Comptable"],
+        documents: ["État des stocks informatique", "Liste théorique valorisée"],
+        duration: "La veille",
+        howTo: "Bloquer les entrées/sorties dans le système, éditer l'état des stocks à la date précise, vérifier la cohérence des données, imprimer ou exporter le fichier, sauvegarder"
+      },
+      {
+        description: "CONSTITUTION DES ÉQUIPES ET AFFECTATION DES ZONES - Organiser les équipes de comptage par binômes et attribuer les zones",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel participant"],
+        documents: ["Plan de la pharmacie zoné", "Attribution des zones par équipe"],
+        duration: "30 minutes",
+        howTo: "Former des binômes (1 compteur + 1 noteur), attribuer une zone à chaque binôme (officine, réserve, frigo, vitrine), distribuer les feuilles de comptage, expliquer la méthode"
+      },
+      {
+        description: "COMPTAGE PHYSIQUE EXHAUSTIF - Compter physiquement toutes les unités de tous les produits présents",
+        responsible: "Équipes de comptage",
+        concernedPersons: ["Tout le personnel"],
+        documents: ["Feuilles de comptage", "Scanner douchette si disponible"],
+        duration: "4 à 8 heures selon taille stock",
+        howTo: "Parcourir systématiquement la zone attribuée, compter chaque produit (boîtes entières + unitaires), noter : nom exact, dosage, forme, quantité, lot, DLU, vérifier les cachettes (tiroirs, arrière-boutique), cocher les produits comptés"
+      },
+      {
+        description: "COMPTAGE DES PRODUITS SOUS CONTRÔLE - Effectuer un comptage renforcé et tracé des stupéfiants et psychotropes",
+        responsible: "Pharmacien titulaire uniquement",
+        concernedPersons: ["Pharmacien adjoint si présent"],
+        documents: ["Registre des stupéfiants", "Fiche de comptage spécifique", "Coffre-fort"],
+        duration: "30 à 60 minutes",
+        howTo: "Ouvrir le coffre en présence de 2 pharmaciens si possible, compter unitaire par unitaire chaque stupéfiant, pointer avec le registre des entrées/sorties, vérifier la concordance, signer la fiche de comptage"
+      },
+      {
+        description: "SAISIE DES DONNÉES D'INVENTAIRE - Enregistrer les quantités physiques comptées dans le système informatique",
+        responsible: "Pharmacien ou personnel administratif",
+        concernedPersons: ["Responsable stock"],
+        documents: ["Feuilles de comptage", "Module inventaire du logiciel"],
+        duration: "2 à 4 heures",
+        howTo: "Ouvrir le module inventaire du logiciel, saisir produit par produit les quantités physiques, vérifier la cohérence, enregistrer progressivement, faire un contrôle croisé sur produits à forte valeur"
+      },
+      {
+        description: "RAPPROCHEMENT INVENTAIRE PHYSIQUE / INVENTAIRE THÉORIQUE - Comparer les quantités comptées avec les quantités théoriques du système",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Responsable stock", "Comptable"],
+        documents: ["Tableau des écarts", "Rapport d'écart valorisé"],
+        duration: "2 à 3 heures",
+        howTo: "Éditer l'état comparatif physique/théorique, identifier les écarts (+ ou -), classer par importance (valeur), analyser les écarts significatifs (>5% ou >100€), rechercher les causes"
+      },
+      {
+        description: "ANALYSE DES ÉCARTS ET INVESTIGATIONS - Rechercher l'origine des écarts constatés et documenter les explications",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Tout le personnel"],
+        documents: ["Fiche d'analyse d'écart", "Bons de livraison", "Ordonnancier", "Factures"],
+        duration: "Variable selon écarts",
+        howTo: "Pour chaque écart significatif : vérifier erreur de saisie/comptage, rechercher factures non enregistrées, vols potentiels, casse non déclarée, erreurs de dispensation, produits en zone de préparation, interroger le personnel"
+      },
+      {
+        description: "RÉGULARISATION COMPTABLE - Ajuster les quantités théoriques du système avec les quantités physiques réelles",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Comptable", "Expert-comptable"],
+        documents: ["Écritures de régularisation", "Justificatifs d'écarts"],
+        duration: "1 journée",
+        howTo: "Valider l'inventaire dans le logiciel (ajuste automatiquement les stocks), éditer le journal des mouvements d'inventaire, calculer l'impact financier (boni/mali), passer les écritures comptables, archiver les justificatifs"
+      },
+      {
+        description: "VALORISATION DU STOCK - Calculer la valeur totale du stock au prix d'achat HT pour la comptabilité",
+        responsible: "Comptable",
+        concernedPersons: ["Pharmacien titulaire", "Expert-comptable"],
+        documents: ["État valorisé du stock", "Balance comptable"],
+        duration: "2 à 3 heures",
+        howTo: "Éditer l'état valorisé post-inventaire (quantités × PUMP), vérifier la cohérence globale, distinguer : médicaments, dispositifs médicaux, parapharmacie, enregistrer en compte 3 'Stocks' dans le bilan"
+      },
+      {
+        description: "ÉTABLISSEMENT DU PROCÈS-VERBAL D'INVENTAIRE - Formaliser les résultats de l'inventaire dans un document officiel signé",
+        responsible: "Pharmacien titulaire",
+        concernedPersons: ["Comptable", "Expert-comptable"],
+        documents: ["Procès-verbal d'inventaire", "État valorisé", "Rapport d'écarts"],
+        duration: "1 à 2 heures",
+        howTo: "Rédiger le PV mentionnant : date et participants, méthodologie, résultats (valeur stock par catégorie, valeur totale), écarts et régularisations, observations, signature du pharmacien titulaire"
+      },
+      {
+        description: "ARCHIVAGE ET CONSERVATION - Archiver tous les documents de l'inventaire pour contrôle et traçabilité",
+        responsible: "Responsable administratif",
+        concernedPersons: ["Pharmacien titulaire"],
+        documents: ["Dossier complet d'inventaire", "Feuilles de comptage", "PV signé", "États informatiques"],
+        duration: "1 heure",
+        howTo: "Constituer un dossier complet d'inventaire, classer chronologiquement tous les documents, conserver 10 ans minimum (obligations comptables et fiscales), archiver version papier et numérique"
+      }
+    ],
+    indicators: [
+      {
+        name: "Taux de concordance stock physique/théorique",
+        description: "Pourcentage de concordance en valeur entre stock physique et théorique",
+        target: "Supérieur ou égal à 97%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Écart d'inventaire en valeur absolue",
+        description: "Montant total des écarts (boni + mali) en valeur HT",
+        target: "Inférieur à 2% du stock total",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Respect du délai de clôture",
+        description: "Inventaire réalisé et validé dans les délais impartis",
+        target: "100%",
+        frequency: "Annuelle"
+      },
+      {
+        name: "Taux de justification des écarts",
+        description: "Pourcentage d'écarts significatifs expliqués et documentés",
+        target: "100%",
+        frequency: "Annuelle"
+      }
+    ],
+    annexes: [
+      {
+        title: "Code de commerce - Inventaire obligatoire",
+        type: "regulation",
+        description: "Obligation légale d'inventaire annuel des stocks",
+        reference: "Article L123-12 du Code de commerce"
+      },
+      {
+        title: "Bonnes Pratiques de Pharmacie - Gestion des stocks",
+        type: "regulation",
+        description: "Exigences réglementaires en matière de gestion et suivi des stocks",
+        reference: "Décision du 28 novembre 2016"
+      },
+      {
+        title: "Code de la Santé Publique - Stupéfiants",
+        type: "regulation",
+        description: "Obligations spécifiques pour l'inventaire des stupéfiants et psychotropes",
+        reference: "Articles R5132-9 et suivants"
+      },
+      {
+        title: "Modèle de procès-verbal d'inventaire des stocks",
+        type: "form",
+        description: "Formulaire type de PV d'inventaire annuel"
+      },
+      {
+        title: "Feuilles de comptage par zone",
+        type: "form",
+        description: "Supports de relevé physique des produits par zone"
+      },
+      {
+        title: "Tableau de rapprochement physique/théorique",
+        type: "form",
+        description: "Outil d'analyse des écarts d'inventaire"
+      },
+      {
+        title: "Fiche d'analyse des écarts significatifs",
+        type: "form",
+        description: "Support d'investigation et justification des écarts"
+      },
+      {
+        title: "Consignes d'inventaire pour le personnel",
+        type: "document",
+        description: "Guide pratique de comptage et bonnes pratiques"
+      }
+    ]
   }
 };
