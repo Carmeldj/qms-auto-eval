@@ -532,6 +532,102 @@ class OrdonnancierService {
     return pdf;
   }
 
+  generateTrimesterExcel(
+    entries: OrdonnancierEntry[],
+    trimestre: number,
+    annee: number,
+    pharmacieName: string
+  ): Blob {
+    const trimestreInfo = TRIMESTRES.find(t => t.numero === trimestre);
+    const dateDebut = new Date(annee, (trimestre - 1) * 3, 1);
+    const dateFin = new Date(annee, trimestre * 3, 0);
+
+    // Créer le contenu Excel au format CSV avec séparateur point-virgule pour Excel français
+    let csvContent = '\uFEFF'; // BOM UTF-8 pour Excel
+
+    // En-tête du document
+    csvContent += `RÉPUBLIQUE DU BÉNIN\n`;
+    csvContent += `MINISTÈRE DE LA SANTÉ\n`;
+    csvContent += `Agence Nationale de Régulation Pharmaceutique\n`;
+    csvContent += `\n`;
+    csvContent += `ANNEXE 1 - CARNET D'ORDONNANCIER\n`;
+    csvContent += `${trimestreInfo?.label} ${annee}\n`;
+    csvContent += `Période: ${dateDebut.toLocaleDateString('fr-FR')} au ${dateFin.toLocaleDateString('fr-FR')}\n`;
+    csvContent += `\n`;
+    csvContent += `Pharmacie: ${pharmacieName}\n`;
+    csvContent += `Total de délivrances: ${entries.length}\n`;
+    csvContent += `\n`;
+
+    // En-têtes des colonnes
+    csvContent += [
+      'Numéro',
+      'Désignation du produit',
+      'Dénomination commune internationale',
+      'Quantité',
+      'Unité',
+      'Prix (FCFA)',
+      'Prescripteur',
+      'Formation sanitaire ayant prescrite',
+      'Date de prescription',
+      'Date de dispensation'
+    ].join(';') + '\n';
+
+    // Données
+    entries.forEach(entry => {
+      const row = [
+        entry.numeroOrdre.toString(),
+        `"${entry.produit.nature.replace(/"/g, '""')}"`,
+        '""',
+        entry.produit.quantite.toString(),
+        `"${(entry.produit.dose || '').replace(/"/g, '""')}"`,
+        entry.prixVente.toString(),
+        `"${entry.prescripteur.nomPrenoms.replace(/"/g, '""')}"`,
+        `"${(entry.patient.adresse || '').replace(/"/g, '""')}"`,
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')
+      ];
+      csvContent += row.join(';') + '\n';
+    });
+
+    // Créer un Blob avec le contenu CSV
+    return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  }
+
+  async downloadTrimesterExcel(
+    entries: OrdonnancierEntry[],
+    trimestre: number,
+    annee: number,
+    pharmacieName: string
+  ): Promise<void> {
+    const blob = this.generateTrimesterExcel(entries, trimestre, annee, pharmacieName);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapport_ordonnancier_T${trimestre}_${annee}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  generateExcelBase64(
+    entries: OrdonnancierEntry[],
+    trimestre: number,
+    annee: number,
+    pharmacieName: string
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const blob = this.generateTrimesterExcel(entries, trimestre, annee, pharmacieName);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   async sendTrimesterReport(
     entries: OrdonnancierEntry[],
     trimestre: number,
@@ -545,6 +641,7 @@ class OrdonnancierService {
   ): Promise<void> {
     try {
       const pdfBase64 = this.generatePDFBase64(entries, trimestre, annee, pharmacieName, pharmacyInitials, pharmacistName, signatureImage, stampImage);
+      const excelBase64 = await this.generateExcelBase64(entries, trimestre, annee, pharmacieName);
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/send-ordonnancier-email`, {
         method: 'POST',
@@ -558,7 +655,8 @@ class OrdonnancierService {
           pharmacieName,
           pharmacieEmail,
           totalEntries: entries.length,
-          pdfBase64
+          pdfBase64,
+          excelBase64
         })
       });
 

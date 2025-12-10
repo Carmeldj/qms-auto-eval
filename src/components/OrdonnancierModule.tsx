@@ -164,6 +164,20 @@ const OrdonnancierModule: React.FC = () => {
     setShowReportConfig(true);
   };
 
+  const handleDownloadExcel = async () => {
+    try {
+      await ordonnancierService.downloadTrimesterExcel(
+        filteredEntries,
+        selectedTrimester,
+        selectedYear,
+        pharmacyName || ''
+      );
+    } catch (error) {
+      console.error('Error generating Excel:', error);
+      alert('Erreur lors de la génération du fichier Excel');
+    }
+  };
+
   const executeDownloadPDF = async () => {
     try {
       await ordonnancierService.generateTrimesterPDF(
@@ -1154,6 +1168,13 @@ const OrdonnancierModule: React.FC = () => {
               >
                 <Download className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Télécharger PDF</span>
+              </button>
+              <button
+                onClick={handleDownloadExcel}
+                className="flex items-center justify-center space-x-2 bg-emerald-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-emerald-700 text-sm sm:text-base"
+              >
+                <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span>Télécharger Excel</span>
               </button>
               <button
                 onClick={handleSendEmail}
