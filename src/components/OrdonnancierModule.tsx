@@ -42,7 +42,7 @@ const OrdonnancierModule: React.FC = () => {
     dateDelivrance: new Date().toISOString().split('T')[0],
     prescripteur: { nomPrenoms: '', numeroOrdre: '' },
     patient: { nomPrenoms: '', adresse: '' },
-    produit: { nature: '', dose: '', quantite: 1 },
+    produit: { nature: '', dci: '', dose: '', quantite: 1 },
     prixVente: 0,
     pharmacien: { nom: '', signature: '' }
   });
@@ -122,6 +122,7 @@ const OrdonnancierModule: React.FC = () => {
           },
           produit: {
             nature: item.produit_nature,
+            dci: item.produit_dci || '',
             dose: item.produit_dose,
             quantite: item.produit_quantite
           },
@@ -403,6 +404,7 @@ const OrdonnancierModule: React.FC = () => {
         patient_nom_prenoms: formData.patient!.nomPrenoms,
         patient_adresse: formData.patient!.adresse,
         produit_nature: formData.produit!.nature,
+        produit_dci: formData.produit!.dci,
         produit_dose: formData.produit!.dose,
         produit_quantite: formData.produit!.quantite,
         prix_vente: formData.prixVente,
@@ -453,7 +455,7 @@ const OrdonnancierModule: React.FC = () => {
           dateDelivrance: new Date().toISOString().split('T')[0],
           prescripteur: { nomPrenoms: '', numeroOrdre: '' },
           patient: { nomPrenoms: '', adresse: '' },
-          produit: { nature: '', dose: '', quantite: 1 },
+          produit: { nature: '', dci: '', dose: '', quantite: 1 },
           prixVente: 0,
           pharmacien: { nom: '', signature: '' }
         });
@@ -581,6 +583,7 @@ const OrdonnancierModule: React.FC = () => {
                     <div><span className="font-medium text-gray-700">Prescripteur:</span> {entry.prescripteur.nomPrenoms} {entry.prescripteur.numeroOrdre && `(N°${entry.prescripteur.numeroOrdre})`}</div>
                     <div><span className="font-medium text-gray-700">Patient:</span> {entry.patient.nomPrenoms}</div>
                     <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
+                    {entry.produit.dci && <div><span className="font-medium text-gray-700">DCI:</span> {entry.produit.dci}</div>}
                     <div><span className="font-medium text-gray-700">Pharmacien:</span> {entry.pharmacien.nom} {entry.pharmacien.signature && `(N°${entry.pharmacien.signature})`}</div>
                     <div className="flex justify-between">
                       <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
@@ -780,6 +783,22 @@ const OrdonnancierModule: React.FC = () => {
                     />
                   )}
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dénomination Commune Internationale (DCI) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="ex: Morphine sulfate, Codéine phosphate..."
+                  value={formData.produit?.dci}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    produit: { ...formData.produit!, dci: e.target.value }
+                  })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
@@ -1137,6 +1156,7 @@ const OrdonnancierModule: React.FC = () => {
                     <div><span className="font-medium text-gray-700">Prescripteur:</span> {entry.prescripteur.nomPrenoms} {entry.prescripteur.numeroOrdre && `(N°${entry.prescripteur.numeroOrdre})`}</div>
                     <div><span className="font-medium text-gray-700">Patient:</span> {entry.patient.nomPrenoms}</div>
                     <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
+                    {entry.produit.dci && <div><span className="font-medium text-gray-700">DCI:</span> {entry.produit.dci}</div>}
                     <div><span className="font-medium text-gray-700">Pharmacien:</span> {entry.pharmacien.nom} {entry.pharmacien.signature && `(N°${entry.pharmacien.signature})`}</div>
                     <div className="flex justify-between">
                       <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>

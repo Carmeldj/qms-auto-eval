@@ -12,6 +12,7 @@ export interface OrdonnancierEntry {
   };
   produit: {
     nature: string;
+    dci: string;
     dose: string;
     quantite: number;
   };

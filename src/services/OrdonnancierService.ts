@@ -573,7 +573,7 @@ class OrdonnancierService {
       const row = [
         entry.numeroOrdre.toString(),
         `"${entry.produit.nature.replace(/"/g, '""')}"`,
-        '""',
+        `"${(entry.produit.dci || '').replace(/"/g, '""')}"`,
         entry.produit.quantite.toString(),
         `"${(entry.produit.dose || '').replace(/"/g, '""')}"`,
         entry.prixVente.toString(),
