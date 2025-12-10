@@ -546,74 +546,44 @@ class OrdonnancierService {
 
     csvContent += `RÉPUBLIQUE DU BÉNIN\n`;
     csvContent += `MINISTÈRE DE LA SANTÉ\n`;
-    csvContent += `AGENCE BÉNINOISE DU MÉDICAMENT (ABMed)\n`;
+    csvContent += `Agence Nationale de Régulation Pharmaceutique\n`;
     csvContent += `\n`;
-    csvContent += `LISTE DÉTAILLÉE DES PRODUITS SOUS CONTRÔLE INTERNATIONAL\n`;
+    csvContent += `ANNEXE 1 - CARNET D'ORDONNANCIER\n`;
     csvContent += `${trimestreInfo?.label} ${annee}\n`;
-    csvContent += `Période du ${dateDebut.toLocaleDateString('fr-FR')} au ${dateFin.toLocaleDateString('fr-FR')}\n`;
+    csvContent += `Période: ${dateDebut.toLocaleDateString('fr-FR')} au ${dateFin.toLocaleDateString('fr-FR')}\n`;
     csvContent += `\n`;
     csvContent += `Pharmacie: ${pharmacieName}\n`;
-    csvContent += `Nombre total de délivrances: ${entries.length}\n`;
-    csvContent += `\n`;
+    csvContent += `Total de délivrances: ${entries.length}\n`;
     csvContent += `\n`;
 
     csvContent += [
-      'N°',
-      'Date de délivrance',
-      'Nom du produit',
-      'Forme pharmaceutique',
-      'Dosage',
-      'DCI',
-      'Quantité délivrée',
+      'Numéro',
+      'Désignation du produit',
+      'Dénomination commune internationale',
+      'Quantité',
       'Unité',
-      'Prix unitaire (FCFA)',
-      'Prix total (FCFA)',
-      'Nom et prénoms du prescripteur',
-      'N° Ordre du prescripteur',
-      'Établissement de santé',
-      'Nom et prénoms du patient',
-      'Date de naissance du patient',
-      'Adresse du patient',
-      'Observations'
+      'Prix (FCFA)',
+      'Prescripteur',
+      'Formation sanitaire ayant prescrite',
+      'Date de prescription',
+      'Date de dispensation'
     ].join(';') + '\n';
 
-    entries.forEach((entry, index) => {
-      const dateDelivrance = new Date(entry.dateDelivrance);
-      const prixUnitaire = entry.prixVente / entry.produit.quantite;
-
+    entries.forEach(entry => {
       const row = [
-        (index + 1).toString(),
-        dateDelivrance.toLocaleDateString('fr-FR'),
+        entry.numeroOrdre.toString(),
         `"${entry.produit.nature.replace(/"/g, '""')}"`,
         '""',
-        `"${(entry.produit.dose || '').replace(/"/g, '""')}"`,
-        '""',
         entry.produit.quantite.toString(),
-        `"${(entry.produit.dose || 'Unité').replace(/"/g, '""')}"`,
-        prixUnitaire.toFixed(0),
+        `"${(entry.produit.dose || '').replace(/"/g, '""')}"`,
         entry.prixVente.toString(),
         `"${entry.prescripteur.nomPrenoms.replace(/"/g, '""')}"`,
-        `"${(entry.prescripteur.numeroOrdre || '').replace(/"/g, '""')}"`,
         `"${(entry.patient.adresse || '').replace(/"/g, '""')}"`,
-        `"${entry.patient.nomPrenoms.replace(/"/g, '""')}"`,
-        '""',
-        `"${(entry.patient.adresse || '').replace(/"/g, '""')}"`,
-        '""'
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
+        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')
       ];
       csvContent += row.join(';') + '\n';
     });
-
-    csvContent += `\n`;
-    csvContent += `\n`;
-    csvContent += `Date d'établissement du rapport: ${new Date().toLocaleDateString('fr-FR')}\n`;
-    csvContent += `\n`;
-    csvContent += `Signature et cachet du pharmacien responsable:\n`;
-    csvContent += `\n`;
-    csvContent += `\n`;
-    csvContent += `\n`;
-    csvContent += `Note: Ce document est généré automatiquement par le système de gestion pharmaceutique.\n`;
-    csvContent += `Pour toute question, veuillez contacter l'Agence Béninoise du Médicament.\n`;
-    csvContent += `Email: ssmur.abmed@gouv.bj / contact.abmed@gouv.bj\n`;
 
     return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   }
@@ -628,7 +598,7 @@ class OrdonnancierService {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `liste-detaillee-produits-souscontrole_T${trimestre}_${annee}.csv`;
+    link.download = `rapport_ordonnancier_T${trimestre}_${annee}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
