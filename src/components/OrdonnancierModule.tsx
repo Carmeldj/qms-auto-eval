@@ -294,15 +294,15 @@ const OrdonnancierModule: React.FC = () => {
         reportConfig.pharmacistName
       ].join('\n');
 
-      // Ouvrir Gmail avec l'email de destination pré-rempli et copie
+      // Ouvrir le client email par défaut avec l'email pré-rempli (compatible mobile et desktop)
       const recipientEmail = 'ssmur.abmed@gouv.bj';
       const ccEmail = 'contact.abmed@gouv.bj';
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&cc=${encodeURIComponent(ccEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.open(gmailUrl, '_blank');
+      const mailtoUrl = `mailto:${encodeURIComponent(recipientEmail)}?cc=${encodeURIComponent(ccEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoUrl;
 
       setShowReportConfig(false);
       setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
-      alert('Les rapports PDF et Excel ont été téléchargés et Gmail a été ouvert. N\'oubliez pas d\'attacher les fichiers avant l\'envoi.');
+      alert('Les rapports PDF et Excel ont été téléchargés et votre client email a été ouvert. N\'oubliez pas d\'attacher les fichiers avant l\'envoi.');
     } catch (error) {
       console.error('Error preparing email:', error);
       alert('Erreur lors de la préparation de l\'email. Veuillez réessayer.');
