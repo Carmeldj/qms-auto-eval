@@ -255,12 +255,26 @@ const OrdonnancierModule: React.FC = () => {
       );
 
       // Télécharger le PDF
-      const fileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.pdf`;
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(pdfBlob);
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(link.href);
+      const pdfFileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.pdf`;
+      const pdfLink = document.createElement('a');
+      pdfLink.href = URL.createObjectURL(pdfBlob);
+      pdfLink.download = pdfFileName;
+      pdfLink.click();
+      URL.revokeObjectURL(pdfLink.href);
+
+      // Générer et télécharger automatiquement le fichier Excel
+      const excelBlob = ordonnancierService.generateTrimesterExcel(
+        filteredEntries,
+        selectedTrimester,
+        selectedYear,
+        finalPharmacyName
+      );
+      const excelFileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.csv`;
+      const excelLink = document.createElement('a');
+      excelLink.href = URL.createObjectURL(excelBlob);
+      excelLink.download = excelFileName;
+      excelLink.click();
+      URL.revokeObjectURL(excelLink.href);
 
       // Préparer le message email
       const subject = `Rapport Trimestriel Ordonnancier - T${selectedTrimester} ${selectedYear}`;
@@ -280,14 +294,15 @@ const OrdonnancierModule: React.FC = () => {
         reportConfig.pharmacistName
       ].join('\n');
 
-      // Ouvrir Gmail avec l'email de destination pré-rempli
+      // Ouvrir Gmail avec l'email de destination pré-rempli et copie
       const recipientEmail = 'ssmur.abmed@gouv.bj';
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const ccEmail = 'contact.abmed@gouv.bj';
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&cc=${encodeURIComponent(ccEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(gmailUrl, '_blank');
 
       setShowReportConfig(false);
       setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
-      alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF avant l\'envoi.');
+      alert('Les rapports PDF et Excel ont été téléchargés et Gmail a été ouvert. N\'oubliez pas d\'attacher les fichiers avant l\'envoi.');
     } catch (error) {
       console.error('Error preparing email:', error);
       alert('Erreur lors de la préparation de l\'email. Veuillez réessayer.');
