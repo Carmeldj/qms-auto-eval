@@ -281,7 +281,7 @@ const OrdonnancierModule: React.FC = () => {
       ].join('\n');
 
       // Ouvrir Gmail avec l'email de destination pré-rempli
-      const recipientEmail = 'agence.medicament@gouv.bj';
+      const recipientEmail = 'ssmur.abmed@gouv.bj';
       const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(gmailUrl, '_blank');
 

@@ -98,10 +98,19 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Destinataires officiels ABMed
+    const recipients = ['ssmur.abmed@gouv.bj'];
+    const ccRecipients = ['contact.abmed@gouv.bj'];
+
+    // Ajouter l'email du notificateur en copie si fourni
+    if (data.notifierEmail) {
+      ccRecipients.push(data.notifierEmail);
+    }
+
     const emailPayload: any = {
       from: 'Pharmacovigilance <pharmacovigilance@notifications.gouv.local>',
-      to: [data.recipientEmail],
-      cc: data.notifierEmail ? [data.notifierEmail] : [],
+      to: recipients,
+      cc: ccRecipients,
       subject: `[Pharmacovigilance] Notification d'Effet Indésirable - ${data.epidNumber}`,
       html: emailBody,
     };

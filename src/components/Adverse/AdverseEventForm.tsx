@@ -39,7 +39,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
   const [savedReport, setSavedReport] = useState<AdverseEventReport | null>(
     null
   );
-  const [recipientEmail, setRecipientEmail] = useState<string>("contact.abmed@gouv.bj");
+  const [recipientEmail, setRecipientEmail] = useState<string>("ssmur.abmed@gouv.bj");
   const { user } = useAuth();
   const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
 
