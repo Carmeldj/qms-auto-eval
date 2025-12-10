@@ -69,9 +69,14 @@ Deno.serve(async (req: Request) => {
         <strong>Documents joints:</strong>
       </p>
       <ul>
-        <li>Rapport détaillé au format PDF</li>
-        ${data.excelBase64 ? '<li>Données au format Excel (CSV)</li>' : ''}
+        <li>Rapport complet au format PDF (ANNEXE 1 - Carnet d'ordonnancier)</li>
+        ${data.excelBase64 ? '<li>Liste détaillée des produits au format Excel (format exploitable pour traitement)</li>' : ''}
       </ul>
+
+      <p style="margin-top: 15px; font-size: 12px; color: #666;">
+        <strong>Note:</strong> Conformément aux directives de l'ABMed, le point trimestriel des produits sous contrôle international
+        est transmis en format Excel pour faciliter le traitement et l'analyse des données.
+      </p>
 
       <p>Cordialement,<br>${data.pharmacieName}</p>
     </div>
@@ -118,7 +123,7 @@ Deno.serve(async (req: Request) => {
     // Ajouter le fichier Excel s'il est fourni
     if (data.excelBase64) {
       attachments.push({
-        filename: `rapport_ordonnancier_T${data.trimestre}_${data.annee}.csv`,
+        filename: `liste-detaillee-produits-souscontrole_T${data.trimestre}_${data.annee}.csv`,
         content: data.excelBase64,
       });
     }
