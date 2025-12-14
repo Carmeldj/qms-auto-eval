@@ -187,11 +187,11 @@ export default function WasteManagementModule() {
             'Cordialement,'
         ].join('\n');
 
-        // Ouvrir Gmail
-        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(gmailUrl, '_blank');
+        // Ouvrir le client email par défaut (compatible mobile et desktop)
+        const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailtoUrl;
 
-        alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF et de saisir l\'adresse email de l\'agence du médicament.');
+        alert('Le rapport PDF a été téléchargé et votre client email a été ouvert. N\'oubliez pas d\'attacher le PDF et de saisir l\'adresse email de l\'agence du médicament.');
     };
 
     const generatePDFBlob = (entries: PharmaceuticalWasteEntry[]): Blob => {
