@@ -42,7 +42,7 @@ const OrdonnancierModule: React.FC = () => {
     dateDelivrance: new Date().toISOString().split('T')[0],
     prescripteur: { nomPrenoms: '', numeroOrdre: '' },
     patient: { nomPrenoms: '', adresse: '' },
-    produit: { nature: '', dose: '', quantite: 1 },
+    produit: { nature: '', dci: '', dose: '', quantite: 1 },
     prixVente: 0,
     pharmacien: { nom: '', signature: '' }
   });
@@ -122,6 +122,7 @@ const OrdonnancierModule: React.FC = () => {
           },
           produit: {
             nature: item.produit_nature,
+            dci: item.produit_dci || '',
             dose: item.produit_dose,
             quantite: item.produit_quantite
           },
@@ -162,6 +163,20 @@ const OrdonnancierModule: React.FC = () => {
     // Ouvrir le modal de configuration
     setReportAction('download');
     setShowReportConfig(true);
+  };
+
+  const handleDownloadExcel = async () => {
+    try {
+      await ordonnancierService.downloadTrimesterExcel(
+        filteredEntries,
+        selectedTrimester,
+        selectedYear,
+        pharmacyName || ''
+      );
+    } catch (error) {
+      console.error('Error generating Excel:', error);
+      alert('Erreur lors de la génération du fichier Excel');
+    }
   };
 
   const executeDownloadPDF = async () => {
@@ -240,12 +255,26 @@ const OrdonnancierModule: React.FC = () => {
       );
 
       // Télécharger le PDF
-      const fileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.pdf`;
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(pdfBlob);
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(link.href);
+      const pdfFileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.pdf`;
+      const pdfLink = document.createElement('a');
+      pdfLink.href = URL.createObjectURL(pdfBlob);
+      pdfLink.download = pdfFileName;
+      pdfLink.click();
+      URL.revokeObjectURL(pdfLink.href);
+
+      // Générer et télécharger automatiquement le fichier Excel
+      const excelBlob = ordonnancierService.generateTrimesterExcel(
+        filteredEntries,
+        selectedTrimester,
+        selectedYear,
+        finalPharmacyName
+      );
+      const excelFileName = `rapport_ordonnancier_T${selectedTrimester}_${selectedYear}.csv`;
+      const excelLink = document.createElement('a');
+      excelLink.href = URL.createObjectURL(excelBlob);
+      excelLink.download = excelFileName;
+      excelLink.click();
+      URL.revokeObjectURL(excelLink.href);
 
       // Préparer le message email
       const subject = `Rapport Trimestriel Ordonnancier - T${selectedTrimester} ${selectedYear}`;
@@ -259,20 +288,21 @@ const OrdonnancierModule: React.FC = () => {
         `Nombre de délivrances: ${filteredEntries.length}`,
         `Période: ${TRIMESTRES[selectedTrimester - 1].label}`,
         '',
-        'Avant l\'expédition de ce mail, j\'ai vérifié que le rapport pdf complet est bien en pièce jointe et que l\'adresse email de votre agence est bien celle indiquée pour ce rapport. Je vous prie donc de recevoir nos salutations distinguées.',
+        'Avant l\'expédition de ce mail, j\'ai vérifié que le rapport EXCEL complet est bien en pièce jointe et que l\'adresse email de votre agence est bien celle indiquée pour ce rapport. Je vous prie donc de recevoir nos salutations distinguées.',
         '',
         'Cordialement,',
         reportConfig.pharmacistName
       ].join('\n');
 
-      // Ouvrir Gmail avec l'email de destination pré-rempli
-      const recipientEmail = 'agence.medicament@gouv.bj';
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.open(gmailUrl, '_blank');
+      // Ouvrir le client email par défaut avec l'email pré-rempli (compatible mobile et desktop)
+      const recipientEmail = 'ssmur.abmed@gouv.bj';
+      const ccEmail = 'contact.abmed@gouv.bj';
+      const mailtoUrl = `mailto:${encodeURIComponent(recipientEmail)}?cc=${encodeURIComponent(ccEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoUrl;
 
       setShowReportConfig(false);
       setReportConfig({ pharmacistName: '', signatureImage: undefined, stampImage: undefined, pharmacyName: '', pharmacyEmail: '' });
-      alert('Le rapport PDF a été téléchargé et Gmail a été ouvert. N\'oubliez pas d\'attacher le PDF avant l\'envoi.');
+      alert('Les rapports PDF et Excel ont été téléchargés et votre client email a été ouvert. N\'oubliez pas d\'attacher les fichiers avant l\'envoi.');
     } catch (error) {
       console.error('Error preparing email:', error);
       alert('Erreur lors de la préparation de l\'email. Veuillez réessayer.');
@@ -389,6 +419,7 @@ const OrdonnancierModule: React.FC = () => {
         patient_nom_prenoms: formData.patient!.nomPrenoms,
         patient_adresse: formData.patient!.adresse,
         produit_nature: formData.produit!.nature,
+        produit_dci: formData.produit!.dci,
         produit_dose: formData.produit!.dose,
         produit_quantite: formData.produit!.quantite,
         prix_vente: formData.prixVente,
@@ -439,7 +470,7 @@ const OrdonnancierModule: React.FC = () => {
           dateDelivrance: new Date().toISOString().split('T')[0],
           prescripteur: { nomPrenoms: '', numeroOrdre: '' },
           patient: { nomPrenoms: '', adresse: '' },
-          produit: { nature: '', dose: '', quantite: 1 },
+          produit: { nature: '', dci: '', dose: '', quantite: 1 },
           prixVente: 0,
           pharmacien: { nom: '', signature: '' }
         });
@@ -567,6 +598,7 @@ const OrdonnancierModule: React.FC = () => {
                     <div><span className="font-medium text-gray-700">Prescripteur:</span> {entry.prescripteur.nomPrenoms} {entry.prescripteur.numeroOrdre && `(N°${entry.prescripteur.numeroOrdre})`}</div>
                     <div><span className="font-medium text-gray-700">Patient:</span> {entry.patient.nomPrenoms}</div>
                     <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
+                    {entry.produit.dci && <div><span className="font-medium text-gray-700">DCI:</span> {entry.produit.dci}</div>}
                     <div><span className="font-medium text-gray-700">Pharmacien:</span> {entry.pharmacien.nom} {entry.pharmacien.signature && `(N°${entry.pharmacien.signature})`}</div>
                     <div className="flex justify-between">
                       <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
@@ -766,6 +798,22 @@ const OrdonnancierModule: React.FC = () => {
                     />
                   )}
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dénomination Commune Internationale (DCI) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="ex: Morphine sulfate, Codéine phosphate..."
+                  value={formData.produit?.dci}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    produit: { ...formData.produit!, dci: e.target.value }
+                  })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
@@ -1123,6 +1171,7 @@ const OrdonnancierModule: React.FC = () => {
                     <div><span className="font-medium text-gray-700">Prescripteur:</span> {entry.prescripteur.nomPrenoms} {entry.prescripteur.numeroOrdre && `(N°${entry.prescripteur.numeroOrdre})`}</div>
                     <div><span className="font-medium text-gray-700">Patient:</span> {entry.patient.nomPrenoms}</div>
                     <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
+                    {entry.produit.dci && <div><span className="font-medium text-gray-700">DCI:</span> {entry.produit.dci}</div>}
                     <div><span className="font-medium text-gray-700">Pharmacien:</span> {entry.pharmacien.nom} {entry.pharmacien.signature && `(N°${entry.pharmacien.signature})`}</div>
                     <div className="flex justify-between">
                       <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
@@ -1154,6 +1203,13 @@ const OrdonnancierModule: React.FC = () => {
               >
                 <Download className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Télécharger PDF</span>
+              </button>
+              <button
+                onClick={handleDownloadExcel}
+                className="flex items-center justify-center space-x-2 bg-emerald-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-emerald-700 text-sm sm:text-base"
+              >
+                <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span>Télécharger Excel</span>
               </button>
               <button
                 onClick={handleSendEmail}

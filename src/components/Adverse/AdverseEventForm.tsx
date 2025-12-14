@@ -39,7 +39,7 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
   const [savedReport, setSavedReport] = useState<AdverseEventReport | null>(
     null
   );
-  const [recipientEmail, setRecipientEmail] = useState<string>("contact.abmed@gouv.bj");
+  const [recipientEmail, setRecipientEmail] = useState<string>("ssmur.abmed@gouv.bj");
   const { user } = useAuth();
   const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
 
@@ -326,10 +326,10 @@ const AdverseEventForm: React.FC<AdverseEventFormProps> = ({ onCancel }) => {
         `${notifier.fullName}`,
       ].join("\n");
 
-      // Ouvrir Gmail avec le message pré-rempli (sans destinataire, l'utilisateur le remplira)
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      // Ouvrir le client email par défaut avec le message pré-rempli (compatible mobile et desktop)
+      const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-      window.open(gmailUrl, "_blank");
+      window.location.href = mailtoUrl;
 
       setShowEmailModal(false);
       setShowSuccessModal(true);
