@@ -1,5 +1,7 @@
-import jsPDF from 'jspdf';
-import { signatureGenerator } from './SignatureGenerator';
+import jsPDF from "jspdf";
+import { signatureGenerator } from "./SignatureGenerator";
+import { generateUploadAndDownloadPDF } from "../utils/pdfUploadHelper";
+import { DocumentAccessLevel, DocumentStatus } from "../types/documents";
 
 export interface CAPAAction {
   id: string;
@@ -23,7 +25,7 @@ export interface CAPAFormData {
 
 class CAPAService {
   generateCAPA(data: CAPAFormData): void {
-    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const pdf = new jsPDF("landscape", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 15;
@@ -43,18 +45,20 @@ class CAPAService {
     // Texte "LOGO" au centre
     pdf.setFontSize(10);
     pdf.setTextColor(0, 0, 0);
-    pdf.text('LOGO', logoX + logoWidth / 2, logoY + logoHeight / 2, { align: 'center' });
+    pdf.text("LOGO", logoX + logoWidth / 2, logoY + logoHeight / 2, {
+      align: "center",
+    });
 
     // Titre à droite du logo
     const titleX = logoX + logoWidth + 5;
     pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont("helvetica", "bold");
     pdf.setTextColor(0, 0, 0);
-    pdf.text('PLAN CAPA', titleX, logoY + 8);
+    pdf.text("PLAN CAPA", titleX, logoY + 8);
 
     pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('(Actions Correctives et Préventives)', titleX, logoY + 14);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("(Actions Correctives et Préventives)", titleX, logoY + 14);
 
     pdf.setFontSize(10);
     pdf.setTextColor(100, 100, 100);
@@ -64,26 +68,26 @@ class CAPAService {
 
     // Informations générales
     pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont("helvetica", "bold");
     pdf.setTextColor(0, 0, 0);
 
     const infoLeftX = margin;
     const infoRightX = pageWidth / 2 + 5;
 
-    pdf.text('Date de création:', infoLeftX, yPosition);
-    pdf.setFont('helvetica', 'normal');
+    pdf.text("Date de création:", infoLeftX, yPosition);
+    pdf.setFont("helvetica", "normal");
     pdf.text(data.dateCreation, infoLeftX + 35, yPosition);
 
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Période concernée:', infoRightX, yPosition);
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Période concernée:", infoRightX, yPosition);
+    pdf.setFont("helvetica", "normal");
     pdf.text(data.periode, infoRightX + 40, yPosition);
 
     yPosition += 7;
 
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Responsable Qualité:', infoLeftX, yPosition);
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Responsable Qualité:", infoLeftX, yPosition);
+    pdf.setFont("helvetica", "normal");
     pdf.text(data.responsableQualite, infoLeftX + 45, yPosition);
 
     yPosition += 12;
@@ -96,31 +100,37 @@ class CAPAService {
 
     // En-têtes du tableau
     pdf.setTextColor(0, 0, 0);
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(8);
 
     const headers = [
-      'PROBLÈME\nIDENTIFIÉ',
-      'CAUSE\nRACINE',
-      'ACTION\nCORRECTIVE',
-      'ACTION\nPRÉVENTIVE',
-      'RESPONSABLE',
-      'DÉLAI',
-      'STATUT',
-      'VÉRIFICATION'
+      "PROBLÈME\nIDENTIFIÉ",
+      "CAUSE\nRACINE",
+      "ACTION\nCORRECTIVE",
+      "ACTION\nPRÉVENTIVE",
+      "RESPONSABLE",
+      "DÉLAI",
+      "STATUT",
+      "VÉRIFICATION",
     ];
 
     let xPos = margin;
     headers.forEach((header, i) => {
       pdf.setDrawColor(0, 0, 0);
-      pdf.rect(xPos, yPosition, colWidths[i], headerHeight, 'S');
+      pdf.rect(xPos, yPosition, colWidths[i], headerHeight, "S");
 
-      const lines = header.split('\n');
+      const lines = header.split("\n");
       const lineHeight = 4;
-      const startY = yPosition + (headerHeight - lines.length * lineHeight) / 2 + 3;
+      const startY =
+        yPosition + (headerHeight - lines.length * lineHeight) / 2 + 3;
 
       lines.forEach((line, lineIndex) => {
-        pdf.text(line, xPos + colWidths[i] / 2, startY + lineIndex * lineHeight, { align: 'center' });
+        pdf.text(
+          line,
+          xPos + colWidths[i] / 2,
+          startY + lineIndex * lineHeight,
+          { align: "center" }
+        );
       });
 
       xPos += colWidths[i];
@@ -129,7 +139,7 @@ class CAPAService {
     yPosition += headerHeight;
 
     // Lignes de données
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(7);
     pdf.setTextColor(0, 0, 0);
 
@@ -149,14 +159,14 @@ class CAPAService {
         action.responsable,
         action.delai,
         action.statut,
-        action.verification
+        action.verification,
       ];
 
       rowData.forEach((text, i) => {
         pdf.setDrawColor(0, 0, 0);
-        pdf.rect(xPos, yPosition, colWidths[i], rowHeight, 'S');
+        pdf.rect(xPos, yPosition, colWidths[i], rowHeight, "S");
 
-        const lines = pdf.splitTextToSize(text || '-', colWidths[i] - 2);
+        const lines = pdf.splitTextToSize(text || "-", colWidths[i] - 2);
         pdf.text(lines.slice(0, 2), xPos + 1, yPosition + 4);
 
         xPos += colWidths[i];
@@ -174,8 +184,8 @@ class CAPAService {
     }
 
     pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('VALIDATION', margin, yPosition);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("VALIDATION", margin, yPosition);
 
     yPosition += 8;
 
@@ -187,52 +197,100 @@ class CAPAService {
     pdf.setLineWidth(0.3);
     pdf.rect(margin, yPosition, signatureBoxWidth, signatureBoxHeight);
 
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(9);
-    pdf.text('Responsable Qualité:', margin + 2, yPosition + 5);
-    pdf.setFont('helvetica', 'normal');
+    pdf.text("Responsable Qualité:", margin + 2, yPosition + 5);
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
-    pdf.text('Date: ________________', margin + 2, yPosition + 11);
+    pdf.text("Date: ________________", margin + 2, yPosition + 11);
 
     // Add signature for Responsable Qualité
     try {
-      const qualitySignature = signatureGenerator.generateSignature('Responsable Qualité', 250, 80);
-      pdf.addImage(qualitySignature, 'PNG', margin + 2, yPosition + 12, 25, 6, undefined, 'FAST');
+      const qualitySignature = signatureGenerator.generateSignature(
+        "Responsable Qualité",
+        250,
+        80
+      );
+      pdf.addImage(
+        qualitySignature,
+        "PNG",
+        margin + 2,
+        yPosition + 12,
+        25,
+        6,
+        undefined,
+        "FAST"
+      );
     } catch (error) {
-      console.error('Failed to generate signature:', error);
-      pdf.text('Signature:', margin + 2, yPosition + 17);
+      console.error("Failed to generate signature:", error);
+      pdf.text("Signature:", margin + 2, yPosition + 17);
     }
 
     // Signature Pharmacien Titulaire
     const signatureRightX = margin + signatureBoxWidth + 10;
     pdf.rect(signatureRightX, yPosition, signatureBoxWidth, signatureBoxHeight);
 
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(9);
-    pdf.text('Pharmacien Titulaire:', signatureRightX + 2, yPosition + 5);
-    pdf.setFont('helvetica', 'normal');
+    pdf.text("Pharmacien Titulaire:", signatureRightX + 2, yPosition + 5);
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
-    pdf.text('Date: ________________', signatureRightX + 2, yPosition + 11);
+    pdf.text("Date: ________________", signatureRightX + 2, yPosition + 11);
 
     // Add signature for Pharmacien Titulaire
     try {
-      const pharmacienSignature = signatureGenerator.generateSignature('Pharmacien Titulaire', 250, 80);
-      pdf.addImage(pharmacienSignature, 'PNG', signatureRightX + 2, yPosition + 12, 25, 6, undefined, 'FAST');
+      const pharmacienSignature = signatureGenerator.generateSignature(
+        "Pharmacien Titulaire",
+        250,
+        80
+      );
+      pdf.addImage(
+        pharmacienSignature,
+        "PNG",
+        signatureRightX + 2,
+        yPosition + 12,
+        25,
+        6,
+        undefined,
+        "FAST"
+      );
     } catch (error) {
-      console.error('Failed to generate signature:', error);
-      pdf.text('Signature:', signatureRightX + 2, yPosition + 17);
+      console.error("Failed to generate signature:", error);
+      pdf.text("Signature:", signatureRightX + 2, yPosition + 17);
     }
 
     // Pied de page
     const footerY = pageHeight - margin + 5;
     pdf.setFontSize(7);
     pdf.setTextColor(100, 100, 100);
-    pdf.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')}`, margin, footerY);
-    pdf.text('PHARMA QMS - Module Documents', pageWidth - margin, footerY, { align: 'right' });
+    pdf.text(
+      `Document généré le ${new Date().toLocaleDateString("fr-FR")}`,
+      margin,
+      footerY
+    );
+    pdf.text("PHARMA QMS - Module Documents", pageWidth - margin, footerY, {
+      align: "right",
+    });
 
     // Télécharger le PDF
-    const fileName = `Plan_CAPA_${data.pharmacyName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
+    const fileName = `Plan_CAPA_${data.pharmacyName.replace(/\s+/g, "_")}_${
+      new Date().toISOString().split("T")[0]
+    }.pdf`;
+
+    // Upload and download PDF
+    generateUploadAndDownloadPDF(pdf, fileName, {
+      title: `Plan CAPA - ${data.pharmacyName}`,
+      type: "CAPA",
+      category: "Documents",
+      description: `Plan d'actions correctives et préventives - ${data.periode}`,
+      author: data.responsableQualite || "Système",
+      version: "1.0",
+      accessLevel: DocumentAccessLevel.RESTRICTED,
+      status: DocumentStatus.DRAFT,
+      tags: ["capa", "plan-action", "qualité"],
+    }).catch((error) => {
+      console.error("Error uploading CAPA:", error);
+    });
   }
 }
 

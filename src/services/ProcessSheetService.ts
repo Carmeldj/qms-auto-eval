@@ -1,5 +1,7 @@
 import jsPDF from "jspdf";
 import { ProcessSheet } from "../types/documents";
+import { generateUploadAndDownloadPDF } from "../utils/pdfUploadHelper";
+import { DocumentAccessLevel, DocumentStatus } from "../types/documents";
 
 export class ProcessSheetService {
   static generatePDF(processSheet: ProcessSheet): void {
@@ -279,6 +281,20 @@ export class ProcessSheetService {
     const fileName = `Fiche_Processus_${
       processSheet.processCode
     }_${processSheet.pharmacyName.replace(/\s+/g, "_")}.pdf`;
-    doc.save(fileName);
+
+    // Upload and download PDF
+    generateUploadAndDownloadPDF(doc, fileName, {
+      title: `Fiche Processus - ${processSheet.processCode}`,
+      type: "Fiche de processus",
+      category: "Processus",
+      description: `Fiche descriptive du processus ${processSheet.processName}`,
+      author: "Système",
+      version: processSheet.version || "1.0",
+      accessLevel: DocumentAccessLevel.RESTRICTED,
+      status: DocumentStatus.DRAFT,
+      tags: ["processus", "fiche"],
+    }).catch((error) => {
+      console.error("Error uploading process sheet:", error);
+    });
   }
 }

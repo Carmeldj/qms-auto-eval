@@ -1,4 +1,6 @@
-import jsPDF from 'jspdf';
+import jsPDF from "jspdf";
+import { generateUploadAndDownloadPDF } from "../utils/pdfUploadHelper";
+import { DocumentAccessLevel, DocumentStatus } from "../types/documents";
 
 interface QualityManualData {
   pharmacyName: string;
@@ -83,9 +85,14 @@ export class QualityManualService {
       return false;
     };
 
-    const addText = (text: string, fontSize: number, style: 'normal' | 'bold' = 'normal', color: [number, number, number] = [0, 0, 0]) => {
+    const addText = (
+      text: string,
+      fontSize: number,
+      style: "normal" | "bold" = "normal",
+      color: [number, number, number] = [0, 0, 0]
+    ) => {
       doc.setFontSize(fontSize);
-      doc.setFont('helvetica', style);
+      doc.setFont("helvetica", style);
       doc.setTextColor(color[0], color[1], color[2]);
 
       const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
@@ -97,23 +104,23 @@ export class QualityManualService {
     };
 
     const addSection = (title: string, content: string) => {
-      if (!content || content.trim() === '') return;
+      if (!content || content.trim() === "") return;
 
       addNewPageIfNeeded(15);
       yPos += 5;
 
       doc.setFillColor(0, 150, 136);
-      doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 10, 'F');
+      doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 10, "F");
 
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.text(title, margin + 3, yPos + 2);
 
       yPos += 10;
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
 
       const lines = doc.splitTextToSize(content, pageWidth - 2 * margin);
       lines.forEach((line: string) => {
@@ -127,31 +134,35 @@ export class QualityManualService {
 
     // Page de garde
     doc.setFillColor(0, 150, 136);
-    doc.rect(0, 0, pageWidth, 80, 'F');
+    doc.rect(0, 0, pageWidth, 80, "F");
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(28);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MANUEL QUALITÉ', pageWidth / 2, 35, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text("MANUEL QUALITÉ", pageWidth / 2, 35, { align: "center" });
 
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Système de Management de la Qualité', pageWidth / 2, 50, { align: 'center' });
+    doc.setFont("helvetica", "normal");
+    doc.text("Système de Management de la Qualité", pageWidth / 2, 50, {
+      align: "center",
+    });
 
     doc.setFontSize(14);
-    doc.text(data.pharmacyName || 'Pharmacie', pageWidth / 2, 65, { align: 'center' });
+    doc.text(data.pharmacyName || "Pharmacie", pageWidth / 2, 65, {
+      align: "center",
+    });
 
     yPos = 100;
 
     // Informations générales
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('INFORMATIONS GÉNÉRALES', margin, yPos);
+    doc.setFont("helvetica", "bold");
+    doc.text("INFORMATIONS GÉNÉRALES", margin, yPos);
     yPos += 10;
 
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     if (data.address) {
       doc.text(`Adresse : ${data.address}`, margin, yPos);
@@ -184,7 +195,11 @@ export class QualityManualService {
     doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 10;
 
-    doc.text(`Date d'édition : ${new Date().toLocaleDateString('fr-FR')}`, margin, yPos);
+    doc.text(
+      `Date d'édition : ${new Date().toLocaleDateString("fr-FR")}`,
+      margin,
+      yPos
+    );
     yPos += 7;
     doc.text(`Version : 1.0`, margin, yPos);
     yPos += 15;
@@ -194,29 +209,29 @@ export class QualityManualService {
     yPos = margin;
 
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('TABLE DES MATIÈRES', pageWidth / 2, yPos, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text("TABLE DES MATIÈRES", pageWidth / 2, yPos, { align: "center" });
     yPos += 15;
 
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     const chapters = [
-      '1. Présentation de l\'Entreprise',
-      '2. Politique et Objectifs Qualité',
-      '3. Système de Management de la Qualité',
-      '4. Organisation et Responsabilités',
-      '5. Système Documentaire',
-      '6. Ressources Humaines',
-      '7. Infrastructures et Équipements',
-      '8. Processus de Réalisation',
-      '9. Surveillance et Vigilance',
-      '10. Audits et Non-conformités',
-      '11. Mesure et Amélioration Continue',
-      'Annexes'
+      "1. Présentation de l'Entreprise",
+      "2. Politique et Objectifs Qualité",
+      "3. Système de Management de la Qualité",
+      "4. Organisation et Responsabilités",
+      "5. Système Documentaire",
+      "6. Ressources Humaines",
+      "7. Infrastructures et Équipements",
+      "8. Processus de Réalisation",
+      "9. Surveillance et Vigilance",
+      "10. Audits et Non-conformités",
+      "11. Mesure et Amélioration Continue",
+      "Annexes",
     ];
 
-    chapters.forEach(chapter => {
+    chapters.forEach((chapter) => {
       doc.text(chapter, margin + 5, yPos);
       yPos += 8;
     });
@@ -227,240 +242,281 @@ export class QualityManualService {
 
     // Chapitre 1 - Présentation de l'Entreprise
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 1', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 1", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('PRÉSENTATION DE L\'ENTREPRISE', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("PRÉSENTATION DE L'ENTREPRISE", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('1.1 Historique et dates clés', data.history);
-    addSection('1.2 Sites et implantations', data.sites);
-    addSection('1.3 Chiffres clés', data.keyFigures);
-    addSection('1.4 Mission de l\'entreprise', data.mission);
-    addSection('1.5 Valeurs de l\'entreprise', data.values);
-    addSection('1.6 Activités, produits et services', data.activities);
-    addSection('1.7 Organigramme', data.organigram);
-    addSection('1.8 Référentiels et certifications', data.certifications);
-    addSection('1.9 Périmètre d\'application', data.applicationScope);
-    addSection('1.10 Exclusions', data.exclusions);
+    addSection("1.1 Historique et dates clés", data.history);
+    addSection("1.2 Sites et implantations", data.sites);
+    addSection("1.3 Chiffres clés", data.keyFigures);
+    addSection("1.4 Mission de l'entreprise", data.mission);
+    addSection("1.5 Valeurs de l'entreprise", data.values);
+    addSection("1.6 Activités, produits et services", data.activities);
+    addSection("1.7 Organigramme", data.organigram);
+    addSection("1.8 Référentiels et certifications", data.certifications);
+    addSection("1.9 Périmètre d'application", data.applicationScope);
+    addSection("1.10 Exclusions", data.exclusions);
 
     // Chapitre 2 - Politique et Objectifs Qualité
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 2', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 2", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('POLITIQUE ET OBJECTIFS QUALITÉ', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("POLITIQUE ET OBJECTIFS QUALITÉ", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('2.1 Politique Qualité', data.qualityPolicy);
-    addSection('2.2 Objectifs Qualité', data.qualityObjectives);
+    addSection("2.1 Politique Qualité", data.qualityPolicy);
+    addSection("2.2 Objectifs Qualité", data.qualityObjectives);
 
     // Chapitre 3 - Système de Management de la Qualité
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 3', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 3", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('SYSTÈME DE MANAGEMENT DE LA QUALITÉ', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("SYSTÈME DE MANAGEMENT DE LA QUALITÉ", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('3.1 Cartographie des processus', data.processMapping);
-    addSection('3.2 Description des processus', '');
-    if (data.managementProcesses || data.realizationProcesses || data.supportProcesses) {
-      addSection('3.2.a Processus de management', data.managementProcesses);
-      addSection('3.2.b Processus de réalisation', data.realizationProcesses);
-      addSection('3.2.c Processus support', data.supportProcesses);
+    addSection("3.1 Cartographie des processus", data.processMapping);
+    addSection("3.2 Description des processus", "");
+    if (
+      data.managementProcesses ||
+      data.realizationProcesses ||
+      data.supportProcesses
+    ) {
+      addSection("3.2.a Processus de management", data.managementProcesses);
+      addSection("3.2.b Processus de réalisation", data.realizationProcesses);
+      addSection("3.2.c Processus support", data.supportProcesses);
     }
-    addSection('3.3 Pilotage des processus', data.processMonitoring);
-    addSection('3.3.a Audit interne', data.internalAuditsProcess);
-    addSection('3.3.b Revue de processus', data.processReview);
-    addSection('3.3.c Revue de direction', data.managementReviewProcess);
+    addSection("3.3 Pilotage des processus", data.processMonitoring);
+    addSection("3.3.a Audit interne", data.internalAuditsProcess);
+    addSection("3.3.b Revue de processus", data.processReview);
+    addSection("3.3.c Revue de direction", data.managementReviewProcess);
 
     // Chapitre 4 - Organisation et Responsabilités
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 4', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 4", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('ORGANISATION ET RESPONSABILITÉS', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("ORGANISATION ET RESPONSABILITÉS", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('4.1 Structure Organisationnelle', data.organizationalStructure);
-    addSection('4.2 Rôles et Responsabilités', data.rolesResponsibilities);
+    addSection("4.1 Structure Organisationnelle", data.organizationalStructure);
+    addSection("4.2 Rôles et Responsabilités", data.rolesResponsibilities);
 
     // Chapitre 5 - Système Documentaire
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 5', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 5", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('SYSTÈME DOCUMENTAIRE', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("SYSTÈME DOCUMENTAIRE", pageWidth / 2, yPos, { align: "center" });
     yPos += 12;
 
-    addSection('5.1 Présentation du système documentaire', data.documentarySystem);
-    addSection('5.2 Gestion du système documentaire', '');
-    addSection('5.2.a Contrôle des Documents', data.documentControl);
-    addSection('5.2.b Gestion des Enregistrements', data.recordsManagement);
+    addSection(
+      "5.1 Présentation du système documentaire",
+      data.documentarySystem
+    );
+    addSection("5.2 Gestion du système documentaire", "");
+    addSection("5.2.a Contrôle des Documents", data.documentControl);
+    addSection("5.2.b Gestion des Enregistrements", data.recordsManagement);
 
     // Chapitre 6 - Ressources Humaines
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 6', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 6", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('RESSOURCES HUMAINES', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("RESSOURCES HUMAINES", pageWidth / 2, yPos, { align: "center" });
     yPos += 12;
 
-    addSection('6.1 Gestion du Personnel', data.humanResources);
-    addSection('6.2 Programme de Formation', data.trainingProgram);
+    addSection("6.1 Gestion du Personnel", data.humanResources);
+    addSection("6.2 Programme de Formation", data.trainingProgram);
 
     // Chapitre 7 - Infrastructures et Équipements
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 7', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 7", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('INFRASTRUCTURES ET ÉQUIPEMENTS', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("INFRASTRUCTURES ET ÉQUIPEMENTS", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('7.1 Locaux et Infrastructure', data.infrastructure);
-    addSection('7.2 Maintenance des Équipements', data.equipmentMaintenance);
+    addSection("7.1 Locaux et Infrastructure", data.infrastructure);
+    addSection("7.2 Maintenance des Équipements", data.equipmentMaintenance);
 
     // Chapitre 8 - Processus de Réalisation
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 8', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 8", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('PROCESSUS DE RÉALISATION', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("PROCESSUS DE RÉALISATION", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('8.1 Réception et Contrôle', data.receptionControl);
-    addSection('8.2 Conditions de Stockage', data.storageConditions);
-    addSection('8.3 Processus de Dispensation', data.dispensingProcess);
+    addSection("8.1 Réception et Contrôle", data.receptionControl);
+    addSection("8.2 Conditions de Stockage", data.storageConditions);
+    addSection("8.3 Processus de Dispensation", data.dispensingProcess);
 
     // Chapitre 9 - Surveillance et Vigilance
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 9', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 9", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('SURVEILLANCE ET VIGILANCE', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("SURVEILLANCE ET VIGILANCE", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('9.1 Pharmacovigilance', data.pharmacovigilance);
-    addSection('9.2 Gestion des Réclamations', data.complaints);
+    addSection("9.1 Pharmacovigilance", data.pharmacovigilance);
+    addSection("9.2 Gestion des Réclamations", data.complaints);
 
     // Chapitre 10 - Audits et Non-conformités
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 10', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 10", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('AUDITS ET NON-CONFORMITÉS', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("AUDITS ET NON-CONFORMITÉS", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('10.1 Audits Internes', data.internalAudits);
-    addSection('10.2 Gestion des Non-conformités', data.nonConformities);
-    addSection('10.3 Actions Correctives et Préventives', data.capaProcess);
+    addSection("10.1 Audits Internes", data.internalAudits);
+    addSection("10.2 Gestion des Non-conformités", data.nonConformities);
+    addSection("10.3 Actions Correctives et Préventives", data.capaProcess);
 
     // Chapitre 11 - Mesure et Amélioration Continue
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('CHAPITRE 11', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("CHAPITRE 11", pageWidth / 2, yPos, { align: "center" });
     yPos += 7;
-    doc.text('MESURE ET AMÉLIORATION CONTINUE', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("MESURE ET AMÉLIORATION CONTINUE", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 12;
 
-    addSection('11.1 Indicateurs de Performance', data.kpis);
-    addSection('11.2 Revue de Direction', data.managementReview);
-    addSection('11.3 Amélioration Continue', data.continuousImprovement);
+    addSection("11.1 Indicateurs de Performance", data.kpis);
+    addSection("11.2 Revue de Direction", data.managementReview);
+    addSection("11.3 Amélioration Continue", data.continuousImprovement);
 
     // Annexes
     addNewPageIfNeeded(30);
     yPos += 10;
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 150, 136);
-    doc.text('ANNEXES', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("ANNEXES", pageWidth / 2, yPos, { align: "center" });
     yPos += 12;
 
-    addSection('Annexe 1 - Références normatives', data.normativeReferences);
-    addSection('Annexe 2 - Abréviations', data.abbreviations);
+    addSection("Annexe 1 - Références normatives", data.normativeReferences);
+    addSection("Annexe 2 - Abréviations", data.abbreviations);
 
     // Page finale - Approbation
     doc.addPage();
     yPos = margin + 40;
 
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
-    doc.text('APPROBATION ET VALIDATION', pageWidth / 2, yPos, { align: 'center' });
+    doc.text("APPROBATION ET VALIDATION", pageWidth / 2, yPos, {
+      align: "center",
+    });
     yPos += 20;
 
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Ce Manuel Qualité a été rédigé, vérifié et approuvé conformément aux exigences', pageWidth / 2, yPos, { align: 'center' });
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      "Ce Manuel Qualité a été rédigé, vérifié et approuvé conformément aux exigences",
+      pageWidth / 2,
+      yPos,
+      { align: "center" }
+    );
     yPos += 7;
-    doc.text('des Bonnes Pratiques de Pharmacie et du Système de Management de la Qualité.', pageWidth / 2, yPos, { align: 'center' });
+    doc.text(
+      "des Bonnes Pratiques de Pharmacie et du Système de Management de la Qualité.",
+      pageWidth / 2,
+      yPos,
+      { align: "center" }
+    );
     yPos += 30;
 
     doc.line(margin, yPos, margin + 70, yPos);
     yPos += 5;
-    doc.text('Date', margin + 35, yPos, { align: 'center' });
+    doc.text("Date", margin + 35, yPos, { align: "center" });
     yPos += 15;
 
     doc.line(margin, yPos, margin + 70, yPos);
     yPos += 5;
-    doc.text('Pharmacien Titulaire', margin + 35, yPos, { align: 'center' });
+    doc.text("Pharmacien Titulaire", margin + 35, yPos, { align: "center" });
     yPos += 3;
-    doc.setFont('helvetica', 'bold');
-    doc.text(data.titulaire || '', margin + 35, yPos, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text(data.titulaire || "", margin + 35, yPos, { align: "center" });
 
     yPos -= 23;
     const rightMargin = pageWidth - margin - 70;
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     doc.line(rightMargin, yPos, rightMargin + 70, yPos);
     yPos += 5;
-    doc.text('Date', rightMargin + 35, yPos, { align: 'center' });
+    doc.text("Date", rightMargin + 35, yPos, { align: "center" });
     yPos += 15;
 
     doc.line(rightMargin, yPos, rightMargin + 70, yPos);
     yPos += 5;
-    doc.text('Responsable Qualité', rightMargin + 35, yPos, { align: 'center' });
+    doc.text("Responsable Qualité", rightMargin + 35, yPos, {
+      align: "center",
+    });
     yPos += 3;
-    doc.setFont('helvetica', 'bold');
-    doc.text(data.qualityManager || '', rightMargin + 35, yPos, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text(data.qualityManager || "", rightMargin + 35, yPos, {
+      align: "center",
+    });
 
     // Numérotation des pages
     const totalPages = doc.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setTextColor(128, 128, 128);
 
       if (i > 1) {
@@ -475,10 +531,28 @@ export class QualityManualService {
         `Page ${i} / ${totalPages}`,
         pageWidth - margin,
         pageHeight - 10,
-        { align: 'right' }
+        { align: "right" }
       );
     }
 
-    doc.save(`Manuel_Qualite_${data.pharmacyName.replace(/\s+/g, '_')}.pdf`);
+    const fileName = `Manuel_Qualite_${data.pharmacyName.replace(
+      /\s+/g,
+      "_"
+    )}.pdf`;
+
+    // Upload and download PDF
+    generateUploadAndDownloadPDF(doc, fileName, {
+      title: `Manuel Qualité - ${data.pharmacyName}`,
+      type: "Manuel Qualité",
+      category: "Documents",
+      description: "Manuel Qualité conforme ISO 9001",
+      author: data.qualityManager || data.titulaire || "Système",
+      version: "1.0",
+      accessLevel: DocumentAccessLevel.RESTRICTED,
+      status: DocumentStatus.DRAFT,
+      tags: ["manuel", "qualité", "iso-9001"],
+    }).catch((error) => {
+      console.error("Error uploading quality manual:", error);
+    });
   }
 }

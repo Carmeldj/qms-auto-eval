@@ -11,6 +11,8 @@ import {
 } from "../data/inspectionItems";
 import { generateRecommendations } from "../data/inspectionRecommendations";
 import jsPDF from "jspdf";
+import { generateUploadAndDownloadPDF } from "../utils/pdfUploadHelper";
+import { DocumentAccessLevel, DocumentStatus } from "../types/documents";
 
 export class InspectionReportService {
   private static instance: InspectionReportService;
@@ -862,7 +864,22 @@ export class InspectionReportService {
       const fileName = `auto-inspection-${safeName}-${
         new Date(report.date).toISOString().split("T")[0]
       }.pdf`;
-      pdf.save(fileName);
+
+      // Upload and download PDF
+      await generateUploadAndDownloadPDF(pdf, fileName, {
+        title: `Auto-inspection - ${report.pharmacyInfo.name}`,
+        type: "Inspection",
+        category: "Inspection",
+        description: `Rapport d'auto-inspection du ${new Date(
+          report.date
+        ).toLocaleDateString("fr-FR")}`,
+        author: report.pharmacistInfo.name || "Système",
+        version: "1.0",
+        accessLevel: DocumentAccessLevel.RESTRICTED,
+        status: DocumentStatus.DRAFT,
+        tags: ["inspection", "rapport", "auto-inspection"],
+      });
+
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
 

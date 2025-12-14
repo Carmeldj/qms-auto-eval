@@ -6,6 +6,8 @@ import {
 import jsPDF from "jspdf";
 import { signatureGenerator } from "./SignatureGenerator";
 import { missingProductsService } from "./MissingProductsService";
+import { generateUploadAndDownloadPDF } from "../utils/pdfUploadHelper";
+import { DocumentAccessLevel, DocumentStatus } from "../types/documents";
 
 export class TraceabilityService {
   private static instance: TraceabilityService;
@@ -64,7 +66,7 @@ export class TraceabilityService {
       await traceabilityRecordService.saveRecord(savedRecord);
 
       // Si c'est un registre de produits manquants, sauvegarder aussi dans la table dédiée
-      if (template.id === 'missing-products-tracking' && userEmail) {
+      if (template.id === "missing-products-tracking" && userEmail) {
         await missingProductsService.saveMissingProduct({
           user_email: userEmail,
           pharmacy_name: record.data.pharmacyName,
@@ -82,7 +84,7 @@ export class TraceabilityService {
           expected_delivery: record.data.expectedDelivery,
           reason: record.data.reason,
           observations: record.data.observations,
-          recorded_by: record.data.recordedBy
+          recorded_by: record.data.recordedBy,
         });
       }
 
@@ -175,7 +177,10 @@ export class TraceabilityService {
         const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
         maxHeaderLines = Math.max(maxHeaderLines, labelLines.length);
       });
-      const adjustedHeaderHeight = Math.max(headerRowHeight, maxHeaderLines * 4 + 2);
+      const adjustedHeaderHeight = Math.max(
+        headerRowHeight,
+        maxHeaderLines * 4 + 2
+      );
 
       fieldsToDisplay.forEach((field) => {
         pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
@@ -184,10 +189,11 @@ export class TraceabilityService {
         const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
 
         // Centrer verticalement le texte
-        const textStartY = yPos + (adjustedHeaderHeight - (labelLines.length * 4)) / 2 + 3;
+        const textStartY =
+          yPos + (adjustedHeaderHeight - labelLines.length * 4) / 2 + 3;
 
         labelLines.forEach((line: string, index: number) => {
-          pdf.text(line, xPos + colWidth / 2, textStartY + (index * 4), {
+          pdf.text(line, xPos + colWidth / 2, textStartY + index * 4, {
             align: "center",
             maxWidth: colWidth - 3,
           });
@@ -213,7 +219,10 @@ export class TraceabilityService {
       });
 
       // Hauteur dynamique basée sur le nombre de lignes
-      const dataRowHeight = Math.max(minDataRowHeight, maxDataLines * lineHeight + 2);
+      const dataRowHeight = Math.max(
+        minDataRowHeight,
+        maxDataLines * lineHeight + 2
+      );
 
       xPos = margin;
 
@@ -226,8 +235,8 @@ export class TraceabilityService {
 
         // Afficher toutes les lignes de texte
         valueLines.forEach((line: string, index: number) => {
-          pdf.text(line, xPos + 1.5, yPos + 3 + (index * lineHeight), {
-            maxWidth: colWidth - 3
+          pdf.text(line, xPos + 1.5, yPos + 3 + index * lineHeight, {
+            maxWidth: colWidth - 3,
           });
         });
 
@@ -456,7 +465,20 @@ export class TraceabilityService {
       const fileName = `registre-${safeTemplateTitle}-${
         new Date().toISOString().split("T")[0]
       }-${record.id}.pdf`;
-      pdf.save(fileName);
+
+      // Upload and download PDF
+      await generateUploadAndDownloadPDF(pdf, fileName, {
+        title: template.title,
+        type: "Traçabilité",
+        category: "Registres",
+        description: `Registre de traçabilité: ${template.title}`,
+        author: userEmail || "Système",
+        version: "1.0",
+        accessLevel: DocumentAccessLevel.RESTRICTED,
+        status: DocumentStatus.DRAFT,
+        tags: ["traçabilité", "registre", template.category],
+      });
+
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
     } catch (error) {
@@ -575,7 +597,10 @@ export class TraceabilityService {
         const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
         maxHeaderLines = Math.max(maxHeaderLines, labelLines.length);
       });
-      const adjustedHeaderHeight = Math.max(headerRowHeight, maxHeaderLines * 4 + 2);
+      const adjustedHeaderHeight = Math.max(
+        headerRowHeight,
+        maxHeaderLines * 4 + 2
+      );
 
       // En-têtes du tableau - SANS FOND DE COULEUR
       pdf.setDrawColor(0, 0, 0);
@@ -588,7 +613,12 @@ export class TraceabilityService {
 
       // Colonne Date
       pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
-      pdf.text("DATE", xPos + colWidth / 2, yPos + adjustedHeaderHeight / 2 + 2, { align: "center" });
+      pdf.text(
+        "DATE",
+        xPos + colWidth / 2,
+        yPos + adjustedHeaderHeight / 2 + 2,
+        { align: "center" }
+      );
       xPos += colWidth;
 
       // Autres colonnes avec titres complets
@@ -599,10 +629,11 @@ export class TraceabilityService {
         const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
 
         // Centrer verticalement le texte
-        const textStartY = yPos + (adjustedHeaderHeight - (labelLines.length * 4)) / 2 + 3;
+        const textStartY =
+          yPos + (adjustedHeaderHeight - labelLines.length * 4) / 2 + 3;
 
         labelLines.forEach((line: string, index: number) => {
-          pdf.text(line, xPos + colWidth / 2, textStartY + (index * 4), {
+          pdf.text(line, xPos + colWidth / 2, textStartY + index * 4, {
             align: "center",
             maxWidth: colWidth - 3,
           });
@@ -628,7 +659,10 @@ export class TraceabilityService {
           maxDataLines = Math.max(maxDataLines, valueLines.length);
         });
 
-        const currentRowHeight = Math.max(minDataRowHeight, maxDataLines * lineHeight + 2);
+        const currentRowHeight = Math.max(
+          minDataRowHeight,
+          maxDataLines * lineHeight + 2
+        );
 
         if (yPos + currentRowHeight > pageHeight - 30) {
           pdf.addPage("a4", "landscape");
@@ -643,17 +677,23 @@ export class TraceabilityService {
 
           xPos = margin;
           pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
-          pdf.text("DATE", xPos + colWidth / 2, yPos + adjustedHeaderHeight / 2 + 2, { align: "center" });
+          pdf.text(
+            "DATE",
+            xPos + colWidth / 2,
+            yPos + adjustedHeaderHeight / 2 + 2,
+            { align: "center" }
+          );
           xPos += colWidth;
 
           fieldsToDisplay.forEach((field) => {
             pdf.rect(xPos, yPos, colWidth, adjustedHeaderHeight);
             const labelLines = pdf.splitTextToSize(field.label, colWidth - 3);
 
-            const textStartY = yPos + (adjustedHeaderHeight - (labelLines.length * 4)) / 2 + 3;
+            const textStartY =
+              yPos + (adjustedHeaderHeight - labelLines.length * 4) / 2 + 3;
 
             labelLines.forEach((line: string, index: number) => {
-              pdf.text(line, xPos + colWidth / 2, textStartY + (index * 4), {
+              pdf.text(line, xPos + colWidth / 2, textStartY + index * 4, {
                 align: "center",
                 maxWidth: colWidth - 3,
               });
@@ -692,7 +732,7 @@ export class TraceabilityService {
 
           // Afficher toutes les lignes de texte
           valueLines.forEach((line: string, index: number) => {
-            pdf.text(line, xPos + 1.5, yPos + 3 + (index * lineHeight), {
+            pdf.text(line, xPos + 1.5, yPos + 3 + index * lineHeight, {
               maxWidth: colWidth - 3,
             });
           });
@@ -729,7 +769,20 @@ export class TraceabilityService {
       const fileName = `compilation-${template.id}-${year}-${String(
         month
       ).padStart(2, "0")}.pdf`;
-      pdf.save(fileName);
+
+      // Upload and download PDF
+      await generateUploadAndDownloadPDF(pdf, fileName, {
+        title: `Compilation mensuelle ${template.title}`,
+        type: "Compilation",
+        category: "Registres",
+        description: `Compilation mensuelle pour ${template.title} - ${month}/${year}`,
+        author: "Système",
+        version: "1.0",
+        accessLevel: DocumentAccessLevel.RESTRICTED,
+        status: DocumentStatus.DRAFT,
+        tags: ["compilation", "mensuel", template.category],
+      });
+
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
     } catch (error) {
