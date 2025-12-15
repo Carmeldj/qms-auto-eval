@@ -25,7 +25,9 @@ const Header: React.FC = () => {
   const navItems = useMemo(() => {
     // If subscription plan is 'essential', show only procedures
     if (subscriptionPlan === "essential") {
-      return allNavItems.filter((item) => item.id === "procedures");
+      return allNavItems.filter(
+        (item) => item.id === "procedures" || item.id === "documents"
+      );
     }
     // Otherwise, show all nav items
     return allNavItems;
