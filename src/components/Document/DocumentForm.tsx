@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { X, Download, AlertCircle, CheckCircle, FileText, MessageCircle } from "lucide-react";
+import {
+  X,
+  Download,
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  MessageCircle,
+} from "lucide-react";
 import {
   DocumentTemplate,
   DocumentAccessLevel,
@@ -23,7 +30,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
   const [isSharing, setIsSharing] = useState(false);
   const { user } = useAuth();
 
-  const isLiaisonBook = template.id === 'liaison-book';
+  const isLiaisonBook = template.id === "liaison-book";
 
   const handleInputChange = (fieldId: string, value: string) => {
     setFormData((prev) => ({
@@ -79,7 +86,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       const result = await documentService.generatePDF(template, documentData);
       const { blob, fileName } = result;
 
-      // Upload and save to API
+      // Upload and save to API (this already handles the download)
       await uploadAndSaveDocument(blob, fileName, {
         title: template.title,
         type: template.category,
@@ -95,13 +102,6 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         status: DocumentStatus.DRAFT,
         tags: [template.category, template.id],
       });
-
-      // Also trigger download for user
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Erreur lors de la génération du PDF");
@@ -128,7 +128,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       await shareToWhatsApp(template, documentData, formData);
     } catch (error: any) {
       console.error("Erreur partage WhatsApp:", error);
-      const errorMessage = error.message || "Erreur lors du partage WhatsApp. Veuillez réessayer.";
+      const errorMessage =
+        error.message || "Erreur lors du partage WhatsApp. Veuillez réessayer.";
       alert(errorMessage);
     } finally {
       setIsSharing(false);
@@ -324,14 +325,19 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
             <MessageCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                📱 Partage WhatsApp activé <span className="text-sm bg-green-600 text-white px-2 py-1 rounded-full">NOUVEAU</span>
+                📱 Partage WhatsApp activé{" "}
+                <span className="text-sm bg-green-600 text-white px-2 py-1 rounded-full">
+                  NOUVEAU
+                </span>
               </h3>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Comment ça marche :</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">
+                Comment ça marche :
+              </h4>
               <ol className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="font-bold text-green-600">1.</span>
@@ -357,16 +363,20 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Aperçu du message :</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">
+                Aperçu du message :
+              </h4>
               <div className="bg-white rounded-lg p-4 border border-gray-200 text-xs space-y-1">
                 <div className="font-bold">📋 *CAHIER DE LIAISON*</div>
                 <div className="text-gray-600">━━━━━━━━━━━━━━━━━</div>
                 <div>🏥 *Pharmacie Exemple*</div>
-                <div>📅 {new Date().toLocaleDateString('fr-FR')} à 10:00</div>
+                <div>📅 {new Date().toLocaleDateString("fr-FR")} à 10:00</div>
                 <div>✍️ Auteur: Dr. Martin</div>
                 <div className="text-gray-600">...</div>
                 <div>📄 *Document PDF:* [lien]</div>
-                <div className="italic text-gray-500">_Généré par PHARMA QMS_</div>
+                <div className="italic text-gray-500">
+                  _Généré par PHARMA QMS_
+                </div>
               </div>
             </div>
           </div>
@@ -408,9 +418,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
           >
             <MessageCircle className="h-5 w-5" />
             <span>
-              {isSharing
-                ? "Partage en cours..."
-                : "Partager sur WhatsApp"}
+              {isSharing ? "Partage en cours..." : "Partager sur WhatsApp"}
             </span>
           </button>
         )}
@@ -436,9 +444,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         >
           <Download className="h-5 w-5" />
           <span>
-            {isGenerating
-              ? "Génération en cours..."
-              : "Télécharger le PDF"}
+            {isGenerating ? "Génération en cours..." : "Télécharger le PDF"}
           </span>
         </button>
       </div>
