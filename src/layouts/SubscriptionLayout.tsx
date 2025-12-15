@@ -35,7 +35,24 @@ const SubscriptionLayout: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [isAuthenticated, isAuthLoading, checkSubscription]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isAuthLoading]);
+
+  // Handle navigation in separate effect
+  useEffect(() => {
+    if (!isAuthLoading && !checking && isAuthenticated && !hasSubscription) {
+      if (location.pathname !== "/subscribe") {
+        navigate("/subscribe");
+      }
+    }
+  }, [
+    isAuthLoading,
+    checking,
+    isAuthenticated,
+    hasSubscription,
+    location.pathname,
+    navigate,
+  ]);
 
   if (isAuthLoading || checking) {
     return (
@@ -72,15 +89,6 @@ const SubscriptionLayout: React.FC = () => {
         </main>
       </div>
     );
-  }
-
-  // COMMENTED OUT AUTH - Skip subscription redirect for development
-  if (isAuthenticated && !hasSubscription) {
-    // avoid redirect loop if already on /subscribe
-    if (location.pathname !== "/subscribe") {
-      navigate("/subscribe");
-      return null;
-    }
   }
 
   return (

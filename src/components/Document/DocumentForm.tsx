@@ -28,6 +28,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
   const [pharmacyInitials, setPharmacyInitials] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const { user } = useAuth();
 
   const isLiaisonBook = template.id === "liaison-book";
@@ -102,6 +103,10 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         status: DocumentStatus.DRAFT,
         tags: [template.category, template.id],
       });
+
+      // Show success notification
+      setShowSuccessNotification(true);
+      setTimeout(() => setShowSuccessNotification(false), 5000);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Erreur lors de la génération du PDF");
@@ -185,6 +190,28 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div className="fixed top-4 right-4 z-50 animate-slide-in-right">
+          <div className="bg-green-500 text-white px-6 py-4 rounded-lg shadow-xl flex items-center space-x-3 max-w-md">
+            <CheckCircle className="h-6 w-6 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold">Document enregistré !</p>
+              <p className="text-sm text-green-100">
+                Le document a été téléchargé et sauvegardé dans votre registre
+                de documents.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSuccessNotification(false)}
+              className="text-white hover:text-green-100 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 w-full ">
         <button
           onClick={onCancel}

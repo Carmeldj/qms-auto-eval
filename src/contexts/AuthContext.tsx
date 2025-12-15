@@ -86,6 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("tenantId");
     localStorage.removeItem("user");
+    window.location.href = "/";
   };
 
   // Check auth status on component mount

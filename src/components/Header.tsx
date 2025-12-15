@@ -41,7 +41,10 @@ const Header: React.FC = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const { isAuthenticated, logout } = useAuth();
   const { openModal } = useApp();
-
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
   return (
     <header
       className="bg-white shadow-md border-b py-2"
@@ -223,7 +226,7 @@ const Header: React.FC = () => {
 
           {isAuthenticated && (
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="hidden w-max rounded-lg lg:block text-sm px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
             >
               Se déconnecter
