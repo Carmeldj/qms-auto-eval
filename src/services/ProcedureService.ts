@@ -136,12 +136,12 @@ export class ProcedureService {
         yPosition += 5;
       };
 
-      const addSeparatorLine = () => {
-        pdf.setDrawColor(220, 220, 220);
-        pdf.setLineWidth(0.3);
-        pdf.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-        yPosition += 6;
-      };
+      // const addSeparatorLine = () => {
+      //   pdf.setDrawColor(220, 220, 220);
+      //   pdf.setLineWidth(0.3);
+      //   pdf.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
+      //   yPosition += 6;
+      // };
 
       // Initialize position
       yPosition = topMargin;
@@ -189,7 +189,6 @@ export class ProcedureService {
 
       // Section gauche - Informations de l'entreprise
       const leftColWidth = 120;
-      const rightColWidth = pageWidth - leftMargin - rightMargin - leftColWidth;
 
       // Titre principal du document avec "PROCEDURE" avant
       pdf.setFont("helvetica", "bold");
@@ -480,7 +479,7 @@ export class ProcedureService {
       // Etapes de la procedure
       addSection("DESCRIPTION DETAILLEE");
 
-      procedure.steps.forEach((step, index) => {
+      procedure.steps.forEach((step) => {
         addText(`ETAPE ${step.order}`, 11, true, "teal", "left", 1.0);
         yPosition -= 1;
         addText(step.description, 10, false, "black", "left", 1.2);

@@ -85,23 +85,23 @@ export class QualityManualService {
       return false;
     };
 
-    const addText = (
-      text: string,
-      fontSize: number,
-      style: "normal" | "bold" = "normal",
-      color: [number, number, number] = [0, 0, 0]
-    ) => {
-      doc.setFontSize(fontSize);
-      doc.setFont("helvetica", style);
-      doc.setTextColor(color[0], color[1], color[2]);
+    // const addText = (
+    //   text: string,
+    //   fontSize: number,
+    //   style: "normal" | "bold" = "normal",
+    //   color: [number, number, number] = [0, 0, 0]
+    // ) => {
+    //   doc.setFontSize(fontSize);
+    //   doc.setFont("helvetica", style);
+    //   doc.setTextColor(color[0], color[1], color[2]);
 
-      const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
-      lines.forEach((line: string) => {
-        addNewPageIfNeeded(lineHeight);
-        doc.text(line, margin, yPos);
-        yPos += lineHeight;
-      });
-    };
+    //   const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+    //   lines.forEach((line: string) => {
+    //     addNewPageIfNeeded(lineHeight);
+    //     doc.text(line, margin, yPos);
+    //     yPos += lineHeight;
+    //   });
+    // };
 
     const addSection = (title: string, content: string) => {
       if (!content || content.trim() === "") return;
