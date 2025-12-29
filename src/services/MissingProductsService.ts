@@ -182,11 +182,11 @@ class MissingProductsService {
     doc.setFontSize(11);
     doc.text(`Periode : ${monthNames[month - 1]} ${year}`, pageWidth / 2, yPosition, { align: 'center' });
 
-    // Indicateurs clés en encadrés séparés
+    // Indicateurs cles en encadres separes
     yPosition += 15;
     const boxWidth = (pageWidth - 2 * margin - 10) / 2;
 
-    // Encadré 1 : Nombre de produits non servis
+    // Encadre 1 : Nombre de produits non servis
     doc.setFillColor(220, 240, 255);
     doc.rect(margin, yPosition, boxWidth, 20, 'F');
     doc.setDrawColor(0, 100, 200);
@@ -201,8 +201,8 @@ class MissingProductsService {
     doc.setFont('helvetica', 'bold');
     doc.text(`${report.totalRecords}`, margin + boxWidth / 2, yPosition + 15, { align: 'center' });
 
-    // Encadré 2 : CA Total Perdu
-    const caFormatted = report.totalCALost.toLocaleString('fr-FR');
+    // Encadre 2 : CA Total Perdu
+    const caFormatted = String(report.totalCALost).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     doc.setFillColor(255, 230, 230);
     doc.rect(margin + boxWidth + 10, yPosition, boxWidth, 20, 'F');
     doc.setDrawColor(200, 0, 0);
@@ -255,7 +255,8 @@ class MissingProductsService {
         doc.text(productText, margin + 10, yPosition);
 
         doc.text(`${item.count || 0}`, pageWidth - margin - 50, yPosition);
-        doc.text((item.totalLost || 0).toLocaleString('fr-FR'), pageWidth - margin - 5, yPosition, { align: 'right' });
+        const totalLostFormatted = String(item.totalLost || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        doc.text(totalLostFormatted, pageWidth - margin - 5, yPosition, { align: 'right' });
 
         yPosition += 6;
       });
@@ -285,7 +286,7 @@ class MissingProductsService {
       });
     }
 
-    // Nouvelle page pour le détail
+    // Nouvelle page pour le detail
     doc.addPage();
     yPosition = 20;
 
@@ -294,7 +295,7 @@ class MissingProductsService {
     doc.text('DETAIL DES PRODUITS MANQUANTS', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 10;
 
-    // Tableau détaillé
+    // Tableau detaille
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
 
@@ -337,7 +338,8 @@ class MissingProductsService {
 
       xPos = margin;
 
-      const dateStr = new Date(product.date).toLocaleDateString('fr-FR');
+      const productDate = new Date(product.date);
+      const dateStr = `${productDate.getDate().toString().padStart(2, '0')}/${(productDate.getMonth() + 1).toString().padStart(2, '0')}/${productDate.getFullYear()}`;
       doc.text(dateStr, xPos, yPosition);
       xPos += colWidths.date;
 
@@ -353,10 +355,12 @@ class MissingProductsService {
       doc.text(product.quantity || 'N/A', xPos, yPosition);
       xPos += colWidths.qty;
 
-      doc.text((product.unit_price || 0).toLocaleString('fr-FR'), xPos, yPosition);
+      const unitPriceFormatted = String(product.unit_price || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      doc.text(unitPriceFormatted, xPos, yPosition);
       xPos += colWidths.price;
 
-      doc.text((product.total_lost || 0).toLocaleString('fr-FR'), xPos, yPosition);
+      const totalLostFormatted = String(product.total_lost || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      doc.text(totalLostFormatted, xPos, yPosition);
       xPos += colWidths.total;
 
       doc.text(product.has_ordered === 'Oui' ? 'Oui' : 'Non', xPos, yPosition);
@@ -371,6 +375,10 @@ class MissingProductsService {
 
     // Pied de page final
     const totalPages = doc.getNumberOfPages();
+    const now = new Date();
+    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
@@ -383,7 +391,7 @@ class MissingProductsService {
         { align: 'center' }
       );
       doc.text(
-        `Genere le ${new Date().toLocaleDateString('fr-FR')} a ${new Date().toLocaleTimeString('fr-FR')}`,
+        `Genere le ${dateStr} a ${timeStr}`,
         pageWidth / 2,
         pageHeight - 6,
         { align: 'center' }
