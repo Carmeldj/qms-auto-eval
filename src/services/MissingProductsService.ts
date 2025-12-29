@@ -88,28 +88,38 @@ class MissingProductsService {
     pharmacyName: string,
     userEmail: string
   ): Promise<void> {
-    const products = await this.getMissingProductsByMonth(year, month, userEmail);
+    try {
+      const products = await this.getMissingProductsByMonth(year, month, userEmail);
 
-    if (products.length === 0) {
-      alert('Aucun produit manquant enregistré pour ce mois');
-      return;
+      if (products.length === 0) {
+        alert('Aucun produit manquant enregistre pour ce mois');
+        return;
+      }
+
+      const report = this.calculateMonthlyReport(products);
+      await this.generatePDF(products, report, year, month, pharmacyName);
+    } catch (error) {
+      console.error('Erreur lors de la generation du rapport:', error);
+      alert(`Erreur lors de la generation du PDF: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      throw error;
     }
-
-    const report = this.calculateMonthlyReport(products);
-    await this.generatePDF(products, report, year, month, pharmacyName);
   }
 
   private calculateMonthlyReport(products: MissingProduct[]): MonthlyReport {
-    const totalCALost = products.reduce((sum, p) => sum + Number(p.total_lost), 0);
+    const totalCALost = products.reduce((sum, p) => {
+      const lost = Number(p.total_lost) || 0;
+      return sum + (isNaN(lost) ? 0 : lost);
+    }, 0);
 
     const productCounts: Record<string, { count: number; totalLost: number }> = {};
     products.forEach(p => {
-      const key = `${p.product_name} ${p.dosage}`;
+      const key = `${p.product_name || 'Produit inconnu'} ${p.dosage || ''}`.trim();
       if (!productCounts[key]) {
         productCounts[key] = { count: 0, totalLost: 0 };
       }
       productCounts[key].count += 1;
-      productCounts[key].totalLost += Number(p.total_lost);
+      const lost = Number(p.total_lost) || 0;
+      productCounts[key].totalLost += (isNaN(lost) ? 0 : lost);
     });
 
     const topMissingProducts = Object.entries(productCounts)
@@ -123,7 +133,7 @@ class MissingProductsService {
 
     const productsByCategory: Record<string, number> = {};
     products.forEach(p => {
-      const reason = p.reason || 'Non spécifié';
+      const reason = p.reason || 'Non specifie';
       productsByCategory[reason] = (productsByCategory[reason] || 0) + 1;
     });
 
@@ -142,21 +152,22 @@ class MissingProductsService {
     month: number,
     pharmacyName: string
   ): Promise<void> {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 15;
-    let yPosition = 20;
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let yPosition = 20;
 
-    const monthNames = [
-      'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'
-    ];
+      const monthNames = [
+        'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
+        'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'
+      ];
 
-    // En-tête
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RAPPORT MENSUEL', pageWidth / 2, yPosition, { align: 'center' });
+      // En-tete
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('RAPPORT MENSUEL', pageWidth / 2, yPosition, { align: 'center' });
 
     yPosition += 8;
     doc.setFontSize(16);
@@ -238,13 +249,13 @@ class MissingProductsService {
 
         doc.text(`${index + 1}`, margin, yPosition);
 
-        const productText = item.product.length > 50
-          ? item.product.substring(0, 50) + '...'
-          : item.product;
+        const productText = (item.product || '').length > 50
+          ? (item.product || '').substring(0, 50) + '...'
+          : (item.product || 'N/A');
         doc.text(productText, margin + 10, yPosition);
 
-        doc.text(`${item.count}`, pageWidth - margin - 50, yPosition);
-        doc.text(item.totalLost.toLocaleString('fr-FR'), pageWidth - margin - 5, yPosition, { align: 'right' });
+        doc.text(`${item.count || 0}`, pageWidth - margin - 50, yPosition);
+        doc.text((item.totalLost || 0).toLocaleString('fr-FR'), pageWidth - margin - 5, yPosition, { align: 'right' });
 
         yPosition += 6;
       });
@@ -262,14 +273,14 @@ class MissingProductsService {
       yPosition += 5;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('RAISONS D\'INDISPONIBILITE', margin, yPosition);
+      doc.text('RAISONS D INDISPONIBILITE', margin, yPosition);
 
       yPosition += 8;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
 
       Object.entries(report.productsByCategory).forEach(([reason, count]) => {
-        doc.text(`• ${reason} : ${count} cas`, margin + 5, yPosition);
+        doc.text(`- ${reason || 'Non specifie'} : ${count || 0} cas`, margin + 5, yPosition);
         yPosition += 6;
       });
     }
@@ -330,22 +341,22 @@ class MissingProductsService {
       doc.text(dateStr, xPos, yPosition);
       xPos += colWidths.date;
 
-      const productName = product.product_name.length > 30
-        ? product.product_name.substring(0, 30) + '...'
-        : product.product_name;
+      const productName = (product.product_name || '').length > 30
+        ? (product.product_name || '').substring(0, 30) + '...'
+        : (product.product_name || 'N/A');
       doc.text(productName, xPos, yPosition);
       xPos += colWidths.product;
 
-      doc.text(product.dosage, xPos, yPosition);
+      doc.text(product.dosage || 'N/A', xPos, yPosition);
       xPos += colWidths.dosage;
 
-      doc.text(product.quantity, xPos, yPosition);
+      doc.text(product.quantity || 'N/A', xPos, yPosition);
       xPos += colWidths.qty;
 
-      doc.text(product.unit_price.toLocaleString('fr-FR'), xPos, yPosition);
+      doc.text((product.unit_price || 0).toLocaleString('fr-FR'), xPos, yPosition);
       xPos += colWidths.price;
 
-      doc.text(product.total_lost.toLocaleString('fr-FR'), xPos, yPosition);
+      doc.text((product.total_lost || 0).toLocaleString('fr-FR'), xPos, yPosition);
       xPos += colWidths.total;
 
       doc.text(product.has_ordered === 'Oui' ? 'Oui' : 'Non', xPos, yPosition);
@@ -379,7 +390,11 @@ class MissingProductsService {
       );
     }
 
-    doc.save(`Rapport_Produits_Manquants_${monthNames[month - 1]}_${year}.pdf`);
+      doc.save(`Rapport_Produits_Manquants_${monthNames[month - 1]}_${year}.pdf`);
+    } catch (error) {
+      console.error('Erreur lors de la generation du PDF:', error);
+      throw new Error(`Impossible de generer le PDF: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    }
   }
 }
 
