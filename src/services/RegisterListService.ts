@@ -949,7 +949,7 @@ export class RegisterListService {
         // Localisation
         doc.setFontSize(7);
         doc.setTextColor(100, 100, 100);
-        doc.text(`📍 Localisation : ${item.location}`, margin + 5, yPos);
+        doc.text(`Localisation : ${item.location}`, margin + 5, yPos);
         yPos += 4;
 
         // Obligation et référence

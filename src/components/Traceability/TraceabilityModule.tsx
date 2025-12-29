@@ -129,9 +129,14 @@ const TraceabilityModule: React.FC = () => {
       alert('Veuillez saisir le nom de la pharmacie');
       return;
     }
-    registerListService.generateManagementRegistersList(registerListPharmacyName);
-    setShowRegisterListModal(false);
-    setRegisterListPharmacyName('');
+    try {
+      registerListService.generateManagementRegistersList(registerListPharmacyName);
+      setShowRegisterListModal(false);
+      setRegisterListPharmacyName('');
+    } catch (error) {
+      console.error('Erreur lors de la génération de la liste:', error);
+      alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+    }
   };
 
   const handleGenerateDispensationList = () => {
@@ -139,9 +144,14 @@ const TraceabilityModule: React.FC = () => {
       alert('Veuillez saisir le nom de la pharmacie');
       return;
     }
-    registerListService.generateDispensationAndVigilanceRegistersList(registerListPharmacyName);
-    setShowRegisterListModal(false);
-    setRegisterListPharmacyName('');
+    try {
+      registerListService.generateDispensationAndVigilanceRegistersList(registerListPharmacyName);
+      setShowRegisterListModal(false);
+      setRegisterListPharmacyName('');
+    } catch (error) {
+      console.error('Erreur lors de la génération de la liste:', error);
+      alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+    }
   };
 
   const handleGenerateInformationDocumentsList = () => {
@@ -149,9 +159,14 @@ const TraceabilityModule: React.FC = () => {
       alert('Veuillez saisir le nom de la pharmacie');
       return;
     }
-    registerListService.generatePharmaceuticalInformationDocumentsList(registerListPharmacyName);
-    setShowRegisterListModal(false);
-    setRegisterListPharmacyName('');
+    try {
+      registerListService.generatePharmaceuticalInformationDocumentsList(registerListPharmacyName);
+      setShowRegisterListModal(false);
+      setRegisterListPharmacyName('');
+    } catch (error) {
+      console.error('Erreur lors de la génération de la liste:', error);
+      alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+    }
   };
 
   if (view === 'compilation') {
