@@ -149,8 +149,8 @@ class MissingProductsService {
     let yPosition = 20;
 
     const monthNames = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+      'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'
     ];
 
     // En-tête
@@ -169,7 +169,7 @@ class MissingProductsService {
 
     yPosition += 8;
     doc.setFontSize(11);
-    doc.text(`Période : ${monthNames[month - 1]} ${year}`, pageWidth / 2, yPosition, { align: 'center' });
+    doc.text(`Periode : ${monthNames[month - 1]} ${year}`, pageWidth / 2, yPosition, { align: 'center' });
 
     // Indicateurs clés en encadrés séparés
     yPosition += 15;
@@ -212,14 +212,14 @@ class MissingProductsService {
     if (report.topMissingProducts.length > 0) {
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('TOP 10 DES PRODUITS LES PLUS DEMANDÉS', margin, yPosition);
+      doc.text('TOP 10 DES PRODUITS LES PLUS DEMANDES', margin, yPosition);
 
       yPosition += 8;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
 
-      // En-têtes du tableau
-      doc.text('N°', margin, yPosition);
+      // En-tetes du tableau
+      doc.text('No', margin, yPosition);
       doc.text('Produit', margin + 10, yPosition);
       doc.text('Demandes', pageWidth - margin - 50, yPosition);
       doc.text('CA Perdu (FCFA)', pageWidth - margin - 30, yPosition, { align: 'right' });
@@ -262,7 +262,7 @@ class MissingProductsService {
       yPosition += 5;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('RAISONS D\'INDISPONIBILITÉ', margin, yPosition);
+      doc.text('RAISONS D\'INDISPONIBILITE', margin, yPosition);
 
       yPosition += 8;
       doc.setFontSize(9);
@@ -280,7 +280,7 @@ class MissingProductsService {
 
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('DÉTAIL DES PRODUITS MANQUANTS', pageWidth / 2, yPosition, { align: 'center' });
+    doc.text('DETAIL DES PRODUITS MANQUANTS', pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 10;
 
     // Tableau détaillé
@@ -304,7 +304,7 @@ class MissingProductsService {
     xPos += colWidths.product;
     doc.text('Dosage', xPos, yPosition);
     xPos += colWidths.dosage;
-    doc.text('Qté', xPos, yPosition);
+    doc.text('Qte', xPos, yPosition);
     xPos += colWidths.qty;
     doc.text('PU (FCFA)', xPos, yPosition);
     xPos += colWidths.price;
@@ -372,7 +372,7 @@ class MissingProductsService {
         { align: 'center' }
       );
       doc.text(
-        `Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`,
+        `Genere le ${new Date().toLocaleDateString('fr-FR')} a ${new Date().toLocaleTimeString('fr-FR')}`,
         pageWidth / 2,
         pageHeight - 6,
         { align: 'center' }
