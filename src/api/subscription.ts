@@ -1,4 +1,5 @@
 import { api } from "../lib/axios";
+import { supabase } from "../lib/supabase";
 
 export type SubscriptionInfo = {
   subscriptionStatus?: string;
@@ -16,12 +17,39 @@ export const subscriptionApi = {
     }
 
     try {
+      // First, try to get subscription from Supabase
+      const { data: subscription, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("tenant_id", TENANT_ID)
+        .maybeSingle();
+
+      if (subscription && !error) {
+        // Check if subscription is still valid
+        const endDate = new Date(subscription.end_date);
+        const now = new Date();
+        const isValid = endDate > now;
+
+        return {
+          subscriptionStatus: isValid ? subscription.status : "expired",
+          isActive: isValid && subscription.status === "active",
+          isMember: isValid,
+          plan: subscription.plan,
+        };
+      }
+
+      // Fallback to external API if Supabase doesn't have the data
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+      if (!API_BASE_URL) {
+        // No external API configured, return null
+        return null;
+      }
+
       const response = await api.get(`/tenants/${TENANT_ID}/subscription-info`);
       return response.data as SubscriptionInfo;
     } catch (err) {
-      // Optionally inspect err.response.status and return structured info
       console.error("subscriptionApi.checkSubscriptionStatus failed", err);
-      throw err; // or return null if you prefer callers to continue
+      return null;
     }
   },
 };

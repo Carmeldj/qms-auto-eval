@@ -14,6 +14,14 @@ Utilisez ces identifiants pour vous connecter au compte de démonstration :
 - **Plan :** Premium
 - **ID Tenant :** demo-tenant-001
 
+## Abonnement
+
+- **Statut :** Actif
+- **Plan :** Premium
+- **Date de début :** 29 décembre 2025
+- **Date de fin :** 29 juin 2026 (6 mois)
+- **Accès :** Toutes les fonctionnalités débloquées
+
 ## Accès
 
 1. Ouvrez l'application dans votre navigateur
@@ -21,4 +29,4 @@ Utilisez ces identifiants pour vous connecter au compte de démonstration :
 3. Entrez les identifiants ci-dessus
 4. Cliquez sur "Se connecter"
 
-Le compte de démonstration a un accès complet à toutes les fonctionnalités de l'application en tant qu'administrateur avec un plan premium.
+Le compte de démonstration a un accès complet à toutes les fonctionnalités de l'application en tant qu'administrateur avec un abonnement premium actif de 6 mois.
