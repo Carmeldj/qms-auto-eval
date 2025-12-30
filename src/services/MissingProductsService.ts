@@ -65,11 +65,10 @@ class MissingProductsService {
     const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
     const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-    // Ne pas filtrer par user_email pour les compilations mensuelles
-    // car elles doivent inclure tous les produits manquants de la période
     const { data, error } = await supabase
       .from('missing_products')
       .select('*')
+      .eq('user_email', userEmail)
       .gte('date', startDate)
       .lte('date', endDate)
       .order('date', { ascending: true });
