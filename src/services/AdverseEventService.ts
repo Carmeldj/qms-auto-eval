@@ -2,20 +2,30 @@ import jsPDF from "jspdf";
 import { AdverseEventReport } from "../types/adverseEvents";
 import { AdverseEventPDFGenerator } from "./AdverseEventPDFGenerator";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const getSupabaseConfig = () => {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    console.error('Supabase configuration missing:', { url, key: !!key });
+    throw new Error('Configuration Supabase manquante. Veuillez redémarrer le serveur de développement.');
+  }
+
+  return { url, key };
+};
 
 class AdverseEventService {
   async saveReport(report: AdverseEventReport): Promise<void> {
     try {
+      const { url, key } = getSupabaseConfig();
       const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/adverse_event_reports`,
+        `${url}/rest/v1/adverse_event_reports`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            apikey: key,
+            Authorization: `Bearer ${key}`,
             Prefer: "return=representation",
           },
           body: JSON.stringify({
@@ -41,13 +51,14 @@ class AdverseEventService {
     recipientEmail: string
   ): Promise<void> {
     try {
+      const { url, key } = getSupabaseConfig();
       const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/send-adverse-event-email`,
+        `${url}/functions/v1/send-adverse-event-email`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
             reportId: report.id,
@@ -70,13 +81,13 @@ class AdverseEventService {
       }
 
       await fetch(
-        `${SUPABASE_URL}/rest/v1/adverse_event_reports?epid_number=eq.${report.epidNumber}`,
+        `${url}/rest/v1/adverse_event_reports?epid_number=eq.${report.epidNumber}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            apikey: key,
+            Authorization: `Bearer ${key}`,
           },
           body: JSON.stringify({
             email_sent: true,
