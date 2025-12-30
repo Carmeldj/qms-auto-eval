@@ -1,23 +1,17 @@
 import React, { useEffect, useState } from "react";
-// import { Outlet, useNavigate, useLocation } from "react-router-dom";
-// import { useSubscription } from "../contexts/SubscriptionContext";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useSubscription } from "../contexts/SubscriptionContext";
 import { useAuth } from "../contexts/AuthContext";
-import { Outlet } from "react-router-dom";
 // import Header from '../components/Header';
 
 const SubscriptionLayout: React.FC = () => {
-  // const { hasSubscription, checkSubscription } = useSubscription();
+  const { hasSubscription, checkSubscription } = useSubscription();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [checking, setChecking] = useState(true);
-  // const navigate = useNavigate();
-  // const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // COMMENTED OUT AUTH - Skip subscription check for development
-    setChecking(false);
-    return; // DEV MODE: Skip all auth/subscription checks
-
-    /* ORIGINAL AUTH CODE - Commented for development
     let mounted = true;
     const run = async () => {
       if (!isAuthenticated) {
@@ -39,13 +33,10 @@ const SubscriptionLayout: React.FC = () => {
     return () => {
       mounted = false;
     };
-    */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isAuthLoading]);
 
   // Handle navigation in separate effect
-  // DEV MODE: Commented out subscription redirect
-  /*
   useEffect(() => {
     if (!isAuthLoading && !checking && isAuthenticated && !hasSubscription) {
       if (location.pathname !== "/subscribe") {
@@ -60,7 +51,6 @@ const SubscriptionLayout: React.FC = () => {
     location.pathname,
     navigate,
   ]);
-  */
 
   if (isAuthLoading || checking) {
     return (
