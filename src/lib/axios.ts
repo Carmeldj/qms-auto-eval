@@ -1,11 +1,14 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL,
   headers: {
     "Content-Type": "application/json",
   },
   withCredentials: true,
+  timeout: 5000,
 });
 
 // Request interceptor to add the token to each request
@@ -18,10 +21,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor to handle token refresh
+// Response interceptor to handle token refresh and network errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // If it's a network error (API not available), silently reject
+    if (!error.response && error.code === 'ECONNABORTED' || error.message === 'Network Error') {
+      console.warn('API backend not available, skipping request');
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
 
     // If error is 401 and we haven't tried refreshing yet
@@ -31,7 +40,7 @@ api.interceptors.response.use(
       try {
         // Attempt to refresh the token
         const refreshResponse = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          `${baseURL}/auth/refresh`,
           {},
           { withCredentials: true }
         );

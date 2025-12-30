@@ -1,21 +1,31 @@
-import { api } from "../lib/axios";
+import { supabase } from "../lib/supabase";
 
 export const uploadFile = async (
   file: File,
   directory: string
 ): Promise<string> => {
   try {
-    const formData = new FormData();
-    formData.append("file", file);
+    const tenantId = localStorage.getItem("tenantId") || "default";
+    const timestamp = Date.now();
+    const fileName = `${tenantId}/${directory}/${timestamp}_${file.name}`;
 
-    const response = await api.post(`files/upload/${directory}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "x-tenant-id": localStorage.getItem("tenantId"),
-      },
-    });
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
 
-    return response.data.url;
+    if (error) {
+      console.error("Error uploading to Supabase Storage:", error);
+      throw error;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("documents")
+      .getPublicUrl(fileName);
+
+    return publicUrlData.publicUrl;
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
