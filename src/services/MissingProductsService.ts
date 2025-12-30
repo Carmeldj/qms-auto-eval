@@ -299,13 +299,14 @@ class MissingProductsService {
     doc.setFont('helvetica', 'bold');
 
     const colWidths = {
-      date: 20,
-      product: 60,
-      dosage: 25,
-      qty: 12,
-      price: 20,
-      total: 25,
-      ordered: 18
+      date: 18,
+      product: 45,
+      dosage: 20,
+      qty: 10,
+      phone: 22,
+      price: 18,
+      total: 22,
+      ordered: 15
     };
 
     let xPos = margin;
@@ -317,6 +318,8 @@ class MissingProductsService {
     xPos += colWidths.dosage;
     doc.text('Qte', xPos, yPosition);
     xPos += colWidths.qty;
+    doc.text('Tel Patient', xPos, yPosition);
+    xPos += colWidths.phone;
     doc.text('PU (FCFA)', xPos, yPosition);
     xPos += colWidths.price;
     doc.text('Total (FCFA)', xPos, yPosition);
@@ -342,8 +345,8 @@ class MissingProductsService {
       doc.text(dateStr, xPos, yPosition);
       xPos += colWidths.date;
 
-      const productName = (product.product_name || '').length > 30
-        ? (product.product_name || '').substring(0, 30) + '...'
+      const productName = (product.product_name || '').length > 25
+        ? (product.product_name || '').substring(0, 25) + '...'
         : (product.product_name || 'N/A');
       doc.text(productName, xPos, yPosition);
       xPos += colWidths.product;
@@ -353,6 +356,9 @@ class MissingProductsService {
 
       doc.text(product.quantity || 'N/A', xPos, yPosition);
       xPos += colWidths.qty;
+
+      doc.text(product.customer_contact || '-', xPos, yPosition);
+      xPos += colWidths.phone;
 
       const unitPriceFormatted = String(product.unit_price || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
       doc.text(unitPriceFormatted, xPos, yPosition);
