@@ -1,6 +1,6 @@
-import { DocumentTemplate, DocumentData } from '../types/documents';
-import jsPDF from 'jspdf';
-import { supabase } from '../lib/supabase';
+import { DocumentTemplate, DocumentData } from "../types/documents";
+import jsPDF from "jspdf";
+import { supabase } from "../lib/supabase";
 
 export interface LiaisonBookData {
   pharmacyName: string;
@@ -22,25 +22,27 @@ export const shareToWhatsApp = async (
   formData: Record<string, string>,
   attachedPDF?: File
 ): Promise<void> => {
-  if (template.id !== 'liaison-book') {
-    throw new Error('Le partage WhatsApp est disponible uniquement pour le cahier de liaison');
+  if (template.id !== "liaison-book") {
+    throw new Error(
+      "Le partage WhatsApp est disponible uniquement pour le cahier de liaison"
+    );
   }
 
   try {
     // Générer le PDF du cahier de liaison
-    const pdfBlob = await generateLiaisonBookPDF(template, document);
-    console.log('PDF généré avec succès');
+    const pdfBlob = await generateLiaisonBookPDF(document);
+    console.log("PDF généré avec succès");
 
     // Upload sur Supabase
     const documentUrl = await uploadPDFToSupabase(pdfBlob, document.id);
-    console.log('PDF uploadé avec succès:', documentUrl);
+    console.log("PDF uploadé avec succès:", documentUrl);
 
     // Upload du PDF attaché si présent
     let attachmentUrl: string | undefined;
     if (attachedPDF) {
-      console.log('Upload du PDF attaché...');
+      console.log("Upload du PDF attaché...");
       attachmentUrl = await uploadAttachedPDF(attachedPDF, document.id);
-      console.log('PDF attaché uploadé avec succès:', attachmentUrl);
+      console.log("PDF attaché uploadé avec succès:", attachmentUrl);
     }
 
     // Formater le message WhatsApp
@@ -52,25 +54,26 @@ export const shareToWhatsApp = async (
 
     // Sauvegarder l'enregistrement
     await saveLiaisonBookRecord(document, documentUrl, attachmentUrl);
-    console.log('Enregistrement sauvegardé');
+    console.log("Enregistrement sauvegardé");
 
     // Ouvrir WhatsApp
     const encodedMessage = encodeURIComponent(whatsappMessage);
     const whatsappURL = `https://wa.me/?text=${encodedMessage}`;
 
-    window.open(whatsappURL, '_blank');
+    window.open(whatsappURL, "_blank");
 
     showSuccessNotification();
   } catch (error: any) {
-    console.error('Erreur lors du partage WhatsApp:', error);
+    console.error("Erreur lors du partage WhatsApp:", error);
 
     // Messages d'erreur personnalisés
-    let errorMessage = 'Erreur lors du partage WhatsApp.';
+    let errorMessage = "Erreur lors du partage WhatsApp.";
 
-    if (error.message && error.message.includes('upload')) {
-      errorMessage = 'Erreur lors de l\'upload du document. Vérifiez votre connexion.';
-    } else if (error.message && error.message.includes('storage')) {
-      errorMessage = 'Erreur d\'accès au stockage. Contactez l\'administrateur.';
+    if (error.message && error.message.includes("upload")) {
+      errorMessage =
+        "Erreur lors de l'upload du document. Vérifiez votre connexion.";
+    } else if (error.message && error.message.includes("storage")) {
+      errorMessage = "Erreur d'accès au stockage. Contactez l'administrateur.";
     } else if (error.message) {
       errorMessage = error.message;
     }
@@ -80,11 +83,10 @@ export const shareToWhatsApp = async (
 };
 
 const generateLiaisonBookPDF = async (
-  template: DocumentTemplate,
   document: DocumentData
 ): Promise<Blob> => {
   if (!document || !document.data) {
-    throw new Error('Les données du document sont manquantes');
+    throw new Error("Les données du document sont manquantes");
   }
 
   const pdf = new jsPDF();
@@ -96,144 +98,177 @@ const generateLiaisonBookPDF = async (
   const data = document.data;
 
   pdf.setFillColor(0, 150, 136);
-  pdf.rect(0, 0, pageWidth, 40, 'F');
+  pdf.rect(0, 0, pageWidth, 40, "F");
 
   pdf.setTextColor(255, 255, 255);
-  pdf.setFont('helvetica', 'bold');
+  pdf.setFont("helvetica", "bold");
   pdf.setFontSize(20);
-  pdf.text('CAHIER DE LIAISON', pageWidth / 2, 15, { align: 'center' });
+  pdf.text("CAHIER DE LIAISON", pageWidth / 2, 15, { align: "center" });
 
   pdf.setFontSize(12);
-  pdf.text(data.pharmacyName || '', pageWidth / 2, 25, { align: 'center' });
+  pdf.text(data.pharmacyName || "", pageWidth / 2, 25, { align: "center" });
 
   pdf.setFontSize(10);
-  pdf.text(`${data.date || ''} à ${data.time || ''}`, pageWidth / 2, 33, { align: 'center' });
+  pdf.text(`${data.date || ""} à ${data.time || ""}`, pageWidth / 2, 33, {
+    align: "center",
+  });
 
   yPosition = 50;
   pdf.setTextColor(0, 0, 0);
 
-  const addSection = (label: string, value: string, isBold: boolean = false) => {
+  const addSection = (
+    label: string,
+    value: string,
+    isBold: boolean = false
+  ) => {
     if (yPosition > 270) {
       pdf.addPage();
       yPosition = 20;
     }
 
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
     pdf.setTextColor(0, 150, 136);
     pdf.text(label, leftMargin, yPosition);
     yPosition += 5;
 
-    pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+    pdf.setFont("helvetica", isBold ? "bold" : "normal");
     pdf.setFontSize(10);
     pdf.setTextColor(0, 0, 0);
-    const lines = pdf.splitTextToSize(value, pageWidth - leftMargin - rightMargin);
+    const lines = pdf.splitTextToSize(
+      value,
+      pageWidth - leftMargin - rightMargin
+    );
     pdf.text(lines, leftMargin, yPosition);
     yPosition += lines.length * 5 + 5;
   };
 
-  addSection('Auteur', data.author || 'Non renseigné');
-  addSection('Destinataires', data.recipients || 'Non renseigné');
-  addSection('Priorité', data.priority || 'Non renseigné', true);
-  addSection('Catégorie', data.category || 'Non renseigné');
-  addSection('Objet', data.subject || 'Non renseigné', true);
+  addSection("Auteur", data.author || "Non renseigné");
+  addSection("Destinataires", data.recipients || "Non renseigné");
+  addSection("Priorité", data.priority || "Non renseigné", true);
+  addSection("Catégorie", data.category || "Non renseigné");
+  addSection("Objet", data.subject || "Non renseigné", true);
 
   yPosition += 3;
-  addSection('Message', data.message || 'Non renseigné');
+  addSection("Message", data.message || "Non renseigné");
 
-  addSection('Action requise', data.actionRequired || 'Non renseigné');
+  addSection("Action requise", data.actionRequired || "Non renseigné");
 
   if (data.deadline) {
-    addSection('Échéance', new Date(data.deadline).toLocaleDateString('fr-FR'));
+    addSection("Échéance", new Date(data.deadline).toLocaleDateString("fr-FR"));
   }
 
   pdf.setDrawColor(200, 200, 200);
   pdf.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
   yPosition += 8;
 
-  pdf.setFont('helvetica', 'normal');
+  pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
   pdf.setTextColor(120, 120, 120);
-  pdf.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, leftMargin, yPosition);
+  pdf.text(
+    `Document généré le ${new Date().toLocaleDateString(
+      "fr-FR"
+    )} à ${new Date().toLocaleTimeString("fr-FR")}`,
+    leftMargin,
+    yPosition
+  );
   yPosition += 4;
-  pdf.text('PHARMA QMS - Système de Management de la Qualité', leftMargin, yPosition);
+  pdf.text(
+    "PHARMA QMS - Système de Management de la Qualité",
+    leftMargin,
+    yPosition
+  );
 
-  return pdf.output('blob');
+  return pdf.output("blob");
 };
 
-const uploadPDFToSupabase = async (pdfBlob: Blob, documentId: string): Promise<string> => {
+const uploadPDFToSupabase = async (
+  pdfBlob: Blob,
+  documentId: string
+): Promise<string> => {
   try {
     const fileName = `liaison-book-${documentId}-${Date.now()}.pdf`;
     const filePath = `liaison-books/${fileName}`;
 
-    console.log('Début upload vers:', filePath);
+    console.log("Début upload vers:", filePath);
 
-    const { data, error } = await supabase.storage
-      .from('documents')
+    const { error } = await supabase.storage
+      .from("documents")
       .upload(filePath, pdfBlob, {
-        contentType: 'application/pdf',
+        contentType: "application/pdf",
         upsert: true,
-        cacheControl: '3600'
+        cacheControl: "3600",
       });
 
     if (error) {
-      console.error('Erreur upload Supabase:', error);
+      console.error("Erreur upload Supabase:", error);
       throw new Error(`Erreur lors de l'upload du document: ${error.message}`);
     }
 
-    console.log('Upload réussi, récupération de l\'URL publique...');
+    console.log("Upload réussi, récupération de l'URL publique...");
 
     const { data: urlData } = supabase.storage
-      .from('documents')
+      .from("documents")
       .getPublicUrl(filePath);
 
     if (!urlData || !urlData.publicUrl) {
-      throw new Error('Impossible de générer l\'URL publique du document');
+      throw new Error("Impossible de générer l'URL publique du document");
     }
 
-    console.log('URL publique générée:', urlData.publicUrl);
+    console.log("URL publique générée:", urlData.publicUrl);
     return urlData.publicUrl;
   } catch (error: any) {
-    console.error('Erreur dans uploadPDFToSupabase:', error);
-    throw new Error(`Erreur storage: ${error.message || 'Erreur inconnue'}`);
+    console.error("Erreur dans uploadPDFToSupabase:", error);
+    throw new Error(`Erreur storage: ${error.message || "Erreur inconnue"}`);
   }
 };
 
-const uploadAttachedPDF = async (pdfFile: File, documentId: string): Promise<string> => {
+const uploadAttachedPDF = async (
+  pdfFile: File,
+  documentId: string
+): Promise<string> => {
   try {
     const fileName = `liaison-book-attachment-${documentId}-${Date.now()}.pdf`;
     const filePath = `liaison-books/${fileName}`;
 
-    console.log('Début upload fichier attaché vers:', filePath);
+    console.log("Début upload fichier attaché vers:", filePath);
 
-    const { data, error } = await supabase.storage
-      .from('documents')
+    const { error } = await supabase.storage
+      .from("documents")
       .upload(filePath, pdfFile, {
-        contentType: 'application/pdf',
+        contentType: "application/pdf",
         upsert: true,
-        cacheControl: '3600'
+        cacheControl: "3600",
       });
 
     if (error) {
-      console.error('Erreur upload fichier attaché:', error);
-      throw new Error(`Erreur lors de l'upload du fichier attaché: ${error.message}`);
+      console.error("Erreur upload fichier attaché:", error);
+      throw new Error(
+        `Erreur lors de l'upload du fichier attaché: ${error.message}`
+      );
     }
 
-    console.log('Upload fichier attaché réussi, récupération de l\'URL publique...');
+    console.log(
+      "Upload fichier attaché réussi, récupération de l'URL publique..."
+    );
 
     const { data: urlData } = supabase.storage
-      .from('documents')
+      .from("documents")
       .getPublicUrl(filePath);
 
     if (!urlData || !urlData.publicUrl) {
-      throw new Error('Impossible de générer l\'URL publique du fichier attaché');
+      throw new Error(
+        "Impossible de générer l'URL publique du fichier attaché"
+      );
     }
 
-    console.log('URL publique fichier attaché générée:', urlData.publicUrl);
+    console.log("URL publique fichier attaché générée:", urlData.publicUrl);
     return urlData.publicUrl;
   } catch (error: any) {
-    console.error('Erreur dans uploadAttachedPDF:', error);
-    throw new Error(`Erreur storage fichier attaché: ${error.message || 'Erreur inconnue'}`);
+    console.error("Erreur dans uploadAttachedPDF:", error);
+    throw new Error(
+      `Erreur storage fichier attaché: ${error.message || "Erreur inconnue"}`
+    );
   }
 };
 
@@ -264,7 +299,9 @@ const formatWhatsAppMessage = (
   message += `🎯 *Action requise:* ${data.actionRequired}\n`;
 
   if (data.deadline) {
-    message += `⏰ *Échéance:* ${new Date(data.deadline).toLocaleDateString('fr-FR')}\n`;
+    message += `⏰ *Échéance:* ${new Date(data.deadline).toLocaleDateString(
+      "fr-FR"
+    )}\n`;
   }
 
   message += `\n━━━━━━━━━━━━━━━━━\n`;
@@ -285,73 +322,71 @@ const saveLiaisonBookRecord = async (
   attachmentUrl?: string
 ): Promise<void> => {
   try {
-    const { error } = await supabase
-      .from('liaison_books')
-      .insert({
-        document_id: document.id,
-        pharmacy_name: document.data.pharmacyName,
-        author: document.data.author,
-        date: document.data.date,
-        time: document.data.time,
-        subject: document.data.subject,
-        message: document.data.message,
-        priority: document.data.priority,
-        category: document.data.category,
-        recipients: document.data.recipients,
-        action_required: document.data.actionRequired,
-        deadline: document.data.deadline || null,
-        document_url: documentUrl,
-        attachment_url: attachmentUrl || null,
-        created_at: new Date().toISOString()
-      });
+    const { error } = await supabase.from("liaison_books").insert({
+      document_id: document.id,
+      pharmacy_name: document.data.pharmacyName,
+      author: document.data.author,
+      date: document.data.date,
+      time: document.data.time,
+      subject: document.data.subject,
+      message: document.data.message,
+      priority: document.data.priority,
+      category: document.data.category,
+      recipients: document.data.recipients,
+      action_required: document.data.actionRequired,
+      deadline: document.data.deadline || null,
+      document_url: documentUrl,
+      attachment_url: attachmentUrl || null,
+      created_at: new Date().toISOString(),
+    });
 
     if (error) {
-      console.error('Erreur sauvegarde base de données:', error);
+      console.error("Erreur sauvegarde base de données:", error);
     }
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error);
+    console.error("Erreur lors de la sauvegarde:", error);
   }
 };
 
 const getPriorityEmoji = (priority: string): string => {
   switch (priority) {
-    case 'Très urgent':
-      return '🚨';
-    case 'Urgent':
-      return '⚠️';
-    case 'Important':
-      return '❗';
-    case 'Information':
+    case "Très urgent":
+      return "🚨";
+    case "Urgent":
+      return "⚠️";
+    case "Important":
+      return "❗";
+    case "Information":
     default:
-      return 'ℹ️';
+      return "ℹ️";
   }
 };
 
 const getCategoryEmoji = (category: string): string => {
   switch (category) {
-    case 'Information générale':
-      return 'ℹ️';
-    case 'Procédure':
-      return '📋';
-    case 'Stock':
-      return '📦';
-    case 'Client':
-      return '👤';
-    case 'Fournisseur':
-      return '🏢';
-    case 'Maintenance':
-      return '🔧';
-    case 'Formation':
-      return '📚';
-    case 'Réglementation':
-      return '⚖️';
+    case "Information générale":
+      return "ℹ️";
+    case "Procédure":
+      return "📋";
+    case "Stock":
+      return "📦";
+    case "Client":
+      return "👤";
+    case "Fournisseur":
+      return "🏢";
+    case "Maintenance":
+      return "🔧";
+    case "Formation":
+      return "📚";
+    case "Réglementation":
+      return "⚖️";
     default:
-      return '📝';
+      return "📝";
   }
 };
 
 const showSuccessNotification = () => {
-  const notification = document.createElement('div');
+  const notification = document.createElement("div");
   notification.style.cssText = `
     position: fixed;
     bottom: 20px;
@@ -379,7 +414,7 @@ const showSuccessNotification = () => {
   document.body.appendChild(notification);
 
   setTimeout(() => {
-    notification.style.animation = 'slideOut 0.3s ease-in';
+    notification.style.animation = "slideOut 0.3s ease-in";
     setTimeout(() => {
       document.body.removeChild(notification);
     }, 300);
@@ -387,32 +422,33 @@ const showSuccessNotification = () => {
 };
 
 export const downloadLiaisonBookPDF = async (
-  formData: LiaisonBookData,
-  documentCode: string
+  formData: LiaisonBookData
 ): Promise<void> => {
   try {
-    const template = {
-      id: 'liaison-book',
-      name: 'Cahier de Liaison',
-      category: 'Communication'
-    } as DocumentTemplate;
+    // const template = {
+    //   id: "liaison-book",
+    //   name: "Cahier de Liaison",
+    //   category: "Communication",
+    // } as unknown as DocumentTemplate;
 
     const document = {
       id: Date.now().toString(),
-      templateId: 'liaison-book',
+      templateId: "liaison-book",
       data: formData,
-      createdAt: new Date().toISOString()
-    } as DocumentData;
+      createdAt: new Date().toISOString(),
+    } as unknown as DocumentData;
 
-    const pdfBlob = await generateLiaisonBookPDF(template, document);
+    const pdfBlob = await generateLiaisonBookPDF(document);
 
-    const link = window.document.createElement('a');
+    const link = window.document.createElement("a");
     link.href = URL.createObjectURL(pdfBlob);
-    link.download = `cahier-liaison-${new Date(formData.date).toISOString().split('T')[0]}.pdf`;
+    link.download = `cahier-liaison-${
+      new Date(formData.date).toISOString().split("T")[0]
+    }.pdf`;
     link.click();
     URL.revokeObjectURL(link.href);
   } catch (error) {
-    console.error('Erreur lors du téléchargement du PDF:', error);
+    console.error("Erreur lors du téléchargement du PDF:", error);
     throw error;
   }
 };
