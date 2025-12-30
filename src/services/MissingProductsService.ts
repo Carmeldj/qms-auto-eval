@@ -231,8 +231,8 @@ class MissingProductsService {
       // En-tetes du tableau
       doc.text('No', margin, yPosition);
       doc.text('Produit', margin + 10, yPosition);
-      doc.text('Demandes', pageWidth - margin - 50, yPosition);
-      doc.text('CA Perdu (FCFA)', pageWidth - margin - 30, yPosition, { align: 'right' });
+      doc.text('Demandes', pageWidth - margin - 65, yPosition);
+      doc.text('CA Perdu (FCFA)', pageWidth - margin - 5, yPosition, { align: 'right' });
 
       yPosition += 2;
       doc.line(margin, yPosition, pageWidth - margin, yPosition);
@@ -253,7 +253,7 @@ class MissingProductsService {
           : (item.product || 'N/A');
         doc.text(productText, margin + 10, yPosition);
 
-        doc.text(`${item.count || 0}`, pageWidth - margin - 50, yPosition);
+        doc.text(`${item.count || 0}`, pageWidth - margin - 65, yPosition);
         const totalLostFormatted = String(item.totalLost || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         doc.text(totalLostFormatted, pageWidth - margin - 5, yPosition, { align: 'right' });
 
