@@ -19,14 +19,15 @@ export interface LiaisonBookData {
 export const shareToWhatsApp = async (
   template: DocumentTemplate,
   document: DocumentData,
-  formData: Record<string, string>
+  formData: Record<string, string>,
+  attachedPDF?: File
 ): Promise<void> => {
   if (template.id !== 'liaison-book') {
     throw new Error('Le partage WhatsApp est disponible uniquement pour le cahier de liaison');
   }
 
   try {
-    // Générer le PDF
+    // Générer le PDF du cahier de liaison
     const pdfBlob = await generateLiaisonBookPDF(template, document);
     console.log('PDF généré avec succès');
 
@@ -34,11 +35,23 @@ export const shareToWhatsApp = async (
     const documentUrl = await uploadPDFToSupabase(pdfBlob, document.id);
     console.log('PDF uploadé avec succès:', documentUrl);
 
+    // Upload du PDF attaché si présent
+    let attachmentUrl: string | undefined;
+    if (attachedPDF) {
+      console.log('Upload du PDF attaché...');
+      attachmentUrl = await uploadAttachedPDF(attachedPDF, document.id);
+      console.log('PDF attaché uploadé avec succès:', attachmentUrl);
+    }
+
     // Formater le message WhatsApp
-    const whatsappMessage = formatWhatsAppMessage(formData as unknown as LiaisonBookData, documentUrl);
+    const whatsappMessage = formatWhatsAppMessage(
+      formData as unknown as LiaisonBookData,
+      documentUrl,
+      attachmentUrl
+    );
 
     // Sauvegarder l'enregistrement
-    await saveLiaisonBookRecord(document, documentUrl);
+    await saveLiaisonBookRecord(document, documentUrl, attachmentUrl);
     console.log('Enregistrement sauvegardé');
 
     // Ouvrir WhatsApp
@@ -186,7 +199,49 @@ const uploadPDFToSupabase = async (pdfBlob: Blob, documentId: string): Promise<s
   }
 };
 
-const formatWhatsAppMessage = (data: LiaisonBookData, documentUrl: string): string => {
+const uploadAttachedPDF = async (pdfFile: File, documentId: string): Promise<string> => {
+  try {
+    const fileName = `liaison-book-attachment-${documentId}-${Date.now()}.pdf`;
+    const filePath = `liaison-books/${fileName}`;
+
+    console.log('Début upload fichier attaché vers:', filePath);
+
+    const { data, error } = await supabase.storage
+      .from('documents')
+      .upload(filePath, pdfFile, {
+        contentType: 'application/pdf',
+        upsert: true,
+        cacheControl: '3600'
+      });
+
+    if (error) {
+      console.error('Erreur upload fichier attaché:', error);
+      throw new Error(`Erreur lors de l'upload du fichier attaché: ${error.message}`);
+    }
+
+    console.log('Upload fichier attaché réussi, récupération de l\'URL publique...');
+
+    const { data: urlData } = supabase.storage
+      .from('documents')
+      .getPublicUrl(filePath);
+
+    if (!urlData || !urlData.publicUrl) {
+      throw new Error('Impossible de générer l\'URL publique du fichier attaché');
+    }
+
+    console.log('URL publique fichier attaché générée:', urlData.publicUrl);
+    return urlData.publicUrl;
+  } catch (error: any) {
+    console.error('Erreur dans uploadAttachedPDF:', error);
+    throw new Error(`Erreur storage fichier attaché: ${error.message || 'Erreur inconnue'}`);
+  }
+};
+
+const formatWhatsAppMessage = (
+  data: LiaisonBookData,
+  documentUrl: string,
+  attachmentUrl?: string
+): string => {
   const priorityEmoji = getPriorityEmoji(data.priority);
   const categoryEmoji = getCategoryEmoji(data.category);
 
@@ -213,13 +268,22 @@ const formatWhatsAppMessage = (data: LiaisonBookData, documentUrl: string): stri
   }
 
   message += `\n━━━━━━━━━━━━━━━━━\n`;
-  message += `📄 *Document PDF:* ${documentUrl}\n\n`;
-  message += `_Généré par PHARMA QMS_`;
+  message += `📄 *Document Cahier de Liaison:* ${documentUrl}\n`;
+
+  if (attachmentUrl) {
+    message += `📎 *Pièce jointe:* ${attachmentUrl}\n`;
+  }
+
+  message += `\n_Généré par PHARMA QMS_`;
 
   return message;
 };
 
-const saveLiaisonBookRecord = async (document: DocumentData, documentUrl: string): Promise<void> => {
+const saveLiaisonBookRecord = async (
+  document: DocumentData,
+  documentUrl: string,
+  attachmentUrl?: string
+): Promise<void> => {
   try {
     const { error } = await supabase
       .from('liaison_books')
@@ -237,6 +301,7 @@ const saveLiaisonBookRecord = async (document: DocumentData, documentUrl: string
         action_required: document.data.actionRequired,
         deadline: document.data.deadline || null,
         document_url: documentUrl,
+        attachment_url: attachmentUrl || null,
         created_at: new Date().toISOString()
       });
 

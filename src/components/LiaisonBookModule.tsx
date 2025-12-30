@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Download, MessageCircle, AlertCircle, CheckCircle, BookOpen } from 'lucide-react';
+import { ArrowLeft, Download, MessageCircle, AlertCircle, CheckCircle, BookOpen, Upload, X } from 'lucide-react';
 import { shareToWhatsApp } from '../services/WhatsAppService';
 
 interface LiaisonBookFormData {
@@ -33,9 +33,29 @@ const LiaisonBookModule: React.FC = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [attachedPDF, setAttachedPDF] = useState<File | null>(null);
 
   const handleInputChange = (field: keyof LiaisonBookFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePDFAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert('Veuillez sélectionner un fichier PDF');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Le fichier ne doit pas dépasser 10 MB');
+        return;
+      }
+      setAttachedPDF(file);
+    }
+  };
+
+  const handleRemoveAttachment = () => {
+    setAttachedPDF(null);
   };
 
   const isFormValid = () => {
@@ -73,7 +93,7 @@ const LiaisonBookModule: React.FC = () => {
     };
 
     try {
-      await shareToWhatsApp(template, document as any, formData as any);
+      await shareToWhatsApp(template, document as any, formData as any, attachedPDF || undefined);
     } catch (error: any) {
       console.error('Erreur partage WhatsApp:', error);
       const errorMessage = error.message || 'Erreur lors du partage WhatsApp. Veuillez réessayer.';
@@ -403,6 +423,50 @@ const LiaisonBookModule: React.FC = () => {
                 onChange={(e) => handleInputChange('deadline', e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
+            </div>
+
+            {/* Pièce jointe PDF */}
+            <div className="border-t border-gray-200 pt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Document PDF en pièce jointe (optionnel)
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Vous pouvez joindre un document PDF supplémentaire à partager avec le cahier de liaison (max 10 MB)
+              </p>
+
+              {!attachedPDF ? (
+                <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-teal-500 hover:bg-teal-50 transition-colors">
+                  <Upload className="h-5 w-5 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600">Cliquez pour ajouter un fichier PDF</span>
+                  <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={handlePDFAttachment}
+                    className="hidden"
+                  />
+                </label>
+              ) : (
+                <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-green-100 p-2 rounded">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{attachedPDF.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {(attachedPDF.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleRemoveAttachment}
+                    className="text-red-500 hover:text-red-700 transition-colors"
+                    title="Supprimer la pièce jointe"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
