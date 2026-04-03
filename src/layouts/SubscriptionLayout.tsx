@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useSubscription } from "../contexts/SubscriptionContext";
 import { useAuth } from "../contexts/AuthContext";
+import { DEV_MODE } from "../lib/devMode";
 
 const SubscriptionLayout: React.FC = () => {
   const { hasSubscription, checkSubscription } = useSubscription();
@@ -11,6 +12,11 @@ const SubscriptionLayout: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
+    if (DEV_MODE) {
+      setChecking(false);
+      return;
+    }
+
     let mounted = true;
     const run = async () => {
       if (!isAuthenticated) {

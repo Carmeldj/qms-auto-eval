@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useApp } from "../contexts/AppContext";
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { DEV_MODE } from "../lib/devMode";
 
 const PROTECTED_PREFIXES = [
   "/assessment",
@@ -32,6 +33,8 @@ const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { openModal } = useApp();
 
   useEffect(() => {
+    if (DEV_MODE) return;
+
     const path = location.pathname;
     const wantsProtected = PROTECTED_PREFIXES.some(
       (prefix) => path === prefix || path.startsWith(prefix + "/")

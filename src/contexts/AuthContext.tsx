@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { User } from "../types/user";
 import { login, LoginCredentials } from "../api/auth";
+import { DEV_MODE } from "../lib/devMode";
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = DEV_MODE || !!user;
 
   const checkAuthStatus = async () => {
     const token = localStorage.getItem("accessToken");
