@@ -6,16 +6,14 @@ import React, {
   ReactNode,
 } from "react";
 import { User } from "../types/user";
-import { login, logout as apiLogout, LoginCredentials, SignUpData, signUp } from "../api/auth";
-import { supabase } from "../lib/supabase";
+import { login, LoginCredentials } from "../api/auth";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<boolean>;
-  signUp: (data: SignUpData) => Promise<boolean>;
-  logout: () => Promise<void>;
+  logout: () => void;
   checkAuthStatus: () => void;
 }
 
@@ -29,48 +27,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = !!user;
+  // COMMENTED OUT AUTH - Always authenticated for development
+  // const isAuthenticated = !!user;
+  const isAuthenticated = true; // DEV MODE: Skip auth
 
+  // Check if user is already authenticated on app load
   const checkAuthStatus = async () => {
-    setIsLoading(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        if (profile) {
-          const user: User = {
-            id: session.user.id,
-            email: profile.email,
-            fullName: profile.full_name,
-            tenantId: profile.tenant_id,
-            pharmacyName: profile.pharmacy_name,
-            pharmacyInitials: profile.pharmacy_initials,
-          };
-          setUser(user);
-          localStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem("tenantId", user.tenantId);
-        }
-      } else {
-        const rawUser = localStorage.getItem("user");
+    // COMMENTED OUT AUTH - Skip auth check for development
+    setIsLoading(false);
+    const token = localStorage.getItem("accessToken");
+    const tenantId = localStorage.getItem("tenantId");
+    const rawUser = localStorage.getItem("user");
+    if (token && tenantId) {
+      // TODO: Replace this with a real API call to validate the token with your backend
+      try {
+        // Example: await validateToken(token)
+        // If valid, restore user
         if (rawUser) {
           const parsed = JSON.parse(rawUser) as User;
           setUser(parsed);
+        } else {
+          setUser(null);
         }
+      } catch {
+        setUser(null);
       }
-    } catch (error) {
-      console.error("Erreur de vérification d'authentification:", error);
+      setIsLoading(false);
+    } else {
       setUser(null);
-    } finally {
       setIsLoading(false);
     }
   };
 
+  // Login function
   const handleLogin = async (
     credentials: LoginCredentials
   ): Promise<boolean> => {
@@ -79,34 +68,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = await login(credentials);
       if (userData) {
         setUser(userData);
+        setIsLoading(false);
         return true;
+      } else {
+        setIsLoading(false);
+        return false;
       }
-      return false;
     } catch (error) {
-      console.error("Échec de connexion:", error);
-      return false;
-    } finally {
+      console.error("Login failed:", error);
       setIsLoading(false);
+      return false;
     }
   };
 
-  const handleSignUp = async (data: SignUpData): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      const userData = await signUp(data);
-      setUser(userData);
-      return true;
-    } catch (error) {
-      console.error("Échec d'inscription:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
+  // Logout function
+  const handleLogout = () => {
     setUser(null);
-    await apiLogout();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("tenantId");
+    localStorage.removeItem("user");
     window.location.href = "/";
   };
 
@@ -115,33 +95,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        (async () => {
-          if (event === 'SIGNED_IN' && session?.user) {
-            await checkAuthStatus();
-          } else if (event === 'SIGNED_OUT') {
-            setUser(null);
-            localStorage.removeItem("user");
-            localStorage.removeItem("tenantId");
-            localStorage.removeItem("accessToken");
-          }
-        })();
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   const value: AuthContextType = {
     user,
     isAuthenticated,
     isLoading,
     login: handleLogin,
-    signUp: handleSignUp,
     logout: handleLogout,
     checkAuthStatus,
   };

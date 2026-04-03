@@ -4,7 +4,6 @@ import Header from "./components/Header";
 import Home from "./components/Home";
 import LoginModule from "./components/Auth/LoginModule";
 import SubscriptionLayout from "./layouts/SubscriptionLayout";
-import { SignUpModule } from "./components/Auth/SignUpModule";
 
 const AssessmentForm = lazy(() => import("./components/AssessmentForm"));
 const InspectionForm = lazy(() => import("./components/Inspection/InspectionForm"));
@@ -42,7 +41,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginModule />} />
-            <Route path="/signup" element={<SignUpModule />} />
 
             {/* Protected routes under subscription layout */}
             <Route element={<SubscriptionLayout />}>
