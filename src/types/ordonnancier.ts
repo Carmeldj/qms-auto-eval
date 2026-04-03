@@ -1,22 +1,28 @@
 export interface OrdonnancierEntry {
   id: string;
   numeroOrdre: number;
-  dateDelivrance: string;
+  datePrescription: string;
+  dateDispensation: string;
   prescripteur: {
     nomPrenoms: string;
     numeroOrdre: string;
+    contact: string;
+    qualite: string;
   };
+  formationSanitaire: string;
   patient: {
     nomPrenoms: string;
-    adresse: string;
+    contact: string;
   };
   produit: {
-    nature: string;
-    dci: string;
-    dose: string;
-    quantite: number;
+    specialiteDCI: string;
+    presentation: string;
+    formeGalenique: string;
+    dosage: string;
+    quantiteDelivree: number;
+    resteALivrer: number;
   };
-  prixVente: number;
+  prixUnitaire: number;
   pharmacien: {
     nom: string;
     signature: string;
