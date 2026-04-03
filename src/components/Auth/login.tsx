@@ -212,8 +212,14 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
-          <p className="text-xs text-gray-500 text-center">
+          <p className="text-xs text-gray-500 text-center mb-2">
             Système de Management de la Qualité Pharmaceutique
+          </p>
+          <p className="text-xs text-gray-600 text-center">
+            Pas de compte ?{' '}
+            <a href="/signup" className="text-teal-600 hover:text-teal-700 font-medium">
+              S'inscrire
+            </a>
           </p>
         </div>
       </div>
