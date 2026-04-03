@@ -23,29 +23,27 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const isValidUser = (obj: unknown): obj is User => {
+  if (!obj || typeof obj !== "object") return false;
+  const u = obj as Record<string, unknown>;
+  return typeof u.id === "string" && typeof u.email === "string";
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // COMMENTED OUT AUTH - Always authenticated for development
   const isAuthenticated = !!user;
-  // const isAuthenticated = true; // DEV MODE: Skip auth
 
-  // Check if user is already authenticated on app load
   const checkAuthStatus = async () => {
-    // COMMENTED OUT AUTH - Skip auth check for development
-    // setIsLoading(false);
     const token = localStorage.getItem("accessToken");
     const tenantId = localStorage.getItem("tenantId");
     const rawUser = localStorage.getItem("user");
     if (token && tenantId) {
-      // TODO: Replace this with a real API call to validate the token with your backend
       try {
-        // Example: await validateToken(token)
-        // If valid, restore user
         if (rawUser) {
-          const parsed = JSON.parse(rawUser) as User;
-          setUser(parsed);
+          const parsed: unknown = JSON.parse(rawUser);
+          setUser(isValidUser(parsed) ? parsed : null);
         } else {
           setUser(null);
         }
@@ -59,7 +57,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Login function
   const handleLogin = async (
     credentials: LoginCredentials
   ): Promise<boolean> => {
@@ -81,13 +78,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Logout function
+  // Clearing user state is enough — RouteGuard listens to isAuthenticated
+  // and redirects to /login when on a protected route.
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("tenantId");
     localStorage.removeItem("user");
-    window.location.href = "/";
   };
 
   // Check auth status on component mount

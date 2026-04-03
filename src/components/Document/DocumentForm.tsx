@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   X,
   Download,
@@ -29,7 +29,14 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { user } = useAuth();
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+    };
+  }, []);
 
   const isLiaisonBook = template.id === "liaison-book";
 
@@ -106,7 +113,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
 
       // Show success notification
       setShowSuccessNotification(true);
-      setTimeout(() => setShowSuccessNotification(false), 5000);
+      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = setTimeout(() => setShowSuccessNotification(false), 5000);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Erreur lors de la génération du PDF");
@@ -131,10 +139,10 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
 
     try {
       await shareToWhatsApp(template, documentData, formData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erreur partage WhatsApp:", error);
       const errorMessage =
-        error.message || "Erreur lors du partage WhatsApp. Veuillez réessayer.";
+        error instanceof Error ? error.message : "Erreur lors du partage WhatsApp. Veuillez réessayer.";
       alert(errorMessage);
     } finally {
       setIsSharing(false);

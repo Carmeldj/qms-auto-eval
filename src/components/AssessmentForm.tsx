@@ -21,7 +21,7 @@ const AssessmentForm: React.FC = () => {
 
   useEffect(() => {
     if (!currentAssessment) startNewAssessment();
-  }, []);
+  }, [currentAssessment, startNewAssessment]);
 
   const [currentPMQ, setCurrentPMQ] = useState(1);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});

@@ -1,4 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
+const isValidDraftInspection = (obj: unknown): obj is { pharmacyInfo: unknown; pharmacistInfo: unknown; answers: unknown[] } => {
+  if (!obj || typeof obj !== 'object') return false;
+  const d = obj as Record<string, unknown>;
+  return Array.isArray(d.answers) && 'pharmacyInfo' in d && 'pharmacistInfo' in d;
+};
 import { InspectionReport, InspectionAnswer, PharmacyInfo, PharmacistInfo } from '../types';
 import { inspectionReportService } from '../services/InspectionReportService';
 
@@ -35,7 +41,9 @@ export const InspectionProvider: React.FC<{ children: ReactNode }> = ({ children
     const [currentInspection, setCurrentInspection] = useState<DraftInspection | null>(() => {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) as DraftInspection : null;
+            if (!raw) return null;
+            const parsed: unknown = JSON.parse(raw);
+            return isValidDraftInspection(parsed) ? (parsed as DraftInspection) : null;
         } catch {
             return null;
         }

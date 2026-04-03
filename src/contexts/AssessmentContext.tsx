@@ -1,6 +1,17 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { Assessment, Answer } from '../types';
 import { principles } from '../data/principles';
+
+const isValidAssessment = (obj: unknown): obj is Assessment => {
+  if (!obj || typeof obj !== 'object') return false;
+  const a = obj as Record<string, unknown>;
+  return (
+    typeof a.id === 'string' &&
+    typeof a.date === 'string' &&
+    Array.isArray(a.answers) &&
+    typeof a.scores === 'object' && a.scores !== null
+  );
+};
 
 type AssessmentContextType = {
   currentAssessment: Assessment | null;
@@ -26,7 +37,9 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const [currentAssessment, setCurrentAssessment] = useState<Assessment | null>(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      return raw ? JSON.parse(raw) as Assessment : null;
+      if (!raw) return null;
+      const parsed: unknown = JSON.parse(raw);
+      return isValidAssessment(parsed) ? parsed : null;
     } catch {
       return null;
     }
@@ -40,7 +53,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [currentAssessment]);
 
-  const startNewAssessment = () => {
+  const startNewAssessment = useCallback(() => {
     const newAssessment: Assessment = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
@@ -48,7 +61,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
       scores: { principles: {}, pmqs: {}, overall: 0 }
     };
     setCurrentAssessment(newAssessment);
-  };
+  }, []);
 
   const updateAnswer = (principleId: string, score: number, comment?: string) => {
     if (!currentAssessment) return;

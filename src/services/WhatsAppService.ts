@@ -31,18 +31,14 @@ export const shareToWhatsApp = async (
   try {
     // Générer le PDF du cahier de liaison
     const pdfBlob = await generateLiaisonBookPDF(document);
-    console.log("PDF généré avec succès");
 
     // Upload sur Supabase
     const documentUrl = await uploadPDFToSupabase(pdfBlob, document.id);
-    console.log("PDF uploadé avec succès:", documentUrl);
 
     // Upload du PDF attaché si présent
     let attachmentUrl: string | undefined;
     if (attachedPDF) {
-      console.log("Upload du PDF attaché...");
       attachmentUrl = await uploadAttachedPDF(attachedPDF, document.id);
-      console.log("PDF attaché uploadé avec succès:", attachmentUrl);
     }
 
     // Formater le message WhatsApp
@@ -54,7 +50,6 @@ export const shareToWhatsApp = async (
 
     // Sauvegarder l'enregistrement
     await saveLiaisonBookRecord(document, documentUrl, attachmentUrl);
-    console.log("Enregistrement sauvegardé");
 
     // Ouvrir WhatsApp
     const encodedMessage = encodeURIComponent(whatsappMessage);
@@ -190,8 +185,6 @@ const uploadPDFToSupabase = async (
     const fileName = `liaison-book-${documentId}-${Date.now()}.pdf`;
     const filePath = `liaison-books/${fileName}`;
 
-    console.log("Début upload vers:", filePath);
-
     const { error } = await supabase.storage
       .from("documents")
       .upload(filePath, pdfBlob, {
@@ -205,8 +198,6 @@ const uploadPDFToSupabase = async (
       throw new Error(`Erreur lors de l'upload du document: ${error.message}`);
     }
 
-    console.log("Upload réussi, récupération de l'URL publique...");
-
     const { data: urlData } = supabase.storage
       .from("documents")
       .getPublicUrl(filePath);
@@ -215,7 +206,6 @@ const uploadPDFToSupabase = async (
       throw new Error("Impossible de générer l'URL publique du document");
     }
 
-    console.log("URL publique générée:", urlData.publicUrl);
     return urlData.publicUrl;
   } catch (error: any) {
     console.error("Erreur dans uploadPDFToSupabase:", error);
@@ -230,8 +220,6 @@ const uploadAttachedPDF = async (
   try {
     const fileName = `liaison-book-attachment-${documentId}-${Date.now()}.pdf`;
     const filePath = `liaison-books/${fileName}`;
-
-    console.log("Début upload fichier attaché vers:", filePath);
 
     const { error } = await supabase.storage
       .from("documents")
@@ -248,10 +236,6 @@ const uploadAttachedPDF = async (
       );
     }
 
-    console.log(
-      "Upload fichier attaché réussi, récupération de l'URL publique..."
-    );
-
     const { data: urlData } = supabase.storage
       .from("documents")
       .getPublicUrl(filePath);
@@ -262,7 +246,6 @@ const uploadAttachedPDF = async (
       );
     }
 
-    console.log("URL publique fichier attaché générée:", urlData.publicUrl);
     return urlData.publicUrl;
   } catch (error: any) {
     console.error("Erreur dans uploadAttachedPDF:", error);

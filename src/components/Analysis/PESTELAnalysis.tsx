@@ -45,16 +45,13 @@ const PESTELAnalysis: React.FC = () => {
   // };
 
   const generatePDF = () => {
-    console.log('Starting PDF generation...');
     try {
-      console.log('Creating jsPDF instance...');
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
       // const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 20;
       let yPos = 20;
 
-      console.log('Adding title...');
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(0, 150, 136);
@@ -85,10 +82,7 @@ const PESTELAnalysis: React.FC = () => {
       pdf.text(pharmacistName, margin + 30, yPos);
       yPos += 10;
 
-      console.log(`Processing ${pestelCategories.length} categories...`);
-      pestelCategories.forEach((category, catIndex) => {
-        console.log(`Processing category ${catIndex + 1}: ${category.title}`);
-
+      pestelCategories.forEach((category) => {
         if (yPos > 250) {
           pdf.addPage();
           yPos = 20;
@@ -108,7 +102,6 @@ const PESTELAnalysis: React.FC = () => {
         pdf.setTextColor(0, 0, 0);
 
         const questions = pestelQuestions.filter(q => q.category === category.id);
-        console.log(`  - ${questions.length} questions in this category`);
 
         questions.forEach((q, index) => {
           if (yPos > 260) {
@@ -133,9 +126,7 @@ const PESTELAnalysis: React.FC = () => {
       });
 
       const filename = `PESTEL_Analysis_${new Date().toISOString().split('T')[0]}.pdf`;
-      console.log(`Saving PDF as: ${filename}`);
       pdf.save(filename);
-      console.log('PDF generated and saved successfully!');
     } catch (error) {
       console.error('Error generating PDF:', error);
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');

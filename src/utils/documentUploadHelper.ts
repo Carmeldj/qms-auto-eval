@@ -71,7 +71,6 @@ export const uploadAndSaveDocument = async (
 
     // Send to API
     const createdDocument = await documentApi.createDocument(documentDto);
-    console.log("Document created successfully:", createdDocument);
 
     return createdDocument;
   } catch (error) {

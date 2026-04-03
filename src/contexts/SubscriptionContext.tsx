@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { subscriptionApi } from "../api/subscription";
@@ -29,11 +30,10 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
   const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const checkSubscription = async () => {
+  const checkSubscription = useCallback(async () => {
     setIsLoading(true);
     try {
       const status = await subscriptionApi.checkSubscriptionStatus();
-      // console.log(status);
 
       if (
         status?.subscriptionStatus === "active" ||
@@ -50,11 +50,11 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkSubscription();
-  }, []);
+  }, [checkSubscription]);
 
   const value: SubscriptionContextType = {
     hasSubscription,

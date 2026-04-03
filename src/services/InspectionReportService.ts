@@ -32,11 +32,6 @@ export class InspectionReportService {
     pharmacistInfo: PharmacistInfo,
     answers: InspectionAnswer[]
   ): InspectionReport {
-    console.log(
-      "InspectionReportService: Creating report with answers:",
-      answers
-    );
-
     const summary = this.calculateSummary(answers);
 
     this.currentReport = {
@@ -48,7 +43,6 @@ export class InspectionReportService {
       summary,
     };
 
-    console.log("InspectionReportService: Created report:", this.currentReport);
     return this.currentReport;
   }
 
@@ -57,11 +51,6 @@ export class InspectionReportService {
   }
 
   public calculateSummary(answers: InspectionAnswer[]) {
-    console.log(
-      "InspectionReportService: Calculating summary for answers:",
-      answers
-    );
-
     const summary = {
       totalItems: inspectionItems.length,
       compliant: 0,
@@ -89,7 +78,6 @@ export class InspectionReportService {
       }
     });
 
-    console.log("InspectionReportService: Calculated summary:", summary);
     return summary;
   }
 
@@ -116,7 +104,6 @@ export class InspectionReportService {
       unanswered: inspectionItems.length - answeredItems.length,
     };
 
-    console.log("InspectionReportService: Real-time stats:", stats);
     return stats;
   }
 
@@ -139,11 +126,6 @@ export class InspectionReportService {
 
   public async generatePDF(report: InspectionReport): Promise<any> {
     try {
-      console.log(
-        "InspectionReportService: Starting PDF generation for report:",
-        report
-      );
-
       // Validation des données avant génération
       if (!report || !report.pharmacyInfo || !report.pharmacistInfo) {
         throw new Error("Données du rapport manquantes");
@@ -882,11 +864,6 @@ export class InspectionReportService {
 
       const pdfBlob = pdf.output("blob");
       return { blob: pdfBlob, fileName };
-
-      console.log(
-        "InspectionReportService: PDF generated successfully:",
-        fileName
-      );
     } catch (error) {
       console.error("InspectionReportService: Error generating PDF:", error);
       throw new Error(

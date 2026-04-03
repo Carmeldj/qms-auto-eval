@@ -83,9 +83,6 @@ const InspectionForm: React.FC = () => {
   };
 
   const handleComplete = () => {
-    console.log("InspectionForm: Completing inspection with answers:", answers);
-    console.log("InspectionForm: Pharmacy info:", pharmacyInfo);
-    console.log("InspectionForm: Pharmacist info:", pharmacistInfo);
     completeInspection();
     navigate('/inspection-results');
   };

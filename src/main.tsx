@@ -9,9 +9,11 @@ import RouteGuard from "./components/RouteGuards.tsx";
 import { AssessmentProvider } from "./contexts/AssessmentContext.tsx";
 import { InspectionProvider } from "./contexts/InspectionContext.tsx";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext.tsx";
+import ErrorBoundary from "./components/ErrorBoundary.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <ErrorBoundary>
     <AuthProvider>
       <AppProvider>
         <SubscriptionProvider>
@@ -27,5 +29,6 @@ createRoot(document.getElementById("root")!).render(
         </SubscriptionProvider>
       </AppProvider>
     </AuthProvider>
+    </ErrorBoundary>
   </StrictMode>
 );
