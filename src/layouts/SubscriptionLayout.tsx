@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useSubscription } from "../contexts/SubscriptionContext";
 import { useAuth } from "../contexts/AuthContext";
 // import { Outlet } from "react-router-dom";
-import Header from '../components/Header';
+// import Header from '../components/Header';
 
 const SubscriptionLayout: React.FC = () => {
   const { hasSubscription, checkSubscription } = useSubscription();
@@ -65,7 +65,7 @@ const SubscriptionLayout: React.FC = () => {
   if (isAuthLoading || checking) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
+        {/* <Header /> */}
         <main className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
             <svg
