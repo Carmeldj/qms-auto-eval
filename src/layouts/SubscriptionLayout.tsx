@@ -40,6 +40,7 @@ const SubscriptionLayout: React.FC = () => {
   }, [isAuthenticated, isAuthLoading, checkSubscription]);
 
   useEffect(() => {
+    if (DEV_MODE) return;
     if (!isAuthLoading && !checking && isAuthenticated && !hasSubscription) {
       if (location.pathname !== "/subscribe") {
         navigate("/subscribe");
