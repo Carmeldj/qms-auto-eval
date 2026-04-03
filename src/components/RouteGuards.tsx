@@ -3,7 +3,8 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useApp } from "../contexts/AppContext";
-// import { useSubscription } from '../contexts/SubscriptionContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import { DEV_MODE } from "../lib/devMode";
 
 const PROTECTED_PREFIXES = [
   "/assessment",
@@ -28,31 +29,28 @@ const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  // const { hasSubscription } = useSubscription();
+  const { hasSubscription } = useSubscription();
   const { openModal } = useApp();
 
   useEffect(() => {
-    // COMMENTED OUT AUTH - No route protection for development
-    return; // DEV MODE: Skip all route protection
+    if (DEV_MODE) return;
 
-    /* ORIGINAL AUTH CODE - Commented for development
     const path = location.pathname;
     const wantsProtected = PROTECTED_PREFIXES.some(
       (prefix) => path === prefix || path.startsWith(prefix + "/")
     );
 
-    // if (wantsProtected && isAuthenticated && !hasSubscription) {
-    //     navigate('/subscribe');
-    //     return;
-    // }
+    if (wantsProtected && isAuthenticated && !hasSubscription) {
+      navigate("/subscribe");
+      return;
+    }
 
     if (wantsProtected && !isAuthenticated) {
       navigate("/login");
       openModal("login");
       return;
     }
-    */
-  }, [location.pathname, isAuthenticated, navigate]);
+  }, [location.pathname, isAuthenticated, hasSubscription, navigate, openModal]);
 
   return <>{children}</>;
 };

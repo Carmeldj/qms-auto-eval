@@ -58,8 +58,6 @@ const InspectionResults: React.FC = () => {
 
   const handleExportPDF = async () => {
     try {
-      console.log("InspectionResults: Starting PDF export for report:", report);
-
       // Vérification des données avant export
       if (!report || !report.pharmacyInfo || !report.pharmacistInfo) {
         throw new Error("Données du rapport manquantes");
@@ -94,7 +92,6 @@ const InspectionResults: React.FC = () => {
       link.click();
       URL.revokeObjectURL(link.href);
 
-      console.log("InspectionResults: PDF export completed successfully");
     } catch (error) {
       console.error("InspectionResults: PDF export failed:", error);
       const errorMessage =
@@ -102,11 +99,6 @@ const InspectionResults: React.FC = () => {
       alert(`Erreur lors de la génération du PDF: ${errorMessage}`);
     }
   };
-
-  // Debug logging
-  console.log('InspectionResults - Report:', report);
-  console.log('InspectionResults - Answers:', report.answers);
-  console.log('InspectionResults - Real-time stats:', realTimeStats);
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">

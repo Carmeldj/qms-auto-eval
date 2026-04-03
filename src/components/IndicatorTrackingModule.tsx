@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Plus, TrendingUp, AlertCircle, CheckCircle, AlertTriangle, Download, Edit2, Trash2, Calendar, BarChart3, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import jsPDF from 'jspdf';
@@ -37,6 +37,7 @@ const IndicatorTrackingModule: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedFrequency, setSelectedFrequency] = useState<string>('');
   const [showRefreshMessage, setShowRefreshMessage] = useState(false);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [formData, setFormData] = useState<Measurement>({
     indicator_id: '',
     measurement_date: '',
@@ -61,6 +62,7 @@ const IndicatorTrackingModule: React.FC = () => {
 
     return () => {
       indicatorsSubscription.unsubscribe();
+      if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
     };
   }, []);
 
@@ -77,7 +79,8 @@ const IndicatorTrackingModule: React.FC = () => {
 
       if (showMessage) {
         setShowRefreshMessage(true);
-        setTimeout(() => setShowRefreshMessage(false), 3000);
+        if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
+        refreshTimeoutRef.current = setTimeout(() => setShowRefreshMessage(false), 3000);
       }
     } catch (error) {
       console.error('Erreur chargement indicateurs:', error);
