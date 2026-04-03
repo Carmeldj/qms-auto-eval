@@ -27,7 +27,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = !!user;
+  // COMMENTED OUT AUTH - Always authenticated for development
+  // const isAuthenticated = !!user;
+  const isAuthenticated = true; // DEV MODE: Skip auth
 
   // Check if user is already authenticated on app load
   const checkAuthStatus = async () => {

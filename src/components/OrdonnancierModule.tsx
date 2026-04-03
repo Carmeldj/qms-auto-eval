@@ -5,6 +5,7 @@ import { ordonnancierService } from '../services/OrdonnancierService';
 import { PrescriptionFileService } from '../services/PrescriptionFileService';
 import ClassificationBadge from './ClassificationBadge';
 import PrescriptionViewer from './PrescriptionViewer';
+import OrdonnancierFormFields from './OrdonnancierFormFields';
 import { signatureGenerator } from '../services/SignatureGenerator';
 import { stampGenerator } from '../services/StampGenerator';
 import { useAuth } from '../contexts/AuthContext';
@@ -39,11 +40,13 @@ const OrdonnancierModule: React.FC = () => {
   };
 
   const [formData, setFormData] = useState<Partial<OrdonnancierEntry>>({
-    dateDelivrance: new Date().toISOString().split('T')[0],
-    prescripteur: { nomPrenoms: '', numeroOrdre: '' },
-    patient: { nomPrenoms: '', adresse: '' },
-    produit: { nature: '', dci: '', dose: '', quantite: 1 },
-    prixVente: 0,
+    datePrescription: new Date().toISOString().split('T')[0],
+    dateDispensation: new Date().toISOString().split('T')[0],
+    prescripteur: { nomPrenoms: '', numeroOrdre: '', contact: '', qualite: '' },
+    formationSanitaire: '',
+    patient: { nomPrenoms: '', contact: '' },
+    produit: { specialiteDCI: '', presentation: '', formeGalenique: '', dosage: '', quantiteDelivree: 1, resteALivrer: 0 },
+    prixUnitaire: 0,
     pharmacien: { nom: '', signature: '' }
   });
 
@@ -111,22 +114,28 @@ const OrdonnancierModule: React.FC = () => {
         const mappedEntries: OrdonnancierEntry[] = data.map((item: any) => ({
           id: item.id,
           numeroOrdre: item.numero_ordre,
-          dateDelivrance: item.date_delivrance,
+          datePrescription: item.date_prescription,
+          dateDispensation: item.date_dispensation,
           prescripteur: {
             nomPrenoms: item.prescripteur_nom_prenoms,
-            numeroOrdre: item.prescripteur_numero_ordre
+            numeroOrdre: item.prescripteur_numero_ordre,
+            contact: item.prescripteur_contact || '',
+            qualite: item.prescripteur_qualite || ''
           },
+          formationSanitaire: item.formation_sanitaire || '',
           patient: {
             nomPrenoms: item.patient_nom_prenoms,
-            adresse: item.patient_adresse
+            contact: item.patient_contact || ''
           },
           produit: {
-            nature: item.produit_nature,
-            dci: item.produit_dci || '',
-            dose: item.produit_dose,
-            quantite: item.produit_quantite
+            specialiteDCI: item.produit_specialite_dci,
+            presentation: item.produit_presentation || '',
+            formeGalenique: item.produit_forme_galenique || '',
+            dosage: item.produit_dosage || '',
+            quantiteDelivree: item.produit_quantite_delivree,
+            resteALivrer: item.produit_reste_a_livrer || 0
           },
-          prixVente: item.prix_vente,
+          prixUnitaire: item.prix_unitaire,
           pharmacien: {
             nom: item.pharmacien_nom,
             signature: item.pharmacien_signature
@@ -136,7 +145,8 @@ const OrdonnancierModule: React.FC = () => {
           prescriptionPasswordHash: item.prescription_password_hash,
           prescriptionUploadedAt: item.prescription_uploaded_at,
           createdAt: item.created_at,
-          updatedAt: item.updated_at
+          updatedAt: item.updated_at,
+          createdBy: item.created_by || ''
         }));
         setEntries(mappedEntries);
       }
@@ -149,7 +159,7 @@ const OrdonnancierModule: React.FC = () => {
 
   const filterEntriesByTrimester = () => {
     const filtered = entries.filter(entry => {
-      const date = new Date(entry.dateDelivrance);
+      const date = new Date(entry.dateDispensation);
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
       const trimestre = Math.ceil(month / 3);
@@ -388,7 +398,7 @@ const OrdonnancierModule: React.FC = () => {
     setLoading(true);
 
     try {
-      const date = new Date(formData.dateDelivrance!);
+      const date = new Date(formData.dateDispensation!);
       const month = date.getMonth() + 1;
       const trimestre = Math.ceil(month / 3);
       const annee = date.getFullYear();
@@ -413,16 +423,22 @@ const OrdonnancierModule: React.FC = () => {
 
       const payload = {
         numero_ordre: nextNumero,
-        date_delivrance: formData.dateDelivrance,
+        date_prescription: formData.datePrescription,
+        date_dispensation: formData.dateDispensation,
         prescripteur_nom_prenoms: formData.prescripteur!.nomPrenoms,
         prescripteur_numero_ordre: formData.prescripteur!.numeroOrdre,
+        prescripteur_contact: formData.prescripteur!.contact,
+        prescripteur_qualite: formData.prescripteur!.qualite,
+        formation_sanitaire: formData.formationSanitaire,
         patient_nom_prenoms: formData.patient!.nomPrenoms,
-        patient_adresse: formData.patient!.adresse,
-        produit_nature: formData.produit!.nature,
-        produit_dci: formData.produit!.dci,
-        produit_dose: formData.produit!.dose,
-        produit_quantite: formData.produit!.quantite,
-        prix_vente: formData.prixVente,
+        patient_contact: formData.patient!.contact,
+        produit_specialite_dci: formData.produit!.specialiteDCI,
+        produit_presentation: formData.produit!.presentation,
+        produit_forme_galenique: formData.produit!.formeGalenique,
+        produit_dosage: formData.produit!.dosage,
+        produit_quantite_delivree: formData.produit!.quantiteDelivree,
+        produit_reste_a_livrer: formData.produit!.resteALivrer,
+        prix_unitaire: formData.prixUnitaire,
         pharmacien_nom: formData.pharmacien!.nom,
         pharmacien_signature: formData.pharmacien!.signature,
         trimestre: trimestre,
@@ -467,11 +483,13 @@ const OrdonnancierModule: React.FC = () => {
 
         // Réinitialiser le formulaire
         setFormData({
-          dateDelivrance: new Date().toISOString().split('T')[0],
-          prescripteur: { nomPrenoms: '', numeroOrdre: '' },
-          patient: { nomPrenoms: '', adresse: '' },
-          produit: { nature: '', dci: '', dose: '', quantite: 1 },
-          prixVente: 0,
+          datePrescription: new Date().toISOString().split('T')[0],
+          dateDispensation: new Date().toISOString().split('T')[0],
+          prescripteur: { nomPrenoms: '', numeroOrdre: '', contact: '', qualite: '' },
+          formationSanitaire: '',
+          patient: { nomPrenoms: '', contact: '' },
+          produit: { specialiteDCI: '', presentation: '', formeGalenique: '', dosage: '', quantiteDelivree: 1, resteALivrer: 0 },
+          prixUnitaire: 0,
           pharmacien: { nom: '', signature: '' }
         });
         setIsCustomProduct(false);
@@ -556,13 +574,13 @@ const OrdonnancierModule: React.FC = () => {
                   {entries.slice(0, 20).map(entry => (
                     <tr key={entry.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{entry.numeroOrdre}</td>
-                      <td className="px-4 py-3">{new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')}</td>
+                      <td className="px-4 py-3">{new Date(entry.dateDispensation).toLocaleDateString('fr-FR')}</td>
                       <td className="px-4 py-3">{entry.prescripteur.nomPrenoms}</td>
                       <td className="px-4 py-3">{entry.prescripteur.numeroOrdre || '-'}</td>
                       <td className="px-4 py-3">{entry.patient.nomPrenoms}</td>
-                      <td className="px-4 py-3">{entry.produit.nature}</td>
-                      <td className="px-4 py-3">{entry.produit.quantite}</td>
-                      <td className="px-4 py-3">{entry.prixVente} FCFA</td>
+                      <td className="px-4 py-3">{entry.produit.specialiteDCI}</td>
+                      <td className="px-4 py-3">{entry.produit.quantiteDelivree}</td>
+                      <td className="px-4 py-3">{entry.prixUnitaire} FCFA</td>
                       <td className="px-4 py-3">{entry.pharmacien.nom}</td>
                       <td className="px-4 py-3">{entry.pharmacien.signature || '-'}</td>
                       <td className="px-4 py-3 text-center">
@@ -592,17 +610,17 @@ const OrdonnancierModule: React.FC = () => {
                 <div key={entry.id} className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div className="flex justify-between items-start mb-2">
                     <span className="font-semibold text-gray-900">N° {entry.numeroOrdre}</span>
-                    <span className="text-xs text-gray-600">{new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')}</span>
+                    <span className="text-xs text-gray-600">{new Date(entry.dateDispensation).toLocaleDateString('fr-FR')}</span>
                   </div>
                   <div className="text-sm space-y-1">
                     <div><span className="font-medium text-gray-700">Prescripteur:</span> {entry.prescripteur.nomPrenoms} {entry.prescripteur.numeroOrdre && `(N°${entry.prescripteur.numeroOrdre})`}</div>
                     <div><span className="font-medium text-gray-700">Patient:</span> {entry.patient.nomPrenoms}</div>
-                    <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
-                    {entry.produit.dci && <div><span className="font-medium text-gray-700">DCI:</span> {entry.produit.dci}</div>}
+                    <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.specialiteDCI}</div>
+                    {entry.produit.presentation && <div><span className="font-medium text-gray-700">Présentation:</span> {entry.produit.presentation}</div>}
                     <div><span className="font-medium text-gray-700">Pharmacien:</span> {entry.pharmacien.nom} {entry.pharmacien.signature && `(N°${entry.pharmacien.signature})`}</div>
                     <div className="flex justify-between">
-                      <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
-                      <span className="font-semibold" style={{ color: '#009688' }}>{entry.prixVente} FCFA</span>
+                      <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantiteDelivree}</span>
+                      <span className="font-semibold" style={{ color: '#009688' }}>{entry.prixUnitaire} FCFA</span>
                     </div>
                   </div>
                   {entry.prescriptionFileUrl && (
@@ -642,263 +660,12 @@ const OrdonnancierModule: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date de délivrance *
-            </label>
-            <input
-              type="date"
-              required
-              value={formData.dateDelivrance}
-              onChange={(e) => setFormData({ ...formData, dateDelivrance: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              style={{ '--tw-ring-color': '#009688' } as React.CSSProperties}
-            />
-          </div>
-
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Prescripteur</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom et prénoms *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.prescripteur?.nomPrenoms}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    prescripteur: { ...formData.prescripteur!, nomPrenoms: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  N° Ordre des médecins
-                </label>
-                <input
-                  type="text"
-                  value={formData.prescripteur?.numeroOrdre}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    prescripteur: { ...formData.prescripteur!, numeroOrdre: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Patient</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom et prénoms *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.patient?.nomPrenoms}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    patient: { ...formData.patient!, nomPrenoms: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Adresse
-                </label>
-                <input
-                  type="text"
-                  value={formData.patient?.adresse}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    patient: { ...formData.patient!, adresse: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Produit</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nature du produit *
-                </label>
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 sm:space-x-4">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        checked={!isCustomProduct}
-                        onChange={() => {
-                          setIsCustomProduct(false);
-                          setFormData({
-                            ...formData,
-                            produit: { ...formData.produit!, nature: '' }
-                          });
-                        }}
-                        className="w-4 h-4"
-                        style={{ accentColor: '#009688' }}
-                      />
-                      <span className="text-sm text-gray-700">Sélectionner dans la liste</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        checked={isCustomProduct}
-                        onChange={() => {
-                          setIsCustomProduct(true);
-                          setFormData({
-                            ...formData,
-                            produit: { ...formData.produit!, nature: '' }
-                          });
-                        }}
-                        className="w-4 h-4"
-                        style={{ accentColor: '#009688' }}
-                      />
-                      <span className="text-sm text-gray-700">Saisir manuellement</span>
-                    </label>
-                  </div>
-
-                  {!isCustomProduct ? (
-                    <select
-                      required
-                      value={formData.produit?.nature}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        produit: { ...formData.produit!, nature: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    >
-                      <option value="">Sélectionner...</option>
-                      {PRODUITS_SOUS_CONTROLE.map(produit => (
-                        <option key={produit} value={produit}>{produit}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      required
-                      placeholder="Entrer le nom du produit"
-                      value={formData.produit?.nature}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        produit: { ...formData.produit!, nature: e.target.value }
-                      })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                    />
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Dénomination Commune Internationale (DCI) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="ex: Morphine sulfate, Codéine phosphate..."
-                  value={formData.produit?.dci}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    produit: { ...formData.produit!, dci: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dose
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: 10mg"
-                    value={formData.produit?.dose}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      produit: { ...formData.produit!, dose: e.target.value }
-                    })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantité *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.produit?.quantite}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      produit: { ...formData.produit!, quantite: parseInt(e.target.value) }
-                    })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prix de vente (FCFA) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.prixVente}
-                    onChange={(e) => setFormData({ ...formData, prixVente: parseFloat(e.target.value) })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pharmacien</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom du pharmacien *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.pharmacien?.nom}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    pharmacien: { ...formData.pharmacien!, nom: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Numéro d'ordre du pharmacien
-                </label>
-                <input
-                  type="text"
-                  value={formData.pharmacien?.signature}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    pharmacien: { ...formData.pharmacien!, signature: e.target.value }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  placeholder="Ex: 123/BEN"
-                />
-              </div>
-            </div>
-          </div>
+          <OrdonnancierFormFields
+            formData={formData}
+            setFormData={setFormData}
+            isCustomProduct={isCustomProduct}
+            setIsCustomProduct={setIsCustomProduct}
+          />
 
           {/* Section Upload Ordonnance */}
           <div className="border-t pt-6">
@@ -1129,13 +896,13 @@ const OrdonnancierModule: React.FC = () => {
                   {filteredEntries.map(entry => (
                     <tr key={entry.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{entry.numeroOrdre}</td>
-                      <td className="px-4 py-3">{new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')}</td>
+                      <td className="px-4 py-3">{new Date(entry.dateDispensation).toLocaleDateString('fr-FR')}</td>
                       <td className="px-4 py-3">{entry.prescripteur.nomPrenoms}</td>
                       <td className="px-4 py-3">{entry.prescripteur.numeroOrdre || '-'}</td>
                       <td className="px-4 py-3">{entry.patient.nomPrenoms}</td>
-                      <td className="px-4 py-3">{entry.produit.nature}</td>
-                      <td className="px-4 py-3">{entry.produit.quantite}</td>
-                      <td className="px-4 py-3">{entry.prixVente} FCFA</td>
+                      <td className="px-4 py-3">{entry.produit.specialiteDCI}</td>
+                      <td className="px-4 py-3">{entry.produit.quantiteDelivree}</td>
+                      <td className="px-4 py-3">{entry.prixUnitaire} FCFA</td>
                       <td className="px-4 py-3">{entry.pharmacien.nom}</td>
                       <td className="px-4 py-3">{entry.pharmacien.signature || '-'}</td>
                       <td className="px-4 py-3 text-center">
@@ -1165,17 +932,17 @@ const OrdonnancierModule: React.FC = () => {
                 <div key={entry.id} className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div className="flex justify-between items-start mb-2">
                     <span className="font-semibold text-gray-900">N° {entry.numeroOrdre}</span>
-                    <span className="text-xs text-gray-600">{new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')}</span>
+                    <span className="text-xs text-gray-600">{new Date(entry.dateDispensation).toLocaleDateString('fr-FR')}</span>
                   </div>
                   <div className="text-sm space-y-1">
                     <div><span className="font-medium text-gray-700">Prescripteur:</span> {entry.prescripteur.nomPrenoms} {entry.prescripteur.numeroOrdre && `(N°${entry.prescripteur.numeroOrdre})`}</div>
                     <div><span className="font-medium text-gray-700">Patient:</span> {entry.patient.nomPrenoms}</div>
-                    <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.nature}</div>
-                    {entry.produit.dci && <div><span className="font-medium text-gray-700">DCI:</span> {entry.produit.dci}</div>}
+                    <div><span className="font-medium text-gray-700">Produit:</span> {entry.produit.specialiteDCI}</div>
+                    {entry.produit.presentation && <div><span className="font-medium text-gray-700">Présentation:</span> {entry.produit.presentation}</div>}
                     <div><span className="font-medium text-gray-700">Pharmacien:</span> {entry.pharmacien.nom} {entry.pharmacien.signature && `(N°${entry.pharmacien.signature})`}</div>
                     <div className="flex justify-between">
-                      <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantite}</span>
-                      <span className="font-semibold" style={{ color: '#009688' }}>{entry.prixVente} FCFA</span>
+                      <span><span className="font-medium text-gray-700">Qté:</span> {entry.produit.quantiteDelivree}</span>
+                      <span className="font-semibold" style={{ color: '#009688' }}>{entry.prixUnitaire} FCFA</span>
                     </div>
                   </div>
                   {entry.prescriptionFileUrl && (

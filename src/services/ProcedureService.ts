@@ -22,6 +22,29 @@ export class ProcedureService {
     return ProcedureService.instance;
   }
 
+  private removeAccents(text: string): string {
+    return text
+      .replace(/[àáâãäå]/g, "a")
+      .replace(/[èéêë]/g, "e")
+      .replace(/[ìíîï]/g, "i")
+      .replace(/[òóôõö]/g, "o")
+      .replace(/[ùúûü]/g, "u")
+      .replace(/[ýÿ]/g, "y")
+      .replace(/[ç]/g, "c")
+      .replace(/[ñ]/g, "n")
+      .replace(/[ÀÁÂÃÄÅ]/g, "A")
+      .replace(/[ÈÉÊË]/g, "E")
+      .replace(/[ÌÍÎÏ]/g, "I")
+      .replace(/[ÒÓÔÕÖ]/g, "O")
+      .replace(/[ÙÚÛÜ]/g, "U")
+      .replace(/[ÝŸ]/g, "Y")
+      .replace(/[Ç]/g, "C")
+      .replace(/[Ñ]/g, "N")
+      .replace(/'/g, "'")
+      .replace(/[""]/g, '"')
+      .replace(/[–—]/g, "-");
+  }
+
   public async generatePDF(procedure: Procedure): Promise<void> {
     try {
       const pdf = new jsPDF();
@@ -39,7 +62,7 @@ export class ProcedureService {
         isBold: boolean = false,
         color: string = "black",
         align: "left" | "center" | "right" = "left",
-        lineSpacing: number = 1.15,
+        lineSpacing: number = 1.15
       ) => {
         pdf.setFontSize(fontSize);
         if (isBold) {
@@ -94,7 +117,7 @@ export class ProcedureService {
           "PHARMA QMS - Systeme de Management de la Qualite",
           pageWidth - rightMargin,
           footerY,
-          { align: "right" },
+          { align: "right" }
         );
 
         // Reset text color
@@ -130,7 +153,7 @@ export class ProcedureService {
       let processInfo = null;
 
       const template = procedureTemplates.find(
-        (t) => t.id === procedure.templateId,
+        (t) => t.id === procedure.templateId
       );
 
       if (template?.classificationCode && procedure.info.pharmacyName) {
@@ -156,7 +179,7 @@ export class ProcedureService {
           classificationCode = generateDocumentCode(
             pharmacyInitials,
             processInfo.code,
-            template.classificationCode,
+            template.classificationCode
           );
         }
       }
@@ -183,7 +206,7 @@ export class ProcedureService {
         leftMargin + 3,
         tableStartY + 8 + titleHeight,
         leftMargin + leftColWidth - 3,
-        tableStartY + 8 + titleHeight,
+        tableStartY + 8 + titleHeight
       );
 
       // Informations de la pharmacie (positionnée après le titre multi-lignes)
@@ -198,7 +221,7 @@ export class ProcedureService {
       pdf.setTextColor(60, 60, 60);
       const pharmacyLines = pdf.splitTextToSize(
         procedure.info.pharmacyName,
-        leftColWidth - 10,
+        leftColWidth - 10
       );
       pdf.text(pharmacyLines, leftMargin + 3, pharmacyNameY + 5);
 
@@ -241,17 +264,17 @@ export class ProcedureService {
         metaTableY,
         col3Width,
         8,
-        "S",
+        "S"
       );
       pdf.text(
         "DATE",
         leftMargin + col1Width + col2Width + 2,
-        metaTableY + 3.5,
+        metaTableY + 3.5
       );
       pdf.text(
         "D'EXPIRATION",
         leftMargin + col1Width + col2Width + 2,
-        metaTableY + 6.5,
+        metaTableY + 6.5
       );
 
       // Colonne 4: RÉFÉRENCE
@@ -260,12 +283,12 @@ export class ProcedureService {
         metaTableY,
         col4Width,
         8,
-        "S",
+        "S"
       );
       pdf.text(
         "REFERENCE",
         leftMargin + col1Width + col2Width + col3Width + 2,
-        metaTableY + 5.5,
+        metaTableY + 5.5
       );
 
       // Colonne 5: N° DE VERSION
@@ -274,12 +297,12 @@ export class ProcedureService {
         metaTableY,
         col5Width,
         8,
-        "S",
+        "S"
       );
       pdf.text(
         "N° VERSION",
         leftMargin + col1Width + col2Width + col3Width + col4Width + 2,
-        metaTableY + 5,
+        metaTableY + 5
       );
 
       // Valeurs du tableau SANS REMPLISSAGE
@@ -305,7 +328,7 @@ export class ProcedureService {
 
       if (procedure.info.validityDuration) {
         const durationMatch = procedure.info.validityDuration.match(
-          /(\d+)\s*(an|année|ans|années|mois|month|months)/i,
+          /(\d+)\s*(an|année|ans|années|mois|month|months)/i
         );
         if (durationMatch) {
           const value = parseInt(durationMatch[1]);
@@ -336,12 +359,12 @@ export class ProcedureService {
         valueRowY,
         col2Width,
         valueRowHeight,
-        "S",
+        "S"
       );
       pdf.text(
         effectiveDate.toLocaleDateString("fr-FR"),
         leftMargin + col1Width + 2,
-        valueRowY + 8,
+        valueRowY + 8
       );
 
       // Colonne 3: Date d'expiration
@@ -350,7 +373,7 @@ export class ProcedureService {
         valueRowY,
         col3Width,
         valueRowHeight,
-        "S",
+        "S"
       );
       const expirationText = expirationDate
         ? expirationDate.toLocaleDateString("fr-FR")
@@ -358,7 +381,7 @@ export class ProcedureService {
       pdf.text(
         expirationText,
         leftMargin + col1Width + col2Width + 2,
-        valueRowY + 8,
+        valueRowY + 8
       );
 
       // Colonne 4: Référence
@@ -367,12 +390,12 @@ export class ProcedureService {
         valueRowY,
         col4Width,
         valueRowHeight,
-        "S",
+        "S"
       );
       pdf.text(
         classificationCode || "N/A",
         leftMargin + col1Width + col2Width + col3Width + 2,
-        valueRowY + 8,
+        valueRowY + 8
       );
 
       // Colonne 5: Version
@@ -381,12 +404,12 @@ export class ProcedureService {
         valueRowY,
         col5Width,
         valueRowHeight,
-        "S",
+        "S"
       );
       pdf.text(
         procedure.info.version,
         leftMargin + col1Width + col2Width + col3Width + col4Width + 2,
-        valueRowY + 8,
+        valueRowY + 8
       );
 
       // Deuxième ligne - Auteur de la procédure (pleine largeur)
@@ -398,7 +421,7 @@ export class ProcedureService {
         row2Y,
         pageWidth - leftMargin - rightMargin,
         row2Height,
-        "S",
+        "S"
       );
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(7);
@@ -419,7 +442,7 @@ export class ProcedureService {
         row3Y,
         pageWidth - leftMargin - rightMargin,
         row3Height,
-        "S",
+        "S"
       );
 
       pdf.setFont("helvetica", "bold");
@@ -437,7 +460,7 @@ export class ProcedureService {
         tableStartY,
         pageWidth - leftMargin - rightMargin,
         headerHeight,
-        "S",
+        "S"
       );
 
       // Mise à jour de la position Y après l'en-tête avec plus d'espacement
@@ -468,7 +491,7 @@ export class ProcedureService {
             false,
             "gray",
             "left",
-            1.1,
+            1.1
           );
           yPosition -= 1;
         }
@@ -480,7 +503,7 @@ export class ProcedureService {
             false,
             "gray",
             "left",
-            1.1,
+            1.1
           );
           yPosition -= 1;
         }
@@ -497,7 +520,7 @@ export class ProcedureService {
             false,
             "gray",
             "left",
-            1.1,
+            1.1
           );
           yPosition -= 1;
         }
@@ -516,7 +539,7 @@ export class ProcedureService {
             true,
             "black",
             "left",
-            1.15,
+            1.15
           );
           yPosition -= 1;
           if (indicator.description) {
@@ -526,7 +549,7 @@ export class ProcedureService {
               false,
               "black",
               "left",
-              1.15,
+              1.15
             );
             yPosition -= 1;
           }
@@ -537,7 +560,7 @@ export class ProcedureService {
               false,
               "black",
               "left",
-              1.15,
+              1.15
             );
             yPosition -= 1;
           }
@@ -547,7 +570,7 @@ export class ProcedureService {
             false,
             "black",
             "left",
-            1.15,
+            1.15
           );
           yPosition += 3;
         });
@@ -562,8 +585,8 @@ export class ProcedureService {
             annex.type === "document"
               ? "Document"
               : annex.type === "form"
-                ? "Formulaire"
-                : "Reference reglementaire";
+              ? "Formulaire"
+              : "Reference reglementaire";
 
           addText(
             `Annexe ${index + 1}: ${annex.title || "Sans titre"}`,
@@ -571,7 +594,7 @@ export class ProcedureService {
             true,
             "black",
             "left",
-            1.15,
+            1.15
           );
           yPosition -= 1;
           addText(`   Type: ${typeLabel}`, 10, false, "black", "left", 1.15);
@@ -583,7 +606,7 @@ export class ProcedureService {
               false,
               "black",
               "left",
-              1.15,
+              1.15
             );
             yPosition -= 1;
           }
@@ -594,7 +617,7 @@ export class ProcedureService {
               false,
               "black",
               "left",
-              1.15,
+              1.15
             );
             yPosition -= 1;
           }
@@ -606,13 +629,13 @@ export class ProcedureService {
       addSection("TRACABILITE");
       addText(
         `Document genere le: ${new Date().toLocaleDateString(
-          "fr-FR",
+          "fr-FR"
         )} a ${new Date().toLocaleTimeString("fr-FR")}`,
         10,
         false,
         "gray",
         "left",
-        1.1,
+        1.1
       );
       yPosition -= 1;
       addText(
@@ -621,7 +644,7 @@ export class ProcedureService {
         false,
         "gray",
         "left",
-        1.1,
+        1.1
       );
 
       // Signature et validation
@@ -653,7 +676,7 @@ export class ProcedureService {
         name: string,
         signatureImage?: string,
         maxWidth: number = 30,
-        maxHeight: number = 12,
+        maxHeight: number = 12
       ) => {
         if (signatureImage) {
           // Add signature image provided by user
@@ -666,7 +689,7 @@ export class ProcedureService {
               maxWidth,
               maxHeight,
               undefined,
-              "FAST",
+              "FAST"
             );
           } catch (error) {
             console.error("Failed to add signature image:", error);
@@ -674,7 +697,7 @@ export class ProcedureService {
             const generatedSignature = signatureGenerator.generateSignature(
               name,
               maxWidth * 10,
-              maxHeight * 10,
+              maxHeight * 10
             );
             try {
               pdf.addImage(
@@ -685,7 +708,7 @@ export class ProcedureService {
                 maxWidth,
                 maxHeight,
                 undefined,
-                "FAST",
+                "FAST"
               );
             } catch (err) {
               console.error("Failed to generate signature:", err);
@@ -697,7 +720,7 @@ export class ProcedureService {
             const generatedSignature = signatureGenerator.generateSignature(
               name,
               maxWidth * 10,
-              maxHeight * 10,
+              maxHeight * 10
             );
             pdf.addImage(
               generatedSignature,
@@ -707,7 +730,7 @@ export class ProcedureService {
               maxWidth,
               maxHeight,
               undefined,
-              "FAST",
+              "FAST"
             );
           } catch (error) {
             console.error("Failed to generate signature:", error);
@@ -736,7 +759,7 @@ export class ProcedureService {
         y: number,
         stampImage: string,
         maxWidth: number = 20,
-        maxHeight: number = 20,
+        maxHeight: number = 20
       ) => {
         try {
           pdf.addImage(
@@ -747,7 +770,7 @@ export class ProcedureService {
             maxWidth,
             maxHeight,
             undefined,
-            "FAST",
+            "FAST"
           );
         } catch (error) {
           console.error("Failed to add stamp image:", error);
@@ -771,7 +794,7 @@ export class ProcedureService {
       pdf.text(
         `Date: ${new Date(authorDate).toLocaleDateString("fr-FR")}`,
         leftMargin + 3,
-        yPosition + 15,
+        yPosition + 15
       );
 
       // Add signature
@@ -783,7 +806,7 @@ export class ProcedureService {
         procedure.info.author,
         procedure.info.authorSignature?.signatureImage,
         25,
-        5,
+        5
       );
 
       // Add stamp if provided
@@ -795,7 +818,7 @@ export class ProcedureService {
           stampY,
           procedure.info.authorSignature.stampImage,
           20,
-          20,
+          20
         );
       }
 
@@ -807,19 +830,19 @@ export class ProcedureService {
           leftMargin + signatureBoxWidth + 10,
           tempY,
           signatureBoxWidth,
-          signatureBoxHeight,
+          signatureBoxHeight
         );
         pdf.setFont("helvetica", "bold");
         pdf.text(
           "Vérifié par:",
           leftMargin + signatureBoxWidth + 13,
-          tempY + 5,
+          tempY + 5
         );
         pdf.setFont("helvetica", "normal");
         pdf.text(
           procedure.info.reviewer,
           leftMargin + signatureBoxWidth + 13,
-          tempY + 10,
+          tempY + 10
         );
 
         const reviewerDate =
@@ -827,7 +850,7 @@ export class ProcedureService {
         pdf.text(
           `Date: ${new Date(reviewerDate).toLocaleDateString("fr-FR")}`,
           leftMargin + signatureBoxWidth + 13,
-          tempY + 15,
+          tempY + 15
         );
 
         // Add signature
@@ -839,7 +862,7 @@ export class ProcedureService {
           procedure.info.reviewer,
           procedure.info.reviewerSignature?.signatureImage,
           25,
-          5,
+          5
         );
 
         // Add stamp if provided
@@ -852,7 +875,7 @@ export class ProcedureService {
             reviewerStampY,
             procedure.info.reviewerSignature.stampImage,
             20,
-            20,
+            20
           );
         }
       }
@@ -864,7 +887,7 @@ export class ProcedureService {
         leftMargin,
         yPosition,
         pageWidth - leftMargin - rightMargin,
-        signatureBoxHeight,
+        signatureBoxHeight
       );
       pdf.setFont("helvetica", "bold");
       const approverName =
@@ -877,7 +900,7 @@ export class ProcedureService {
       pdf.text(
         `Date: ${new Date(approverDate).toLocaleDateString("fr-FR")}`,
         leftMargin + 3,
-        yPosition + 10,
+        yPosition + 10
       );
 
       // Add signature
@@ -889,7 +912,7 @@ export class ProcedureService {
         approverName,
         procedure.info.approverSignature?.signatureImage,
         30,
-        6,
+        6
       );
 
       // Add stamp if provided (cachet is recommended for approver)
@@ -901,7 +924,7 @@ export class ProcedureService {
           approverStampY,
           procedure.info.approverSignature.stampImage,
           22,
-          22,
+          22
         );
       }
 
@@ -984,8 +1007,8 @@ export class ProcedureService {
         // QUOI - Description de l'étape
         pdf.rect(xPos, yPosition, colWidths[0], rowHeight);
         const quoiLines = pdf.splitTextToSize(
-          step.description,
-          colWidths[0] - 3,
+          this.removeAccents(step.description),
+          colWidths[0] - 3
         );
         pdf.text(quoiLines.slice(0, 4), xPos + 1.5, yPosition + 4);
         xPos += colWidths[0];
@@ -995,16 +1018,19 @@ export class ProcedureService {
         const commentText = step.howTo
           ? step.howTo
           : step.documents.length > 0
-            ? step.documents.join(", ")
-            : "Selon procedure standard";
-        const commentLines = pdf.splitTextToSize(commentText, colWidths[1] - 3);
+          ? step.documents.join(", ")
+          : "Selon procedure standard";
+        const commentLines = pdf.splitTextToSize(
+          this.removeAccents(commentText),
+          colWidths[1] - 3
+        );
         pdf.text(commentLines.slice(0, 4), xPos + 1.5, yPosition + 4);
         xPos += colWidths[1];
 
         // QUAND - Durée
         pdf.rect(xPos, yPosition, colWidths[2], rowHeight);
         const quandText = step.duration || "Variable";
-        pdf.text(quandText, xPos + 1.5, yPosition + 10);
+        pdf.text(this.removeAccents(quandText), xPos + 1.5, yPosition + 10);
         xPos += colWidths[2];
 
         // QUI - Personnes concernées
@@ -1013,7 +1039,10 @@ export class ProcedureService {
           step.concernedPersons && step.concernedPersons.length > 0
             ? step.concernedPersons.join(", ")
             : "Tout le personnel";
-        const quiLines = pdf.splitTextToSize(quiText, colWidths[3] - 3);
+        const quiLines = pdf.splitTextToSize(
+          this.removeAccents(quiText),
+          colWidths[3] - 3
+        );
         pdf.text(quiLines.slice(0, 3), xPos + 1.5, yPosition + 4);
         xPos += colWidths[3];
 
@@ -1023,22 +1052,28 @@ export class ProcedureService {
           step.documents.length > 0
             ? step.documents.slice(0, 2).join(", ")
             : "Registres qualite";
-        const moyensLines = pdf.splitTextToSize(moyensText, colWidths[4] - 3);
+        const moyensLines = pdf.splitTextToSize(
+          this.removeAccents(moyensText),
+          colWidths[4] - 3
+        );
         pdf.text(moyensLines.slice(0, 3), xPos + 1.5, yPosition + 4);
         xPos += colWidths[4];
 
         // KPI - Indicateur
         pdf.rect(xPos, yPosition, colWidths[5], rowHeight);
         const kpiText = stepIndicators.get(index) || "Conformite";
-        const kpiLines = pdf.splitTextToSize(kpiText, colWidths[5] - 3);
+        const kpiLines = pdf.splitTextToSize(
+          this.removeAccents(kpiText),
+          colWidths[5] - 3
+        );
         pdf.text(kpiLines.slice(0, 3), xPos + 1.5, yPosition + 4);
         xPos += colWidths[5];
 
         // RESPONSABLE
         pdf.rect(xPos, yPosition, colWidths[6], rowHeight);
         const respLines = pdf.splitTextToSize(
-          step.responsible,
-          colWidths[6] - 3,
+          this.removeAccents(step.responsible),
+          colWidths[6] - 3
         );
         pdf.text(respLines.slice(0, 3), xPos + 1.5, yPosition + 4);
         xPos += colWidths[6];
@@ -1066,7 +1101,7 @@ export class ProcedureService {
       const footerRef = `Réf: ${classificationCode || "N/A"} | Version: ${
         procedure.info.version
       } | Date: ${effectiveDate.toLocaleDateString(
-        "fr-FR",
+        "fr-FR"
       )} | Expire: ${expirationTextFooter} | Page ${currentPageNumber}/${currentPageNumber}`;
 
       pdf.text(footerRef, landscapeWidth / 2, landscapeHeight - 5, {
@@ -1091,7 +1126,7 @@ export class ProcedureService {
             headerY,
             pageWidth - leftMargin - rightMargin,
             headerHeight,
-            "S",
+            "S"
           );
 
           // Logo avec initiales
@@ -1111,7 +1146,7 @@ export class ProcedureService {
           const maxTitleWidth = 60;
           const titleForHeader = pdf.splitTextToSize(
             procedure.info.title,
-            maxTitleWidth,
+            maxTitleWidth
           )[0];
           pdf.text(titleForHeader, leftMargin + 5, headerY + 15);
 
@@ -1120,7 +1155,7 @@ export class ProcedureService {
             leftMargin + 70,
             headerY,
             leftMargin + 70,
-            headerY + headerHeight,
+            headerY + headerHeight
           );
 
           // Référence
@@ -1143,7 +1178,7 @@ export class ProcedureService {
           pdf.text(
             effectiveDate.toLocaleDateString("fr-FR"),
             leftMargin + 87,
-            headerY + 16,
+            headerY + 16
           );
 
           // Date d'expiration si disponible
@@ -1154,7 +1189,7 @@ export class ProcedureService {
             pdf.text(
               expirationDate.toLocaleDateString("fr-FR"),
               leftMargin + 89,
-              headerY + 21,
+              headerY + 21
             );
           }
 
@@ -1165,7 +1200,7 @@ export class ProcedureService {
             `${i}/${totalPages}`,
             pageWidth - rightMargin - 5,
             headerY + 13,
-            { align: "right" },
+            { align: "right" }
           );
         }
 
@@ -1184,7 +1219,7 @@ export class ProcedureService {
             "PHARMA QMS - Systeme de Management de la Qualite",
             pageWidth - rightMargin,
             footerY,
-            { align: "right" },
+            { align: "right" }
           );
         }
       }
@@ -1219,7 +1254,7 @@ export class ProcedureService {
       throw new Error(
         `Erreur lors de la generation du PDF: ${
           error instanceof Error ? error.message : "Erreur inconnue"
-        }`,
+        }`
       );
     }
   }

@@ -140,18 +140,20 @@ class OrdonnancierService {
     pdf.text(`Total de délivrances: ${entries.length}`, margin, yPosition);
     yPosition += 8;
 
-    const colWidths = [12, 32, 25, 18, 18, 28, 18, 45, 20, 20];
+    const colWidths = [10, 15, 20, 25, 18, 25, 25, 20, 12, 15, 25, 15];
     const headers = [
-      'Numéro',
-      'Désignation du produit\n(Nom, forme\npharmaceutique et\nprésentation)',
-      'Dénomination\ncommune\ninternationale',
-      'Quantité',
-      'Unité\n(plaquette,\nboite,\nampoule)',
-      'Prix',
-      'Prescripteur',
-      'Formation sanitaire ayant prescrite',
-      'Date de\nprescription',
-      'Date de\ndispensation'
+      'N°',
+      'PRESCRIPTION\nDISPENSATION',
+      'DATE',
+      'PRESCRIPTEUR\n(NOM ET N°\nINSCRIPTION À\nL\'ORDRE\nCONTACT)',
+      'QUALITÉ DU\nPRESCRIPTEUR',
+      'FORMATION\nSANITAIRE\nAYANT\nL\'ORDONNANCE',
+      'PRESCRIPTION\nSPÉCIALITÉS\nDCI ET\nPRÉSENTATION',
+      'PRESCRIPTION\nFORME\nGALÉNIQUE ET\nDOSAGE',
+      'RESTE\n(à livrer)',
+      'QUANTITÉ\nDÉLIVRÉE',
+      'NOM ET CONTACT DU\nMALADE OU DE LA\nPERSONNE\nMANDATÉE PAR LE\nDISPENSATEUR',
+      'PRIX\nUNITAIRE\n(FCFA)'
     ];
 
     pdf.setFillColor(230, 230, 230);
@@ -207,17 +209,24 @@ class OrdonnancierService {
       const rowHeight = 12;
       xPosition = margin;
 
+      const prescInfo = `${entry.prescripteur.nomPrenoms}\n${entry.prescripteur.numeroOrdre}\n${entry.prescripteur.contact || ''}`;
+      const produitInfo = `${entry.produit.specialiteDCI}\n${entry.produit.presentation || ''}`;
+      const formeInfo = `${entry.produit.formeGalenique || ''}\n${entry.produit.dosage || ''}`;
+      const patientInfo = `${entry.patient.nomPrenoms}\n${entry.patient.contact || ''}`;
+
       const rowData = [
         entry.numeroOrdre.toString(),
-        entry.produit.nature,
-        '',
-        entry.produit.quantite.toString(),
-        entry.produit.dose || '',
-        `${entry.prixVente} F`,
-        entry.prescripteur.nomPrenoms,
-        entry.patient.adresse || '',
-        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
-        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')
+        'PRESCRIPTION',
+        `${new Date(entry.datePrescription).toLocaleDateString('fr-FR')}\n${new Date(entry.dateDispensation).toLocaleDateString('fr-FR')}`,
+        prescInfo,
+        entry.prescripteur.qualite || '',
+        entry.formationSanitaire || '',
+        produitInfo,
+        formeInfo,
+        entry.produit.resteALivrer.toString(),
+        entry.produit.quantiteDelivree.toString(),
+        patientInfo,
+        `${entry.prixUnitaire} F`
       ];
 
       rowData.forEach((data, i) => {
@@ -337,30 +346,46 @@ class OrdonnancierService {
     csvContent += `\n`;
 
     csvContent += [
-      'Numéro',
-      'Désignation du produit',
-      'Dénomination commune internationale',
-      'Quantité',
-      'Unité',
-      'Prix (FCFA)',
+      'N°',
+      'PRESCRIPTION/DISPENSATION',
+      'Date Prescription',
+      'Date Dispensation',
       'Prescripteur',
-      'Formation sanitaire ayant prescrite',
-      'Date de prescription',
-      'Date de dispensation'
+      'N° Ordre Prescripteur',
+      'Contact Prescripteur',
+      'Qualité Prescripteur',
+      'Formation Sanitaire',
+      'Spécialités DCI',
+      'Présentation',
+      'Forme Galénique',
+      'Dosage',
+      'Reste à livrer',
+      'Quantité Délivrée',
+      'Patient/Mandataire',
+      'Contact Patient',
+      'Prix Unitaire (FCFA)'
     ].join(';') + '\n';
 
     entries.forEach(entry => {
       const row = [
         entry.numeroOrdre.toString(),
-        `"${entry.produit.nature.replace(/"/g, '""')}"`,
-        `"${(entry.produit.dci || '').replace(/"/g, '""')}"`,
-        entry.produit.quantite.toString(),
-        `"${(entry.produit.dose || '').replace(/"/g, '""')}"`,
-        entry.prixVente.toString(),
+        'PRESCRIPTION',
+        new Date(entry.datePrescription).toLocaleDateString('fr-FR'),
+        new Date(entry.dateDispensation).toLocaleDateString('fr-FR'),
         `"${entry.prescripteur.nomPrenoms.replace(/"/g, '""')}"`,
-        `"${(entry.patient.adresse || '').replace(/"/g, '""')}"`,
-        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR'),
-        new Date(entry.dateDelivrance).toLocaleDateString('fr-FR')
+        `"${entry.prescripteur.numeroOrdre.replace(/"/g, '""')}"`,
+        `"${(entry.prescripteur.contact || '').replace(/"/g, '""')}"`,
+        `"${(entry.prescripteur.qualite || '').replace(/"/g, '""')}"`,
+        `"${(entry.formationSanitaire || '').replace(/"/g, '""')}"`,
+        `"${entry.produit.specialiteDCI.replace(/"/g, '""')}"`,
+        `"${(entry.produit.presentation || '').replace(/"/g, '""')}"`,
+        `"${(entry.produit.formeGalenique || '').replace(/"/g, '""')}"`,
+        `"${(entry.produit.dosage || '').replace(/"/g, '""')}"`,
+        entry.produit.resteALivrer.toString(),
+        entry.produit.quantiteDelivree.toString(),
+        `"${entry.patient.nomPrenoms.replace(/"/g, '""')}"`,
+        `"${(entry.patient.contact || '').replace(/"/g, '""')}"`,
+        entry.prixUnitaire.toString()
       ];
       csvContent += row.join(';') + '\n';
     });
