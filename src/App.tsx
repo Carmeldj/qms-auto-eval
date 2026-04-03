@@ -24,7 +24,7 @@ const IndicatorsReviewModule = lazy(() => import("./components/IndicatorsReviewM
 const IndicatorTrackingModule = lazy(() => import("./components/IndicatorTrackingModule"));
 
 function App() {
-
+console.log(import.meta.env.VITE_DEV_MODE);
 
   return (
     <div className="min-h-screen bg-gray-50">
