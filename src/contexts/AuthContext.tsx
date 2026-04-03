@@ -28,13 +28,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // COMMENTED OUT AUTH - Always authenticated for development
-  // const isAuthenticated = !!user;
-  const isAuthenticated = true; // DEV MODE: Skip auth
+  const isAuthenticated = !!user;
+  // const isAuthenticated = true; // DEV MODE: Skip auth
 
   // Check if user is already authenticated on app load
   const checkAuthStatus = async () => {
     // COMMENTED OUT AUTH - Skip auth check for development
-    setIsLoading(false);
+    // setIsLoading(false);
     const token = localStorage.getItem("accessToken");
     const tenantId = localStorage.getItem("tenantId");
     const rawUser = localStorage.getItem("user");
