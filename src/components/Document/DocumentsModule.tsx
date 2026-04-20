@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FileText, Download, Clock, Plus, Building, Users, Wrench, MessageCircle, AlertTriangle, Stethoscope, GraduationCap, ClipboardList, GitBranch } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Download, Clock, Plus, Building, Users, Wrench, MessageCircle, AlertTriangle, Stethoscope, GraduationCap, ClipboardList, GitBranch, FolderOpen } from 'lucide-react';
 import { documentTemplates, getAllDocumentCategories, getDocumentTemplatesByCategory } from '../../data/documentTemplates';
 import DocumentForm from './DocumentForm';
 import CAPAForm from './CAPAForm';
@@ -10,17 +10,31 @@ import QualityManualForm from './QualityManualForm';
 import { ProcessSheet } from '../../types/documents';
 import { ProcessSheetService } from '../../services/ProcessSheetService';
 import { processTemplates } from '../../data/processSheetTemplates';
+import { documentApi, DocumentResponse } from '../../api/documents';
 
 const DocumentsModule: React.FC = () => {
   const [view, setView] = useState<'list' | 'form' | 'process-list'>('list');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedProcess, setSelectedProcess] = useState<{ code: string; name: string } | null>(null);
+  const [savedDocuments, setSavedDocuments] = useState<DocumentResponse[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+  const [activeTab, setActiveTab] = useState<'templates' | 'saved'>('templates');
 
   const categories = getAllDocumentCategories();
-  const filteredTemplates = selectedCategory === 'all' 
-    ? documentTemplates 
+  const filteredTemplates = selectedCategory === 'all'
+    ? documentTemplates
     : getDocumentTemplatesByCategory(selectedCategory);
+
+  useEffect(() => {
+    if (activeTab === 'saved') {
+      setLoadingDocs(true);
+      documentApi.getDocuments()
+        .then(setSavedDocuments)
+        .catch(console.error)
+        .finally(() => setLoadingDocs(false));
+    }
+  }, [activeTab]);
 
   const handleCreateDocument = (templateId: string) => {
     // Si c'est les fiches de processus, afficher la liste des processus
@@ -171,6 +185,64 @@ const DocumentsModule: React.FC = () => {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="bg-white rounded-xl shadow-md p-3 sm:p-4 mb-6 sm:mb-8">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('templates')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'templates' ? 'text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            style={activeTab === 'templates' ? { backgroundColor: '#009688' } : {}}
+          >
+            <FileText className="h-4 w-4" />
+            <span>Créer un document</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('saved')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'saved' ? 'text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            style={activeTab === 'saved' ? { backgroundColor: '#009688' } : {}}
+          >
+            <FolderOpen className="h-4 w-4" />
+            <span>Mes documents</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Saved Documents Tab */}
+      {activeTab === 'saved' && (
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Documents enregistrés</h3>
+          {loadingDocs ? (
+            <div className="text-center py-8 text-gray-500">Chargement...</div>
+          ) : savedDocuments.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">Aucun document enregistré</div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {savedDocuments.map(doc => (
+                <div key={doc.id} className="border border-gray-200 rounded-lg p-4 flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900 text-sm truncate">{doc.title}</h4>
+                    <p className="text-xs text-gray-500 mt-1">{doc.category} · {doc.fileSize}</p>
+                    <p className="text-xs text-gray-400">{new Date(doc.createdAt).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                  <a
+                    href={doc.filePath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-1 text-white px-3 py-2 rounded-lg text-sm shrink-0"
+                    style={{ backgroundColor: '#009688' }}
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Télécharger</span>
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Templates Tab Content */}
+      {activeTab === 'templates' && <>
       {/* Category Filter */}
       <div className="bg-white rounded-xl shadow-md p-3 sm:p-4 mb-6 sm:mb-8">
         <div className="flex flex-wrap gap-2">
@@ -308,6 +380,7 @@ const DocumentsModule: React.FC = () => {
           </p>
         </div>
       </div>
+      </>}
     </div>
   );
 };

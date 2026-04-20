@@ -15,6 +15,7 @@ import {
 import { documentService } from "../../services/DocumentService";
 import ClassificationBadge from "../ClassificationBadge";
 import { uploadAndSaveDocument } from "../../utils/documentUploadHelper";
+import { downloadPDFBlob } from "../../utils/pdfUploadHelper";
 import { useAuth } from "../../contexts/AuthContext";
 import { shareToWhatsApp } from "../../services/WhatsAppService";
 
@@ -94,7 +95,6 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
       const result = await documentService.generatePDF(template, documentData);
       const { blob, fileName } = result;
 
-      // Upload and save to API (this already handles the download)
       await uploadAndSaveDocument(blob, fileName, {
         title: template.title,
         type: template.category,
@@ -111,7 +111,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({ template, onCancel }) => {
         tags: [template.category, template.id],
       });
 
-      // Show success notification
+      downloadPDFBlob(blob, fileName);
       setShowSuccessNotification(true);
       if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
       successTimeoutRef.current = setTimeout(() => setShowSuccessNotification(false), 5000);

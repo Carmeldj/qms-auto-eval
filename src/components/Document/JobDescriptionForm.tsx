@@ -3,6 +3,9 @@ import { X, Sparkles } from 'lucide-react';
 import { DocumentTemplate } from '../../types/documents';
 import { getJobDescriptionDefault } from '../../data/jobDescriptionDefaults';
 import { DocumentService } from '../../services/DocumentService';
+import { downloadPDFBlob } from '../../utils/pdfUploadHelper';
+import { uploadAndSaveDocument } from '../../utils/documentUploadHelper';
+import { DocumentAccessLevel, DocumentStatus } from '../../types/documents';
 
 interface JobDescriptionFormProps {
   template: DocumentTemplate;
@@ -54,10 +57,9 @@ const JobDescriptionForm: React.FC<JobDescriptionFormProps> = ({ template, onCan
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Create DocumentData object with proper structure
     const documentData = {
       id: `DOC-${Date.now()}`,
       templateId: template.id,
@@ -65,7 +67,24 @@ const JobDescriptionForm: React.FC<JobDescriptionFormProps> = ({ template, onCan
       createdAt: new Date().toISOString()
     };
 
-    DocumentService.getInstance().generatePDF(template, documentData);
+    try {
+      const { blob, fileName } = await DocumentService.getInstance().generatePDF(template, documentData);
+      await uploadAndSaveDocument(blob, fileName, {
+        title: template.title,
+        type: template.category,
+        category: template.category,
+        description: template.description,
+        author: formData.pharmacyName || formData.titulaire || 'Système',
+        version: '1.0',
+        accessLevel: DocumentAccessLevel.RESTRICTED,
+        status: DocumentStatus.DRAFT,
+        tags: [template.category, template.id],
+      });
+      downloadPDFBlob(blob, fileName);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Erreur lors de la génération du PDF');
+    }
     onCancel();
   };
 
