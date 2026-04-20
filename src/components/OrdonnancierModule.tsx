@@ -102,7 +102,7 @@ const OrdonnancierModule: React.FC = () => {
   const loadEntries = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/ordonnancier_entries?order=date_delivrance.desc`, {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/ordonnancier_entries?order=date_dispensation.desc`, {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
