@@ -130,23 +130,23 @@ export const documentApi = {
   },
 
   // Upload document file
-  uploadDocumentFile: async (
-    file: File
-  ): Promise<{ filePath: string; fileSize: string; fileType: string }> => {
+  uploadDocumentFile: async (file: File): Promise<string> => {
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await api.post<{
-        filePath: string;
-        fileSize: string;
-        fileType: string;
-      }>("/documents/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return response.data;
+      const response = await api.post<{ url: string }>(
+        "files/upload/documents",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "x-tenant-id": localStorage.getItem("tenantId"),
+          },
+        }
+      );
+
+      return response.data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
       throw new Error(

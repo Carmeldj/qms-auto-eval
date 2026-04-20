@@ -46,7 +46,7 @@ export const uploadAndSaveDocument = async (
     });
 
     // Upload the PDF file to the REST API
-    const { filePath: uploadedFilePath } = await documentApi.uploadDocumentFile(pdfFile);
+    const uploadedFilePath = await documentApi.uploadDocumentFile(pdfFile);
 
     // Get actual file size
     const actualFileSize = formatFileSize(blob.size);
