@@ -214,7 +214,7 @@ class OrdonnancierService {
     pdf.text(`Total de délivrances: ${entries.length}`, margin, yPosition);
     yPosition += 8;
 
-    const colWidths = [10, 15, 20, 25, 18, 25, 25, 20, 12, 15, 25, 15];
+    const colWidths = [10, 20, 20, 35, 20, 30, 30, 20, 12, 15, 35, 20];
     const headers = [
       "N°",
       "PRESCRIPTION\nDISPENSATION",
@@ -333,41 +333,19 @@ class OrdonnancierService {
     );
     yPosition += 5;
 
-    // Afficher le nom du pharmacien si fourni (en tant qu'image)
+    // Fix: Use direct text instead of image to avoid blurring
     if (pharmacistName) {
-      try {
-        const nameImage = signatureGenerator.generateTextImage(
-          `Pharmacien: ${pharmacistName}`,
-          120,
-          15,
-          9,
-        );
-        pdf.addImage(
-          nameImage,
-          "PNG",
-          margin,
-          yPosition - 3,
-          60,
-          5,
-          undefined,
-          "FAST",
-        );
-        yPosition += 5;
-      } catch (error) {
-        console.error("Error generating pharmacist name image:", error);
-        // Fallback au texte si erreur
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(9);
-        pdf.text(`Pharmacien: ${pharmacistName}`, margin, yPosition);
-        yPosition += 5;
-      }
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(`Pharmacien: ${pharmacistName}`, margin, yPosition);
+      yPosition += 7;
     }
 
     // Afficher signature et cachet
     if (signatureImage || stampImage) {
-      const signatureWidth = 30;
-      const signatureHeight = 10;
-      const stampSize = 20;
+      const signatureWidth = 40;
+      const signatureHeight = 15;
+      const stampSize = 25;
 
       // Signature à gauche
       if (signatureImage) {
@@ -387,10 +365,10 @@ class OrdonnancierService {
         }
       }
 
-      // Cachet à droite de la signature
+      // Fix: Position stamp further to the right to avoid overlap
       if (stampImage) {
         try {
-          const stampX = margin + (signatureImage ? signatureWidth + 5 : 0);
+          const stampX = margin + 50;
           pdf.addImage(
             stampImage,
             "PNG",
@@ -406,7 +384,7 @@ class OrdonnancierService {
         }
       }
 
-      yPosition += Math.max(signatureHeight, stampSize);
+      yPosition += Math.max(signatureHeight, stampSize) + 5;
     } else {
       // Rectangle vide si pas de signature/cachet
       pdf.setLineWidth(0.3);
