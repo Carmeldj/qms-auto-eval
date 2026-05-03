@@ -20,7 +20,7 @@ export interface OrdonnancierEntry {
     formeGalenique: string;
     dosage: string;
     quantiteDelivree: number;
-    resteALivrer: number;
+    liste: "I" | "II" | null;
   };
   prixUnitaire: number;
   pharmacien: {
@@ -28,7 +28,7 @@ export interface OrdonnancierEntry {
     signature: string;
   };
   prescriptionFileUrl?: string;
-  prescriptionFileType?: 'pdf' | 'jpg' | 'jpeg' | 'png';
+  prescriptionFileType?: "pdf" | "jpg" | "jpeg" | "png";
   prescriptionPasswordHash?: string;
   prescriptionUploadedAt?: string;
   createdAt: string;
@@ -41,7 +41,6 @@ export interface OrdonnancierFilter {
   dateFin?: string;
   trimestre?: number;
   annee?: number;
-  
 }
 
 export interface TrimestrialReport {
@@ -59,20 +58,20 @@ export interface TrimestrialReport {
 }
 
 export const PRODUITS_SOUS_CONTROLE = [
-  'Morphine',
-  'Codéine',
-  'Méthadone',
-  'Fentanyl',
-  'Tramadol',
-  'Benzodiazépines',
-  'Barbituriques',
-  'Amphétamines',
-  'Autres stupéfiants'
+  "Morphine",
+  "Codéine",
+  "Méthadone",
+  "Fentanyl",
+  "Tramadol",
+  "Benzodiazépines",
+  "Barbituriques",
+  "Amphétamines",
+  "Autres stupéfiants",
 ];
 
 export const TRIMESTRES = [
-  { numero: 1, label: '1er Trimestre', mois: [1, 2, 3] },
-  { numero: 2, label: '2ème Trimestre', mois: [4, 5, 6] },
-  { numero: 3, label: '3ème Trimestre', mois: [7, 8, 9] },
-  { numero: 4, label: '4ème Trimestre', mois: [10, 11, 12] }
+  { numero: 1, label: "1er Trimestre", mois: [1, 2, 3] },
+  { numero: 2, label: "2ème Trimestre", mois: [4, 5, 6] },
+  { numero: 3, label: "3ème Trimestre", mois: [7, 8, 9] },
+  { numero: 4, label: "4ème Trimestre", mois: [10, 11, 12] },
 ];

@@ -5,7 +5,7 @@ import {
   getCategoryByCode,
   getProcessForCategory,
 } from "../data/documentClassification";
-import { signatureGenerator } from "./SignatureGenerator";
+// import { signatureGenerator } from "./SignatureGenerator";
 import { uploadAndSaveDocument } from "../utils/documentUploadHelper";
 import { downloadPDFBlob } from "../utils/pdfUploadHelper";
 import { DocumentAccessLevel, DocumentStatus } from "../types/documents";
@@ -214,7 +214,7 @@ class OrdonnancierService {
     pdf.text(`Total de délivrances: ${entries.length}`, margin, yPosition);
     yPosition += 8;
 
-    const colWidths = [10, 20, 20, 35, 20, 30, 30, 20, 12, 15, 35, 20];
+    const colWidths = [10, 20, 20, 35, 20, 30, 30, 20, 15, 15, 35, 20];
     const headers = [
       "N°",
       "PRESCRIPTION\nDISPENSATION",
@@ -224,7 +224,7 @@ class OrdonnancierService {
       "FORMATION\nSANITAIRE\nAYANT\nL'ORDONNANCE",
       "PRESCRIPTION\nSPÉCIALITÉS\nDCI ET\nPRÉSENTATION",
       "PRESCRIPTION\nFORME\nGALÉNIQUE ET\nDOSAGE",
-      "RESTE\n(à livrer)",
+      "LISTE\n(I ou II)",
       "QUANTITÉ\nDÉLIVRÉE",
       "NOM ET CONTACT DU\nMALADE OU DE LA\nPERSONNE\nMANDATÉE PAR LE\nDISPENSATEUR",
       "PRIX\nUNITAIRE\n(FCFA)",
@@ -307,7 +307,7 @@ class OrdonnancierService {
         entry.formationSanitaire || "",
         produitInfo,
         formeInfo,
-        entry.produit.resteALivrer.toString(),
+        entry.produit.liste || "-",
         entry.produit.quantiteDelivree.toString(),
         patientInfo,
         `${entry.prixUnitaire} F`,
@@ -471,7 +471,7 @@ class OrdonnancierService {
         "Présentation",
         "Forme Galénique",
         "Dosage",
-        "Reste à livrer",
+        "Liste",
         "Quantité Délivrée",
         "Patient/Mandataire",
         "Contact Patient",
@@ -493,7 +493,7 @@ class OrdonnancierService {
         `"${(entry.produit.presentation || "").replace(/"/g, '""')}"`,
         `"${(entry.produit.formeGalenique || "").replace(/"/g, '""')}"`,
         `"${(entry.produit.dosage || "").replace(/"/g, '""')}"`,
-        entry.produit.resteALivrer.toString(),
+        entry.produit.liste || "",
         entry.produit.quantiteDelivree.toString(),
         `"${entry.patient.nomPrenoms.replace(/"/g, '""')}"`,
         `"${(entry.patient.contact || "").replace(/"/g, '""')}"`,
